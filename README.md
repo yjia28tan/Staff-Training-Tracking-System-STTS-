@@ -1,7 +1,7 @@
 # Staff-Training-Tracking-System-STTS-
-5001CEM Software Engineering\
+5001CEM Software Engineering
 
-Staff Training Tracking System (STTS)\
+Staff Training Tracking System (STTS)
 
 Members:\
 Derrick Chew Min Chiang\
