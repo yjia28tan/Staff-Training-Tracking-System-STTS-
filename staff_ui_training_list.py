@@ -127,6 +127,14 @@ class Staff_MainWindow(object):
         self.logout_button.setIcon(icon1)
         self.logout_button.setIconSize(QtCore.QSize(45, 45))
         self.logout_button.setObjectName("logout_button")
+
+        # Notification dot
+        self.notification_menu_dot = QtWidgets.QLabel(self.side_frame)
+        self.notification_menu_dot.setGeometry(QtCore.QRect(170, 570, 21, 21))
+        self.notification_menu_dot.setStyleSheet("border: none;")
+        self.notification_menu_dot.setText("")
+        self.notification_menu_dot.setScaledContents(True)
+        self.notification_menu_dot.setObjectName("notification_menu_dot")
         self.horizontalLayout.addWidget(self.side_frame)
 
         # Right frame
