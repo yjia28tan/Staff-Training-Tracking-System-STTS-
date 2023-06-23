@@ -231,7 +231,8 @@ class Staff_MainWindow(object):
         # search input and button
         self.search_bar = QtWidgets.QLineEdit(self.main_frame)
         self.search_bar.setGeometry(QtCore.QRect(805, 60, 141, 25))
-        self.search_bar.setStyleSheet("color: white;\nborder-radius: 10px;")
+        self.search_bar.setStyleSheet("QLineEdit {color: white;}\nQLineEdit::placeholder {color: white;}\nQLineEdit "
+                                      "{border-radius: 10px;\nborder: 1px solid white;}\n"))
         self.search_bar.setObjectName("search_bar")
         self.search_button = QtWidgets.QPushButton(self.main_frame)
         self.search_button.setGeometry(QtCore.QRect(950, 57, 31, 34))
