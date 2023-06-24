@@ -183,6 +183,7 @@ class MyTraining(QMainWindow):
         self.department_label_2.setText(_translate("MainWindow", "Department: "))
         self.description_label.setText(_translate("MainWindow", "Description: "))
         self.view_button.setText(_translate("MainWindow", "View More"))
+        self.search_bar.setPlaceholderText(_translate("MainWindow", "  Search..."))
 
 
 if __name__ == "__main__":
