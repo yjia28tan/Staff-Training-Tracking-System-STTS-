@@ -14,15 +14,17 @@ def connectDatabase():
     except:
         QDialog.showerror('Error', 'Cannot connect to database!')
 
-
-
-
 class MyTraining(QMainWindow):
 
     def __init__(self):
         super(MyTraining, self).__init__()
 
         loadUi("mytraining.ui", self)
+
+        # Define the size and position of each frame
+        frame_width = 931
+        frame_height = 251
+        frame_spacing = 20
 
         # Right frame
         self.main_frame = QtWidgets.QFrame(self.centralwidget)
@@ -34,7 +36,7 @@ class MyTraining(QMainWindow):
         # Title for the page
         # need to reset the title after switch tab
         self.header = QtWidgets.QLabel(self.main_frame)
-        self.header.setGeometry(QtCore.QRect(14, 14, 971, 81))
+        self.header.setGeometry(QtCore.QRect(10, 10, 971, 81))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -56,12 +58,6 @@ class MyTraining(QMainWindow):
         self.scrollArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
-        self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 945, 581))
-        self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
-
-        self.main_layout = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_2)
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
 
         # search input and button
         self.search_bar = QtWidgets.QLineEdit(self.main_frame)
@@ -77,113 +73,103 @@ class MyTraining(QMainWindow):
         icon2.addPixmap(QtGui.QPixmap("search.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.search_button.setIcon(icon2)
         self.search_button.setIconSize(QtCore.QSize(25, 25))
+        self.search_bar.setPlaceholderText("  Search...")
         self.search_button.setObjectName("search_button")
 
         self.horizontalLayout.addWidget(self.main_frame)
         self.setCentralWidget(self.centralwidget)
 
-        connectDatabase()
-        self.cursor = connect.cursor()
-        self.cursor.execute("SELECT * FROM application WHERE employeeID = 1")
-        rows = self.cursor.fetchall()
-        # global count
-        count = 0
-        increment = 0
-        for row in rows:
-            self.printContainers(increment, count)
-            increment += 270
-            count += 1
+        # connectDatabase()
+        # self.cursor = connect.cursor()
+        # self.cursor.execute("SELECT * FROM application WHERE employeeID = 1")
+        #
+        # rows = len(self.cursor.fetchall())
 
-    def printContainers(self, increment, number):
-        # a frame to display training list details
-        # template for each the training list
-        self.training = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
-        self.training.setGeometry(QtCore.QRect(0, 20 + increment, 931, 251))
-        self.training.setStyleSheet("border: 1px solid white;\nbackground: #8A8A8A;\nborder-radius: 10px;")
-        self.training.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.training.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.training.setObjectName(f"training{number}")
-        new_layout = QtWidgets.QVBoxLayout(self.training)
+        rows = 10
 
-        self.training_image = QtWidgets.QLabel(self.training)
-        self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
-        self.training_image.setText("")  # here to set the data from database
+        # Scroll area content widget
+        self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, frame_width, rows * (frame_height + frame_spacing)))
+        self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
 
-        self.training_image.setObjectName(f"training_image{number}")
-        new_layout.addWidget(self.training_image)
+        # Loop to create and position the frames
+        for item in range(rows):
+            self.training = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
+            self.training.setGeometry(QtCore.QRect(0, item * (frame_height + frame_spacing), frame_width, frame_height))
+            self.training.setStyleSheet("border: 1px solid white;\nbackground: #8A8A8A;\nborder-radius: 10px;")
+            self.training.setFrameShape(QtWidgets.QFrame.StyledPanel)
+            self.training.setFrameShadow(QtWidgets.QFrame.Raised)
+            self.training.setObjectName("training")
+            self.training_image = QtWidgets.QLabel(self.training)
+            self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
+            self.training_image.setText("")
+            self.training_image.setObjectName("training_image")
 
-        self.department_label_2 = QtWidgets.QLabel(self.training)
-        self.department_label_2.setGeometry(QtCore.QRect(230, 50, 111, 31))
-        font = QtGui.QFont()
-        font.setBold(True)
-        font.setWeight(75)
-        self.department_label_2.setFont(font)
-        self.department_label_2.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;")
-        self.department_label_2.setObjectName(f"department_label_2{number}")
-        new_layout.addWidget(self.department_label_2)
+            self.department_label_2 = QtWidgets.QLabel(self.training)
+            self.department_label_2.setGeometry(QtCore.QRect(230, 50, 111, 31))
+            font = QtGui.QFont()
+            font.setBold(True)
+            font.setWeight(75)
+            self.department_label_2.setFont(font)
+            self.department_label_2.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;")
+            self.department_label_2.setText("Department: ")
+            self.department_label_2.setObjectName("department_label_2")
 
-        self.department_db_2 = QtWidgets.QLabel(self.training)
-        self.department_db_2.setGeometry(QtCore.QRect(340, 50, 581, 31))
-        font = QtGui.QFont()
-        font.setPointSize(8)
-        font.setBold(False)
-        font.setWeight(50)
-        self.department_db_2.setFont(font)
-        self.department_db_2.setStyleSheet("color: white;\nfont-weight: regular;\nborder: none;"
-                                           "\nbold: none;")
-        self.department_db_2.setText("")  # here to set the data from database
+            self.department_db_2 = QtWidgets.QLabel(self.training)
+            self.department_db_2.setGeometry(QtCore.QRect(340, 50, 581, 31))
+            font = QtGui.QFont()
+            font.setPointSize(8)
+            font.setBold(False)
+            font.setWeight(50)
+            self.department_db_2.setFont(font)
+            self.department_db_2.setStyleSheet("color: white;\nfont-weight: regular;\nborder: none;\nbold: none;")
+            self.department_db_2.setText("")
+            self.department_db_2.setObjectName("department_db_2")
 
-        self.department_db_2.setObjectName(f"department_db_2{number}")
-        new_layout.addWidget(self.department_db_2)
+            self.description_label = QtWidgets.QLabel(self.training)
+            self.description_label.setGeometry(QtCore.QRect(230, 80, 101, 21))
+            font = QtGui.QFont()
+            font.setBold(True)
+            font.setWeight(75)
+            self.description_label.setFont(font)
+            self.description_label.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;")
+            self.description_label.setText("Description: ")
+            self.description_label.setObjectName("description_label")
 
-        self.description_label = QtWidgets.QLabel(self.training)
-        self.description_label.setGeometry(QtCore.QRect(230, 80, 101, 21))
-        font = QtGui.QFont()
-        font.setBold(True)
-        font.setWeight(75)
-        self.description_label.setFont(font)
-        self.description_label.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;")
-        self.description_label.setObjectName(f"description_label{number}")
-        new_layout.addWidget(self.description_label)
+            self.description_db = QtWidgets.QLabel(self.training)
+            self.description_db.setGeometry(QtCore.QRect(230, 100, 691, 81))
+            self.description_db.setStyleSheet("color: white;\nfont-weight: regular;\nborder: none;")
+            self.description_db.setText("")
+            self.description_db.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+            self.description_db.setWordWrap(True)
+            self.description_db.setObjectName("description_db")
 
-        self.description_db = QtWidgets.QLabel(self.training)
-        self.description_db.setGeometry(QtCore.QRect(230, 100, 691, 81))
-        self.description_db.setStyleSheet("color: white;\nfont-weight: regular;\nborder: none;")
-        self.description_db.setText("")  # here to set the data from database
+            self.view_button = QtWidgets.QPushButton(self.training)
+            self.view_button.setGeometry(QtCore.QRect(810, 200, 112, 34))
+            self.view_button.setStyleSheet(
+                "color: white;\nfont-weight: bold;\nborder-radius: 10px;\nbackground: #008287;")
+            self.view_button.setText("View More")
+            self.view_button.setObjectName("view_button")
 
-        self.description_db.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
-        self.description_db.setWordWrap(True)
-        self.description_db.setObjectName(f"description_db{number}")
-        new_layout.addWidget(self.description_db)
+            self.training_name_db = QtWidgets.QPushButton(self.training)
+            self.training_name_db.setGeometry(QtCore.QRect(230, 20, 691, 31))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            font.setWeight(75)
+            self.training_name_db.setFont(font)
+            self.training_name_db.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;\ntext-align: left;\n")
+            self.training_name_db.setText("")
+            self.training_name_db.setObjectName("training_name_db")
 
-        self.view_button = QtWidgets.QPushButton(self.training)
-        self.view_button.setGeometry(QtCore.QRect(810, 200, 112, 34))
-        self.view_button.setStyleSheet("color: white;\nfont-weight: bold;\nborder-radius: 10px;"
-                                       "\nbackground: #008287;")
-        self.view_button.setObjectName(f"view_button{number}")
-        new_layout.addWidget(self.view_button)
+        # Adjust the size of the scroll area's contents
+        self.scrollAreaWidgetContents_2.setMinimumHeight(rows * (frame_height + frame_spacing))
 
-        self.training_name_db = QtWidgets.QPushButton(self.training)
-        self.training_name_db.setGeometry(QtCore.QRect(230, 20, 691, 31))
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
-        self.training_name_db.setFont(font)
-        self.training_name_db.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;\ntext-align: left;\n")
-        self.training_name_db.setText("")  # here to set the data from database
+        # Set the scroll area widget
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
+        self.setCentralWidget(self.centralwidget)
+        QtCore.QMetaObject.connectSlotsByName(self)
 
-        self.training_name_db.setObjectName(f"training_name_db_{number}")
-        new_layout.addWidget(self.training_name_db)
-        self.retranslateUi()
-
-    def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-
-        self.department_label_2.setText(_translate("MainWindow", "Department: "))
-        self.description_label.setText(_translate("MainWindow", "Description: "))
-        self.view_button.setText(_translate("MainWindow", "View More"))
-        self.search_bar.setPlaceholderText(_translate("MainWindow", "  Search..."))
 
 
 if __name__ == "__main__":
@@ -192,9 +178,6 @@ if __name__ == "__main__":
 
     # Create an instance of MyTraining
     mainwindow = MyTraining()
-
-    # Set the central widget of the main window
-    mainwindow.setCentralWidget(mainwindow.centralwidget)
 
     # Show the main window
     mainwindow.show()
