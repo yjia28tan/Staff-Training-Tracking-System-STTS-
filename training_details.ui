@@ -431,12 +431,12 @@ border: none;</string>
         <string>Brochure:</string>
        </property>
       </widget>
-      <widget class="QLabel" name="description_label">
+      <widget class="QLabel" name="duration_label">
        <property name="geometry">
         <rect>
          <x>400</x>
          <y>200</y>
-         <width>111</width>
+         <width>91</width>
          <height>21</height>
         </rect>
        </property>
@@ -453,16 +453,16 @@ border: none;</string>
 border: none;</string>
        </property>
        <property name="text">
-        <string>Description:</string>
+        <string>Duration:</string>
        </property>
       </widget>
       <widget class="QLabel" name="description_db">
        <property name="geometry">
         <rect>
          <x>540</x>
-         <y>200</y>
+         <y>240</y>
          <width>411</width>
-         <height>391</height>
+         <height>351</height>
         </rect>
        </property>
        <property name="font">
@@ -814,6 +814,56 @@ border: none;</string>
        </property>
        <property name="text">
         <string>Number of participants:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="description_label">
+       <property name="geometry">
+        <rect>
+         <x>400</x>
+         <y>240</y>
+         <width>111</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+         <underline>false</underline>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: white;
+border: none;</string>
+       </property>
+       <property name="text">
+        <string>Description:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="duration_db">
+       <property name="geometry">
+        <rect>
+         <x>500</x>
+         <y>200</y>
+         <width>71</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+         <underline>false</underline>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: white;
+border: none;</string>
+       </property>
+       <property name="text">
+        <string/>
        </property>
       </widget>
      </widget>
