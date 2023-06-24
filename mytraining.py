@@ -4,15 +4,17 @@ from PyQt5.uic import loadUi
 import sys
 import sqlite3
 
+
 def connectDatabase():
     try:
         global connect
-        global cur
+        global cursor
         # connect to database
         connect = sqlite3.connect("StaffTrainingSystem")
         cursor = connect.cursor()
     except:
         QDialog.showerror('Error', 'Cannot connect to database!')
+
 
 class MyTraining(QMainWindow):
 
@@ -79,21 +81,31 @@ class MyTraining(QMainWindow):
         self.horizontalLayout.addWidget(self.main_frame)
         self.setCentralWidget(self.centralwidget)
 
-        # connectDatabase()
-        # self.cursor = connect.cursor()
-        # self.cursor.execute("SELECT * FROM application WHERE employeeID = 1")
-        #
-        # rows = len(self.cursor.fetchall())
+        connectDatabase()
+        self.cursor = connect.cursor()
+        self.cursor.execute(
+            "SELECT t.trainingName, d.departmentName, t.short_description, t.brochure, a.applicationStatus "
+            "FROM application a, training t, department d WHERE a.trainingID = t.trainingID AND "
+            "d.departmentID = t.departmentID AND employeeID = 1")  # change to ? and get the employee id form login
+        row_data = self.cursor.fetchall()  # Fetch all rows of data
+        rows = len(row_data)  # Calculate the length of fetched data
 
-        rows = 10
+        print(rows)
+        print(row_data)  # [trainingName, department name, description, brochure, application status]
+        print()
+        print(row_data[0][0])  # row_data[rows][0]
+
 
         # Scroll area content widget
         self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, frame_width, rows * (frame_height + frame_spacing)))
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, frame_width, rows *
+                                                                 (frame_height + frame_spacing)))
         self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
 
         # Loop to create and position the frames
         for item in range(rows):
+            status = row_data[item][4]
+
             self.training = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
             self.training.setGeometry(QtCore.QRect(0, item * (frame_height + frame_spacing), frame_width, frame_height))
             self.training.setStyleSheet("border: 1px solid white;\nbackground: #8A8A8A;\nborder-radius: 10px;")
@@ -102,7 +114,7 @@ class MyTraining(QMainWindow):
             self.training.setObjectName("training")
             self.training_image = QtWidgets.QLabel(self.training)
             self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
-            self.training_image.setText("")
+            self.training_image.setText(f"{row_data[item][3]}")
             self.training_image.setObjectName("training_image")
 
             self.department_label_2 = QtWidgets.QLabel(self.training)
@@ -123,7 +135,7 @@ class MyTraining(QMainWindow):
             font.setWeight(50)
             self.department_db_2.setFont(font)
             self.department_db_2.setStyleSheet("color: white;\nfont-weight: regular;\nborder: none;\nbold: none;")
-            self.department_db_2.setText("")
+            self.department_db_2.setText(f"{row_data[item][1]}")
             self.department_db_2.setObjectName("department_db_2")
 
             self.description_label = QtWidgets.QLabel(self.training)
@@ -139,10 +151,20 @@ class MyTraining(QMainWindow):
             self.description_db = QtWidgets.QLabel(self.training)
             self.description_db.setGeometry(QtCore.QRect(230, 100, 691, 81))
             self.description_db.setStyleSheet("color: white;\nfont-weight: regular;\nborder: none;")
-            self.description_db.setText("")
+            self.description_db.setText(f"{row_data[item][2]}")
             self.description_db.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
             self.description_db.setWordWrap(True)
             self.description_db.setObjectName("description_db")
+
+            self.status_label = QtWidgets.QLabel(self.training)
+            self.status_label.setGeometry(QtCore.QRect(835, 150, 85, 40))
+            font = QtGui.QFont()
+            font.setBold(True)
+            font.setWeight(85)
+            self.status_label.setFont(font)
+            self.status_label.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;")
+            self.status_label.setText("Status: \n" + status)
+            self.status_label.setObjectName("status_label")
 
             self.view_button = QtWidgets.QPushButton(self.training)
             self.view_button.setGeometry(QtCore.QRect(810, 200, 112, 34))
@@ -159,7 +181,7 @@ class MyTraining(QMainWindow):
             font.setWeight(75)
             self.training_name_db.setFont(font)
             self.training_name_db.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;\ntext-align: left;\n")
-            self.training_name_db.setText("")
+            self.training_name_db.setText(f"{row_data[item][0]}")
             self.training_name_db.setObjectName("training_name_db")
 
         # Adjust the size of the scroll area's contents
@@ -169,7 +191,6 @@ class MyTraining(QMainWindow):
         self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
         self.setCentralWidget(self.centralwidget)
         QtCore.QMetaObject.connectSlotsByName(self)
-
 
 
 if __name__ == "__main__":
