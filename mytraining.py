@@ -1,7 +1,7 @@
 import logging
 
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QDialog, QMessageBox
+from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUi
 import sys
 import sqlite3
@@ -20,7 +20,6 @@ def connectDatabase():
 
 
 class MyTraining(QMainWindow):
-
     def __init__(self):
         super(MyTraining, self).__init__()
 
@@ -87,10 +86,14 @@ class MyTraining(QMainWindow):
 
         connectDatabase()
         self.cursor = connect.cursor()
+        global employee_id
+        employee_id = 1  # Change this to the desired employee ID
         self.cursor.execute(
-            "SELECT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, "
-            "a.applicationStatus FROM application a, training t, department d WHERE a.trainingID = t.trainingID AND "
-            "d.departmentID = t.departmentID AND employeeID = 1")  # change to ? and get the employee id form login
+            "SELECT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, a.applicationStatus "
+            "FROM application a "
+            "JOIN training t ON a.trainingID = t.trainingID "
+            "JOIN department d ON d.departmentID = t.departmentID "
+            "WHERE a.employeeID = ?", (employee_id,))
         row_data = self.cursor.fetchall()  # Fetch all rows of data
         rows = len(row_data)  # Calculate the length of fetched data
 
@@ -191,6 +194,9 @@ class MyTraining(QMainWindow):
         # Adjust the size of the scroll area's contents
         self.scrollAreaWidgetContents_2.setMinimumHeight(rows * (frame_height + frame_spacing))
 
+        # Set the initial training items using row_data
+        self.updateSearchResults(row_data)
+
         # Set the scroll area widget
         self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
         self.setCentralWidget(self.centralwidget)
@@ -221,19 +227,134 @@ class MyTraining(QMainWindow):
             # Query the database based on the keywords
             connectDatabase()
             self.cursor.execute(
-                "SELECT t.trainingName, d.departmentName, t.short_description, t.brochure "
-                "FROM training t, department d "
-                "WHERE d.departmentID = t.departmentID "
-                "AND (t.trainingName LIKE ? OR t.short_description LIKE ? OR d.departmentName LIKE ?)",
-                ('%' + keywords + '%', '%' + keywords + '%', '%' + keywords + '%')
+                "SELECT DISTINCT a.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, "
+                "a.applicationStatus FROM training t "
+                "JOIN department d ON d.departmentID = t.departmentID "
+                "JOIN application a ON a.trainingID = t.trainingID "
+                "WHERE (t.trainingName LIKE ? OR d.departmentName LIKE ? "
+                "OR t.date LIKE ? OR t.time LIKE ? OR t.duration LIKE ?) "
+                "AND a.employeeID = ?",
+                ('%' + keywords + '%', '%' + keywords + '%', '%' + keywords + '%',
+                 '%' + keywords + '%', '%' + keywords + '%', employee_id)
             )
             search_results = self.cursor.fetchall()
 
+            print(search_results)
+
             # Display the search results
-            self.displaySearchResults(search_results)
+            self.updateSearchResults(search_results)
+
         except Exception as e:
             # Show error message box or print the error
-            print("An error occurred:", str(e))
+            error_message = "An error occurred: " + str(e)
+            QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+
+    def updateSearchResults(self, search_results):
+        # Define the size and position of each frame
+        frame_width = 931
+        frame_height = 251
+        frame_spacing = 20
+
+        # Clear the existing contents of the scroll area
+        layout = self.scrollAreaWidgetContents_2.layout()
+        if layout is not None:
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.deleteLater()
+
+        # Create a new layout
+        new_layout = QVBoxLayout(self.scrollAreaWidgetContents_2)
+
+        # Loop to create and position the frames for search results
+        for item in range(len(search_results)):
+            status = search_results[item][5]
+
+            self.training = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
+            self.training.setGeometry(QtCore.QRect(0, item * (frame_height + frame_spacing), frame_width, frame_height))
+            self.training.setStyleSheet("border: 1px solid white;\nbackground: #8A8A8A;\nborder-radius: 10px;")
+            self.training.setFrameShape(QtWidgets.QFrame.StyledPanel)
+            self.training.setFrameShadow(QtWidgets.QFrame.Raised)
+            self.training.setObjectName("training")
+            self.training_image = QtWidgets.QLabel(self.training)
+            self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
+            self.training_image.setText(f"{search_results[item][4]}")
+            self.training_image.setObjectName("training_image")
+
+            self.department_label_2 = QtWidgets.QLabel(self.training)
+            self.department_label_2.setGeometry(QtCore.QRect(230, 50, 111, 31))
+            font = QtGui.QFont()
+            font.setBold(True)
+            font.setWeight(75)
+            self.department_label_2.setFont(font)
+            self.department_label_2.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;")
+            self.department_label_2.setText("Department: ")
+            self.department_label_2.setObjectName("department_label_2")
+            
+            self.department_db_2 = QtWidgets.QLabel(self.training)
+            self.department_db_2.setGeometry(QtCore.QRect(340, 50, 581, 31))
+            font = QtGui.QFont()
+            font.setPointSize(8)
+            font.setBold(False)
+            font.setWeight(50)
+            self.department_db_2.setFont(font)
+            self.department_db_2.setStyleSheet("color: white;\nfont-weight: regular;\nborder: none;\nbold: none;")
+            self.department_db_2.setText(f"{search_results[item][2]}")
+            self.department_db_2.setObjectName("department_db_2")
+
+            self.description_label = QtWidgets.QLabel(self.training)
+            self.description_label.setGeometry(QtCore.QRect(230, 80, 101, 21))
+            font = QtGui.QFont()
+            font.setBold(True)
+            font.setWeight(75)
+            self.description_label.setFont(font)
+            self.description_label.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;")
+            self.description_label.setText("Description: ")
+            self.description_label.setObjectName("description_label")
+
+            self.description_db = QtWidgets.QLabel(self.training)
+            self.description_db.setGeometry(QtCore.QRect(230, 100, 691, 81))
+            self.description_db.setStyleSheet("color: white;\nfont-weight: regular;\nborder: none;")
+            self.description_db.setText(f"{search_results[item][3]}")
+            self.description_db.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+            self.description_db.setWordWrap(True)
+            self.description_db.setObjectName("description_db")
+
+            self.status_label = QtWidgets.QLabel(self.training)
+            self.status_label.setGeometry(QtCore.QRect(835, 150, 85, 40))
+            font = QtGui.QFont()
+            font.setBold(True)
+            font.setWeight(85)
+            self.status_label.setFont(font)
+            self.status_label.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;")
+            self.status_label.setText("Status: \n" + status)
+            self.status_label.setObjectName("status_label")
+
+            self.view_button = QtWidgets.QPushButton(self.training)
+            self.view_button.setGeometry(QtCore.QRect(810, 200, 112, 34))
+            self.view_button.setStyleSheet(
+                "color: white;\nfont-weight: bold;\nborder-radius: 10px;\nbackground: #008287;")
+            self.view_button.setText("View More")
+            self.view_button.setObjectName("view_button")
+            self.view_button.clicked.connect(lambda _, training_id=search_results[item][0]:
+                                             self.viewTrainingDetails(training_id))
+
+            self.training_name_db = QtWidgets.QPushButton(self.training)
+            self.training_name_db.setGeometry(QtCore.QRect(230, 20, 691, 31))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            font.setWeight(75)
+            self.training_name_db.setFont(font)
+            self.training_name_db.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;\ntext-align: left;\n")
+            self.training_name_db.setText(f"{search_results[item][1]}")
+            self.training_name_db.setObjectName("training_name_db")
+            self.training_name_db.clicked.connect(lambda _, training_id=search_results[item][0]:
+                                                  self.viewTrainingDetails(training_id))
+
+        # Set the new layout on the scroll area
+        self.scrollAreaWidgetContents_2.setLayout(new_layout)
 
 
 if __name__ == "__main__":
