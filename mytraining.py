@@ -1,5 +1,7 @@
+import logging
+
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QDialog, QMessageBox
 from PyQt5.uic import loadUi
 import sys
 import sqlite3
@@ -12,8 +14,9 @@ def connectDatabase():
         # connect to database
         connect = sqlite3.connect("StaffTrainingSystem")
         cursor = connect.cursor()
-    except:
-        QDialog.showerror('Error', 'Cannot connect to database!')
+    except ConnectionError:
+        # Show error message box
+        QMessageBox.critical(None, "Error", "Cannot connect to database!", QMessageBox.Ok)
 
 
 class MyTraining(QMainWindow):
@@ -77,6 +80,7 @@ class MyTraining(QMainWindow):
         self.search_button.setIconSize(QtCore.QSize(25, 25))
         self.search_bar.setPlaceholderText("  Search...")
         self.search_button.setObjectName("search_button")
+        self.search_button.clicked.connect(self.searchTraining)
 
         self.horizontalLayout.addWidget(self.main_frame)
         self.setCentralWidget(self.centralwidget)
@@ -84,17 +88,13 @@ class MyTraining(QMainWindow):
         connectDatabase()
         self.cursor = connect.cursor()
         self.cursor.execute(
-            "SELECT t.trainingName, d.departmentName, t.short_description, t.brochure, a.applicationStatus "
-            "FROM application a, training t, department d WHERE a.trainingID = t.trainingID AND "
+            "SELECT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, "
+            "a.applicationStatus FROM application a, training t, department d WHERE a.trainingID = t.trainingID AND "
             "d.departmentID = t.departmentID AND employeeID = 1")  # change to ? and get the employee id form login
         row_data = self.cursor.fetchall()  # Fetch all rows of data
         rows = len(row_data)  # Calculate the length of fetched data
 
-        print(rows)
-        print(row_data)  # [trainingName, department name, description, brochure, application status]
-        print()
-        print(row_data[0][0])  # row_data[rows][0]
-
+        print(row_data)  # [training id, trainingName, department name, description, brochure, application status]
 
         # Scroll area content widget
         self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
@@ -104,7 +104,7 @@ class MyTraining(QMainWindow):
 
         # Loop to create and position the frames
         for item in range(rows):
-            status = row_data[item][4]
+            status = row_data[item][5]
 
             self.training = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
             self.training.setGeometry(QtCore.QRect(0, item * (frame_height + frame_spacing), frame_width, frame_height))
@@ -114,7 +114,7 @@ class MyTraining(QMainWindow):
             self.training.setObjectName("training")
             self.training_image = QtWidgets.QLabel(self.training)
             self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
-            self.training_image.setText(f"{row_data[item][3]}")
+            self.training_image.setText(f"{row_data[item][4]}")
             self.training_image.setObjectName("training_image")
 
             self.department_label_2 = QtWidgets.QLabel(self.training)
@@ -135,7 +135,7 @@ class MyTraining(QMainWindow):
             font.setWeight(50)
             self.department_db_2.setFont(font)
             self.department_db_2.setStyleSheet("color: white;\nfont-weight: regular;\nborder: none;\nbold: none;")
-            self.department_db_2.setText(f"{row_data[item][1]}")
+            self.department_db_2.setText(f"{row_data[item][2]}")
             self.department_db_2.setObjectName("department_db_2")
 
             self.description_label = QtWidgets.QLabel(self.training)
@@ -151,7 +151,7 @@ class MyTraining(QMainWindow):
             self.description_db = QtWidgets.QLabel(self.training)
             self.description_db.setGeometry(QtCore.QRect(230, 100, 691, 81))
             self.description_db.setStyleSheet("color: white;\nfont-weight: regular;\nborder: none;")
-            self.description_db.setText(f"{row_data[item][2]}")
+            self.description_db.setText(f"{row_data[item][3]}")
             self.description_db.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
             self.description_db.setWordWrap(True)
             self.description_db.setObjectName("description_db")
@@ -172,6 +172,8 @@ class MyTraining(QMainWindow):
                 "color: white;\nfont-weight: bold;\nborder-radius: 10px;\nbackground: #008287;")
             self.view_button.setText("View More")
             self.view_button.setObjectName("view_button")
+            self.view_button.clicked.connect(lambda _, training_id=row_data[item][0]:
+                                             self.viewTrainingDetails(training_id))
 
             self.training_name_db = QtWidgets.QPushButton(self.training)
             self.training_name_db.setGeometry(QtCore.QRect(230, 20, 691, 31))
@@ -181,8 +183,10 @@ class MyTraining(QMainWindow):
             font.setWeight(75)
             self.training_name_db.setFont(font)
             self.training_name_db.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;\ntext-align: left;\n")
-            self.training_name_db.setText(f"{row_data[item][0]}")
+            self.training_name_db.setText(f"{row_data[item][1]}")
             self.training_name_db.setObjectName("training_name_db")
+            self.training_name_db.clicked.connect(lambda _, training_id=row_data[item][0]:
+                                                  self.viewTrainingDetails(training_id))
 
         # Adjust the size of the scroll area's contents
         self.scrollAreaWidgetContents_2.setMinimumHeight(rows * (frame_height + frame_spacing))
@@ -191,6 +195,45 @@ class MyTraining(QMainWindow):
         self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
         self.setCentralWidget(self.centralwidget)
         QtCore.QMetaObject.connectSlotsByName(self)
+
+    def viewTrainingDetails(self, trainingID):
+        try:
+            print("Clicked ID:", trainingID)
+            loadUi("training_details.ui", self)
+
+            connectDatabase()
+            self.cursor = connect.cursor()
+            self.cursor.execute(
+                "SELECT t.trainingName, d.departmentName, t.short_description, t.brochure "
+                "FROM training t, department d WHERE d.departmentID = t.departmentID AND t.trainingID = ?",
+                (trainingID,))
+            a = self.cursor.fetchall()
+
+            print(a)
+
+        except Exception as e:
+            logging.exception("An error occurred in viewTrainingDetails:")
+
+    def searchTraining(self):
+        try:
+            keywords = self.search_bar.text()
+
+            # Query the database based on the keywords
+            connectDatabase()
+            self.cursor.execute(
+                "SELECT t.trainingName, d.departmentName, t.short_description, t.brochure "
+                "FROM training t, department d "
+                "WHERE d.departmentID = t.departmentID "
+                "AND (t.trainingName LIKE ? OR t.short_description LIKE ? OR d.departmentName LIKE ?)",
+                ('%' + keywords + '%', '%' + keywords + '%', '%' + keywords + '%')
+            )
+            search_results = self.cursor.fetchall()
+
+            # Display the search results
+            self.displaySearchResults(search_results)
+        except Exception as e:
+            # Show error message box or print the error
+            print("An error occurred:", str(e))
 
 
 if __name__ == "__main__":
