@@ -542,7 +542,7 @@ border: none;</string>
         <rect>
          <x>40</x>
          <y>110</y>
-         <width>171</width>
+         <width>451</width>
          <height>41</height>
         </rect>
        </property>
@@ -787,7 +787,7 @@ border: none;</string>
 border: none;</string>
        </property>
        <property name="text">
-        <string>Number of participants:</string>
+        <string>Maximum participants:</string>
        </property>
       </widget>
       <widget class="QLabel" name="description_label">
@@ -838,6 +838,32 @@ border: none;</string>
        </property>
        <property name="text">
         <string/>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="cancel_button">
+       <property name="geometry">
+        <rect>
+         <x>880</x>
+         <y>650</y>
+         <width>112</width>
+         <height>34</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: white;
+font-weight: bold;
+border: 1px solid white;
+border-radius: 10px;
+background: #008287;</string>
+       </property>
+       <property name="text">
+        <string>Cancel</string>
        </property>
       </widget>
      </widget>
