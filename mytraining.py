@@ -1,8 +1,10 @@
+<<<<<<< Updated upstream
+=======
 from datetime import datetime
 import logging
+>>>>>>> Stashed changes
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QDialog
 from PyQt5.uic import loadUi
 import sys
 import sqlite3
@@ -25,6 +27,10 @@ class MyTraining(QMainWindow):
         super(MyTraining, self).__init__()
 
         loadUi("mytraining.ui", self)
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 
         # Define the size and position of each frame
         frame_width = 931
@@ -87,6 +93,20 @@ class MyTraining(QMainWindow):
         connectDatabase()
         self.cursor = connect.cursor()
         self.cursor.execute(
+<<<<<<< Updated upstream
+            "SELECT t.trainingName, d.departmentName, t.short_description, t.brochure, a.applicationStatus "
+            "FROM application a, training t, department d WHERE a.trainingID = t.trainingID AND "
+            "d.departmentID = t.departmentID AND employeeID = 1")  # change to ? and get the employee id form login
+        row_data = self.cursor.fetchall()  # Fetch all rows of data
+        rows = len(row_data)  # Calculate the length of fetched data
+
+        print(rows)
+        print(row_data)  # [trainingName, department name, description, brochure, application status]
+        print()
+        print(row_data[0][0])  # row_data[rows][0]
+
+
+=======
             "SELECT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, "
             "a.applicationStatus FROM application a "
             "JOIN training t ON a.trainingID = t.trainingID "
@@ -95,6 +115,7 @@ class MyTraining(QMainWindow):
         row_data = self.cursor.fetchall()  # Fetch all rows of data
         rows = len(row_data)  # Calculate the length of fetched data
 
+>>>>>>> Stashed changes
         # Scroll area content widget
         self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
         self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, frame_width, rows *
@@ -113,8 +134,7 @@ class MyTraining(QMainWindow):
             self.training.setObjectName("training")
             self.training_image = QtWidgets.QLabel(self.training)
             self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
-            self.training_image.setScaledContents(True)
-            self.training_image.setPixmap(QPixmap(f"pictures/image{row_data[item][4]}.png"))  # here to set the data from database
+            self.training_image.setText(f"{row_data[item][3]}")
             self.training_image.setObjectName("training_image")
 
             self.department_label_2 = QtWidgets.QLabel(self.training)
@@ -192,23 +212,41 @@ class MyTraining(QMainWindow):
         self.setCentralWidget(self.centralwidget)
         QtCore.QMetaObject.connectSlotsByName(self)
 
+<<<<<<< Updated upstream
+=======
     def viewTrainingDetails(self, trainingID):
         try:
+<<<<<<< HEAD
+=======
+            print("Clicked ID:", trainingID)
+<<<<<<< Updated upstream
+            loadUi("training_details.ui", self)
+=======
+>>>>>>> parent of 1a79545 (Merge branch 'main' into YiJia)
             loadUi("training_details-mytraining.ui", self)
             self.header.setText("Training Details")
             self.cancel_button.clicked.connect(lambda: self.recreateMyTraining())
+>>>>>>> Stashed changes
 
             connectDatabase()
             self.cursor = connect.cursor()
             self.cursor.execute(
-                "SELECT t.trainingName, t.date, t.time, t.max_par, t.brochure, t.duration, t.venue, "
-                "d.departmentName, t.description, t.brochure FROM training t, department d "
-                "WHERE d.departmentID = t.departmentID AND t.trainingID = ?",
+                "SELECT t.trainingName, d.departmentName, t.short_description, t.brochure "
+                "FROM training t, department d WHERE d.departmentID = t.departmentID AND t.trainingID = ?",
                 (trainingID,))
+<<<<<<< HEAD
             row = self.cursor.fetchall()
 <<<<<<< Updated upstream
             print(row)
+=======
+            a = self.cursor.fetchall()
+>>>>>>> parent of 1a79545 (Merge branch 'main' into YiJia)
 
+            print(a)
+            # load UI and display...
+
+<<<<<<< Updated upstream
+=======
             self.training.setText(f"{row[0][0]}")
             date = datetime.strptime(row[0][1], "%d-%m-%Y")
             date = date.strftime("%d %B %Y")
@@ -223,7 +261,10 @@ class MyTraining(QMainWindow):
             self.brochure_button.setIconSize(QtCore.QSize(200, 200))
             self.brochure_button.setIcon(QtGui.QIcon(f"pictures/image{trainingID}.png"))
             self.number_participants_db.setText(f"{row[0][3]}")
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> parent of 1a79545 (Merge branch 'main' into YiJia)
 >>>>>>> Stashed changes
 
         except Exception as e:
@@ -241,49 +282,53 @@ class MyTraining(QMainWindow):
                 "JOIN department d ON d.departmentID = t.departmentID "
                 "JOIN application a ON a.trainingID = t.trainingID "
                 "WHERE (t.trainingName LIKE ? OR d.departmentName LIKE ? "
-                "OR t.date LIKE ? OR t.time LIKE ?) AND a.employeeID = ?",
+                "OR t.date LIKE ? OR t.time LIKE ? OR t.duration LIKE ?) "
+                "AND a.employeeID = ?",
                 ('%' + keywords + '%', '%' + keywords + '%', '%' + keywords + '%',
-                 '%' + keywords + '%', employee_id))
+                 '%' + keywords + '%', '%' + keywords + '%', employee_id)
+            )
             search_results = self.cursor.fetchall()
+
+<<<<<<< Updated upstream
+            print(search_results)
 
             # Display the search results
             self.updateSearchResults(search_results)
-
+=======
             if len(search_results) > 0:
                 # Display the search results
                 self.updateSearchResults(search_results)
             else:
                 QMessageBox.information(self, "No Results", "No training matching the search criteria was found.",
                                         QMessageBox.Ok)
-            
+
+>>>>>>> Stashed changes
+
         except Exception as e:
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
             QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
 
     def updateSearchResults(self, search_results):
-        # self.items = search_results
-        n = len(search_results)
         # Define the size and position of each frame
         frame_width = 931
         frame_height = 251
         frame_spacing = 20
 
         # Clear the existing contents of the scroll area
-        for frame in self.scrollAreaWidgetContents_2.findChildren(QtWidgets.QFrame):
-            # Remove child widgets from the frame
-            for child_widget in frame.children():
-                child_widget.deleteLater()
-            # Remove the frame itself
-            frame.deleteLater()
+        layout = self.scrollAreaWidgetContents_2.layout()
+        if layout is not None:
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.deleteLater()
 
-        self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, frame_width,
-                                                                 n * (frame_height + frame_spacing)))
-        self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
+        # Create a new layout
+        new_layout = QVBoxLayout(self.scrollAreaWidgetContents_2)
 
         # Loop to create and position the frames for search results
-        for item in range(n):
+        for item in range(len(search_results)):
             status = search_results[item][5]
 
             self.training = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
@@ -294,8 +339,7 @@ class MyTraining(QMainWindow):
             self.training.setObjectName("training")
             self.training_image = QtWidgets.QLabel(self.training)
             self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
-            self.training_image.setScaledContents(True)
-            self.training_image.setPixmap(QPixmap(f"pictures/image{search_results[item][4]}.png"))
+            self.training_image.setText(f"{search_results[item][4]}")
             self.training_image.setObjectName("training_image")
 
             self.department_label_2 = QtWidgets.QLabel(self.training)
@@ -369,16 +413,18 @@ class MyTraining(QMainWindow):
             self.training_name_db.clicked.connect(lambda _, training_id=search_results[item][0]:
                                                   self.viewTrainingDetails(training_id))
 
-        # Adjust the size of the scroll area's contents
-        self.scrollAreaWidgetContents_2.setMinimumHeight(n * (frame_height + frame_spacing))
+        # Set the new layout on the scroll area
+        self.scrollAreaWidgetContents_2.setLayout(new_layout)
 
-        # Set the scroll area widget
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
-
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
     def recreateMyTraining(self):
         self.close()  # Close the current instance
         new_instance = MyTraining()  # Create a new instance of MyTraining
         new_instance.show()  # Show the new instance
+
+>>>>>>> Stashed changes
 
 if __name__ == "__main__":
     # Create an instance of QApplication
