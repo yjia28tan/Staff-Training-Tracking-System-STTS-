@@ -1,4 +1,3 @@
-from datetime import datetime
 import logging
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtGui import QPixmap
@@ -15,16 +14,17 @@ def connectDatabase():
         # connect to database
         connect = sqlite3.connect("StaffTrainingSystem")
         cursor = connect.cursor()
-    except:
-        QDialog.showerror('Error', 'Cannot connect to database!')
+    except ConnectionError:
+        # Show error message box
+        QMessageBox.critical(None, "Error", "Cannot connect to database!", QMessageBox.Ok)
 
 
 class MyTraining(QMainWindow):
-
     def __init__(self):
         super(MyTraining, self).__init__()
 
         loadUi("mytraining.ui", self)
+        
 
         # Define the size and position of each frame
         frame_width = 931
@@ -53,7 +53,7 @@ class MyTraining(QMainWindow):
         font.setWeight(75)
         self.header.setFont(font)
         self.header.setStyleSheet("border: none;\nborder-bottom: 1px solid white;\ncolor: white;\nfont-weight: bold;\n")
-        self.header.setText("My Training")
+        self.header.setText("My Training")  # here to set the title
         self.header.setObjectName("header")
 
         # scrolling area to display lists of trainings
@@ -80,12 +80,15 @@ class MyTraining(QMainWindow):
         self.search_button.setIconSize(QtCore.QSize(25, 25))
         self.search_bar.setPlaceholderText("  Search...")
         self.search_button.setObjectName("search_button")
+        self.search_button.clicked.connect(self.searchTraining)
 
         self.horizontalLayout.addWidget(self.main_frame)
         self.setCentralWidget(self.centralwidget)
 
         connectDatabase()
         self.cursor = connect.cursor()
+        global employee_id
+        employee_id = 1  # Change this to the desired employee ID
         self.cursor.execute(
             "SELECT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, "
             "a.applicationStatus FROM application a "
@@ -103,7 +106,7 @@ class MyTraining(QMainWindow):
 
         # Loop to create and position the frames
         for item in range(rows):
-            status = row_data[item][4]
+            status = row_data[item][5]
 
             self.training = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
             self.training.setGeometry(QtCore.QRect(0, item * (frame_height + frame_spacing), frame_width, frame_height))
@@ -135,7 +138,7 @@ class MyTraining(QMainWindow):
             font.setWeight(50)
             self.department_db_2.setFont(font)
             self.department_db_2.setStyleSheet("color: white;\nfont-weight: regular;\nborder: none;\nbold: none;")
-            self.department_db_2.setText(f"{row_data[item][1]}")
+            self.department_db_2.setText(f"{row_data[item][2]}")
             self.department_db_2.setObjectName("department_db_2")
 
             self.description_label = QtWidgets.QLabel(self.training)
@@ -151,7 +154,7 @@ class MyTraining(QMainWindow):
             self.description_db = QtWidgets.QLabel(self.training)
             self.description_db.setGeometry(QtCore.QRect(230, 100, 691, 81))
             self.description_db.setStyleSheet("color: white;\nfont-weight: regular;\nborder: none;")
-            self.description_db.setText(f"{row_data[item][2]}")
+            self.description_db.setText(f"{row_data[item][3]}")
             self.description_db.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
             self.description_db.setWordWrap(True)
             self.description_db.setObjectName("description_db")
@@ -172,6 +175,8 @@ class MyTraining(QMainWindow):
                 "color: white;\nfont-weight: bold;\nborder-radius: 10px;\nbackground: #008287;")
             self.view_button.setText("View More")
             self.view_button.setObjectName("view_button")
+            self.view_button.clicked.connect(lambda _, training_id=row_data[item][0]:
+                                             self.viewTrainingDetails(training_id))
 
             self.training_name_db = QtWidgets.QPushButton(self.training)
             self.training_name_db.setGeometry(QtCore.QRect(230, 20, 691, 31))
@@ -181,8 +186,10 @@ class MyTraining(QMainWindow):
             font.setWeight(75)
             self.training_name_db.setFont(font)
             self.training_name_db.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;\ntext-align: left;\n")
-            self.training_name_db.setText(f"{row_data[item][0]}")
+            self.training_name_db.setText(f"{row_data[item][1]}")
             self.training_name_db.setObjectName("training_name_db")
+            self.training_name_db.clicked.connect(lambda _, training_id=row_data[item][0]:
+                                                  self.viewTrainingDetails(training_id))
 
         # Adjust the size of the scroll area's contents
         self.scrollAreaWidgetContents_2.setMinimumHeight(rows * (frame_height + frame_spacing))
@@ -196,8 +203,6 @@ class MyTraining(QMainWindow):
         try:
             print("Clicked ID:", trainingID)
             loadUi("training_details-mytraining.ui", self)
-            self.header.setText("Training Details")
-            self.cancel_button.clicked.connect(lambda: self.recreateMyTraining())
 
             connectDatabase()
             self.cursor = connect.cursor()
@@ -209,20 +214,9 @@ class MyTraining(QMainWindow):
             row = self.cursor.fetchall()
             print(row)
 
-            self.training.setText(f"{row[0][0]}")
-            date = datetime.strptime(row[0][1], "%d-%m-%Y")
-            date = date.strftime("%d %B %Y")
-            time = datetime.strptime(row[0][2], "%H:%M")
-            time = time.strftime("%H:%M")
-            self.date_db.setText(f"{date}")
-            self.time_db.setText(f"{time}")
-            self.venue_db.setText(f"{row[0][6]}")
-            self.duration_db.setText(f"{row[0][5]}")
-            self.department_db_2.setText(f"{row[0][7]}")
-            self.description_db.setText(f"{row[0][8]}")
-            self.brochure_button.setIconSize(QtCore.QSize(200, 200))
-            self.brochure_button.setIcon(QtGui.QIcon(f"pictures/image{trainingID}.png"))
-            self.number_participants_db.setText(f"{row[0][3]}")
+            # date_time = datetime.strptime(data[row][2], "%d-%m-%Y %H:%M")
+            # date = date_time.strftime("%d %B %Y")
+            # time = date_time.strftime("%H:%M")
 
         except Exception as e:
             logging.exception("An error occurred in viewTrainingDetails:")
@@ -247,13 +241,6 @@ class MyTraining(QMainWindow):
             # Display the search results
             self.updateSearchResults(search_results)
 
-            if len(search_results) > 0:
-                # Display the search results
-                self.updateSearchResults(search_results)
-            else:
-                QMessageBox.information(self, "No Results", "No training matching the search criteria was found.",
-                                        QMessageBox.Ok)
-            
         except Exception as e:
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
@@ -373,10 +360,6 @@ class MyTraining(QMainWindow):
         # Set the scroll area widget
         self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
 
-    def recreateMyTraining(self):
-        self.close()  # Close the current instance
-        new_instance = MyTraining()  # Create a new instance of MyTraining
-        new_instance.show()  # Show the new instance
 
 if __name__ == "__main__":
     # Create an instance of QApplication
