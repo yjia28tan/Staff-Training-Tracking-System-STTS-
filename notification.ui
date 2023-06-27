@@ -123,7 +123,7 @@ border-radius: 50%;
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>pictures/profile.png</normaloff>pictures/profile.png</iconset>
+          <normaloff>profile.png</normaloff>profile.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -429,22 +429,21 @@ font-weight: bold;
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>950</width>
+          <width>945</width>
           <height>581</height>
          </rect>
         </property>
-        <widget class="QFrame" name="training">
+        <widget class="QFrame" name="notification_frame">
          <property name="geometry">
           <rect>
-           <x>0</x>
-           <y>20</y>
-           <width>931</width>
-           <height>251</height>
+           <x>10</x>
+           <y>19</y>
+           <width>921</width>
+           <height>91</height>
           </rect>
          </property>
          <property name="styleSheet">
           <string notr="true">border: 1px solid white;
-background: #8A8A8A;
 border-radius: 10px;</string>
          </property>
          <property name="frameShape">
@@ -453,50 +452,56 @@ border-radius: 10px;</string>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <widget class="QLabel" name="training_image">
+         <widget class="QLabel" name="status_image">
           <property name="geometry">
            <rect>
-            <x>20</x>
+            <x>15</x>
             <y>10</y>
-            <width>200</width>
-            <height>150</height>
+            <width>75</width>
+            <height>75</height>
            </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border: none;</string>
           </property>
           <property name="text">
            <string/>
           </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
          </widget>
-         <widget class="QLabel" name="department_label_2">
+         <widget class="QLabel" name="training_name">
           <property name="geometry">
            <rect>
-            <x>230</x>
-            <y>50</y>
-            <width>111</width>
+            <x>110</x>
+            <y>3</y>
+            <width>721</width>
             <height>31</height>
            </rect>
           </property>
           <property name="font">
            <font>
+            <pointsize>10</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
           <property name="styleSheet">
-           <string notr="true">color: white;
-font-weight: bold;
-border: none;</string>
+           <string notr="true">border: none;
+color: white;</string>
           </property>
           <property name="text">
-           <string>Department: </string>
+           <string/>
           </property>
          </widget>
-         <widget class="QLabel" name="department_db_2">
+         <widget class="QLabel" name="time">
           <property name="geometry">
            <rect>
-            <x>340</x>
-            <y>50</y>
-            <width>581</width>
-            <height>31</height>
+            <x>810</x>
+            <y>40</y>
+            <width>68</width>
+            <height>19</height>
            </rect>
           </property>
           <property name="font">
@@ -507,110 +512,97 @@ border: none;</string>
            </font>
           </property>
           <property name="styleSheet">
-           <string notr="true">color: white;
-font-weight: regular;
-border: none;
-bold: none;</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-         <widget class="QLabel" name="description_label">
-          <property name="geometry">
-           <rect>
-            <x>230</x>
-            <y>80</y>
-            <width>101</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">color: white;
-font-weight: bold;
-border: none;</string>
-          </property>
-          <property name="text">
-           <string>Description: </string>
-          </property>
-         </widget>
-         <widget class="QLabel" name="description_db">
-          <property name="geometry">
-           <rect>
-            <x>230</x>
-            <y>100</y>
-            <width>691</width>
-            <height>81</height>
-           </rect>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">color: white;
-font-weight: regular;
-border: none;</string>
+           <string notr="true">border: none;
+color: white;</string>
           </property>
           <property name="text">
            <string/>
           </property>
           <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+         <widget class="QLabel" name="notification_text">
+          <property name="geometry">
+           <rect>
+            <x>110</x>
+            <y>33</y>
+            <width>721</width>
+            <height>51</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border: none;
+color: white;</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="scaledContents">
+           <bool>false</bool>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
           </property>
          </widget>
-         <widget class="QPushButton" name="view_button">
+         <widget class="QLabel" name="date">
           <property name="geometry">
            <rect>
-            <x>810</x>
-            <y>200</y>
-            <width>112</width>
-            <height>34</height>
-           </rect>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">color: white;
-font-weight: bold;
-border-radius: 10px;
-background: #008287;
-</string>
-          </property>
-          <property name="text">
-           <string>View More</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="training_name_db">
-          <property name="geometry">
-           <rect>
-            <x>230</x>
-            <y>20</y>
-            <width>691</width>
-            <height>31</height>
+            <x>758</x>
+            <y>60</y>
+            <width>161</width>
+            <height>20</height>
            </rect>
           </property>
           <property name="font">
            <font>
-            <pointsize>12</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
+            <weight>50</weight>
+            <bold>false</bold>
            </font>
           </property>
           <property name="styleSheet">
-           <string notr="true">color: white;
-font-weight: bold;
-border: none;
-text-align: left;
-</string>
+           <string notr="true">border: none;
+color: white;</string>
           </property>
           <property name="text">
            <string/>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
          </widget>
+         <widget class="QLabel" name="notification_dot">
+          <property name="geometry">
+           <rect>
+            <x>880</x>
+            <y>10</y>
+            <width>21</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border: none;</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <zorder>status_image</zorder>
+         <zorder>training_name</zorder>
+         <zorder>notification_text</zorder>
+         <zorder>date</zorder>
+         <zorder>time</zorder>
+         <zorder>notification_dot</zorder>
         </widget>
        </widget>
       </widget>
