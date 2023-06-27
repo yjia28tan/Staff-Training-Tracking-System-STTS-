@@ -89,15 +89,13 @@ class MyTraining(QMainWindow):
         global employee_id
         employee_id = 1  # Change this to the desired employee ID
         self.cursor.execute(
-            "SELECT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, a.applicationStatus "
-            "FROM application a "
+            "SELECT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, "
+            "a.applicationStatus FROM application a "
             "JOIN training t ON a.trainingID = t.trainingID "
             "JOIN department d ON d.departmentID = t.departmentID "
             "WHERE a.employeeID = ?", (employee_id,))
         row_data = self.cursor.fetchall()  # Fetch all rows of data
         rows = len(row_data)  # Calculate the length of fetched data
-
-        print(row_data)  # [training id, trainingName, department name, description, brochure, application status]
 
         # Scroll area content widget
         self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
@@ -216,6 +214,8 @@ class MyTraining(QMainWindow):
             a = self.cursor.fetchall()
 
             print(a)
+            # load UI and display...
+
 
         except Exception as e:
             logging.exception("An error occurred in viewTrainingDetails:")
@@ -291,7 +291,6 @@ class MyTraining(QMainWindow):
             self.department_label_2.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;")
             self.department_label_2.setText("Department: ")
             self.department_label_2.setObjectName("department_label_2")
-            
             self.department_db_2 = QtWidgets.QLabel(self.training)
             self.department_db_2.setGeometry(QtCore.QRect(340, 50, 581, 31))
             font = QtGui.QFont()
