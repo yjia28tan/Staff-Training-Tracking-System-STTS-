@@ -1,3 +1,8 @@
+<<<<<<< Updated upstream
+=======
+from datetime import datetime
+import logging
+>>>>>>> Stashed changes
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QDialog
 from PyQt5.uic import loadUi
@@ -22,6 +27,10 @@ class MyTraining(QMainWindow):
         super(MyTraining, self).__init__()
 
         loadUi("mytraining.ui", self)
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 
         # Define the size and position of each frame
         frame_width = 931
@@ -50,7 +59,7 @@ class MyTraining(QMainWindow):
         font.setWeight(75)
         self.header.setFont(font)
         self.header.setStyleSheet("border: none;\nborder-bottom: 1px solid white;\ncolor: white;\nfont-weight: bold;\n")
-        self.header.setText("My Training")  # here to set the title
+        self.header.setText("My Training")
         self.header.setObjectName("header")
 
         # scrolling area to display lists of trainings
@@ -208,7 +217,13 @@ class MyTraining(QMainWindow):
     def viewTrainingDetails(self, trainingID):
         try:
             print("Clicked ID:", trainingID)
+<<<<<<< Updated upstream
             loadUi("training_details.ui", self)
+=======
+            loadUi("training_details-mytraining.ui", self)
+            self.header.setText("Training Details")
+            self.cancel_button.clicked.connect(lambda: self.recreateMyTraining())
+>>>>>>> Stashed changes
 
             connectDatabase()
             self.cursor = connect.cursor()
@@ -221,6 +236,23 @@ class MyTraining(QMainWindow):
             print(a)
             # load UI and display...
 
+<<<<<<< Updated upstream
+=======
+            self.training.setText(f"{row[0][0]}")
+            date = datetime.strptime(row[0][1], "%d-%m-%Y")
+            date = date.strftime("%d %B %Y")
+            time = datetime.strptime(row[0][2], "%H:%M")
+            time = time.strftime("%H:%M")
+            self.date_db.setText(f"{date}")
+            self.time_db.setText(f"{time}")
+            self.venue_db.setText(f"{row[0][6]}")
+            self.duration_db.setText(f"{row[0][5]}")
+            self.department_db_2.setText(f"{row[0][7]}")
+            self.description_db.setText(f"{row[0][8]}")
+            self.brochure_button.setIconSize(QtCore.QSize(200, 200))
+            self.brochure_button.setIcon(QtGui.QIcon(f"pictures/image{trainingID}.png"))
+            self.number_participants_db.setText(f"{row[0][3]}")
+>>>>>>> Stashed changes
 
         except Exception as e:
             logging.exception("An error occurred in viewTrainingDetails:")
@@ -244,10 +276,20 @@ class MyTraining(QMainWindow):
             )
             search_results = self.cursor.fetchall()
 
+<<<<<<< Updated upstream
             print(search_results)
 
             # Display the search results
             self.updateSearchResults(search_results)
+=======
+            if len(search_results) > 0:
+                # Display the search results
+                self.updateSearchResults(search_results)
+            else:
+                QMessageBox.information(self, "No Results", "No training matching the search criteria was found.",
+                                        QMessageBox.Ok)
+
+>>>>>>> Stashed changes
 
         except Exception as e:
             # Show error message box or print the error
@@ -360,6 +402,14 @@ class MyTraining(QMainWindow):
 
         # Set the new layout on the scroll area
         self.scrollAreaWidgetContents_2.setLayout(new_layout)
+
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+    def recreateMyTraining(self):
+        self.close()  # Close the current instance
+        new_instance = MyTraining()  # Create a new instance of MyTraining
+        new_instance.show()  # Show the new instance
 
 >>>>>>> Stashed changes
 
