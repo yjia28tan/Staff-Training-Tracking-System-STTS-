@@ -201,7 +201,6 @@ class MyTraining(QMainWindow):
 
     def viewTrainingDetails(self, trainingID):
         try:
-            print("Clicked ID:", trainingID)
             loadUi("training_details-mytraining.ui", self)
 
             connectDatabase()
@@ -212,11 +211,21 @@ class MyTraining(QMainWindow):
                 "WHERE d.departmentID = t.departmentID AND t.trainingID = ?",
                 (trainingID,))
             row = self.cursor.fetchall()
-            print(row)
 
-            # date_time = datetime.strptime(data[row][2], "%d-%m-%Y %H:%M")
-            # date = date_time.strftime("%d %B %Y")
-            # time = date_time.strftime("%H:%M")
+            self.training.setText(f"{row[0][0]}")
+            date = datetime.strptime(row[0][1], "%d-%m-%Y")
+            date = date.strftime("%d %B %Y")
+            time = datetime.strptime(row[0][2], "%H:%M")
+            time = time.strftime("%H:%M")
+            self.date_db.setText(f"{date}")
+            self.time_db.setText(f"{time}")
+            self.venue_db.setText(f"{row[0][6]}")
+            self.duration_db.setText(f"{row[0][5]}")
+            self.department_db_2.setText(f"{row[0][7]}")
+            self.description_db.setText(f"{row[0][8]}")
+            self.brochure_button.setIconSize(QtCore.QSize(200, 200))
+            self.brochure_button.setIcon(QtGui.QIcon(f"pictures/image{trainingID}.png"))
+            self.number_participants_db.setText(f"{row[0][3]}")
 
         except Exception as e:
             logging.exception("An error occurred in viewTrainingDetails:")
