@@ -1,10 +1,7 @@
-<<<<<<< Updated upstream
-=======
 from datetime import datetime
 import logging
->>>>>>> Stashed changes
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QDialog
+from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUi
 import sys
 import sqlite3
@@ -17,20 +14,16 @@ def connectDatabase():
         # connect to database
         connect = sqlite3.connect("StaffTrainingSystem")
         cursor = connect.cursor()
-    except:
-        QDialog.showerror('Error', 'Cannot connect to database!')
+    except ConnectionError:
+        # Show error message box
+        QMessageBox.critical(None, "Error", "Cannot connect to database!", QMessageBox.Ok)
 
 
 class MyTraining(QMainWindow):
-
     def __init__(self):
         super(MyTraining, self).__init__()
 
         loadUi("mytraining.ui", self)
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 
         # Define the size and position of each frame
         frame_width = 931
@@ -59,7 +52,7 @@ class MyTraining(QMainWindow):
         font.setWeight(75)
         self.header.setFont(font)
         self.header.setStyleSheet("border: none;\nborder-bottom: 1px solid white;\ncolor: white;\nfont-weight: bold;\n")
-        self.header.setText("My Training")
+        self.header.setText("My Training")  # here to set the title
         self.header.setObjectName("header")
 
         # scrolling area to display lists of trainings
@@ -86,27 +79,16 @@ class MyTraining(QMainWindow):
         self.search_button.setIconSize(QtCore.QSize(25, 25))
         self.search_bar.setPlaceholderText("  Search...")
         self.search_button.setObjectName("search_button")
+        self.search_button.clicked.connect(self.searchTraining)
 
         self.horizontalLayout.addWidget(self.main_frame)
         self.setCentralWidget(self.centralwidget)
 
         connectDatabase()
         self.cursor = connect.cursor()
+        global employee_id
+        employee_id = 1  # Change this to the desired employee ID
         self.cursor.execute(
-<<<<<<< Updated upstream
-            "SELECT t.trainingName, d.departmentName, t.short_description, t.brochure, a.applicationStatus "
-            "FROM application a, training t, department d WHERE a.trainingID = t.trainingID AND "
-            "d.departmentID = t.departmentID AND employeeID = 1")  # change to ? and get the employee id form login
-        row_data = self.cursor.fetchall()  # Fetch all rows of data
-        rows = len(row_data)  # Calculate the length of fetched data
-
-        print(rows)
-        print(row_data)  # [trainingName, department name, description, brochure, application status]
-        print()
-        print(row_data[0][0])  # row_data[rows][0]
-
-
-=======
             "SELECT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, "
             "a.applicationStatus FROM application a "
             "JOIN training t ON a.trainingID = t.trainingID "
@@ -115,7 +97,6 @@ class MyTraining(QMainWindow):
         row_data = self.cursor.fetchall()  # Fetch all rows of data
         rows = len(row_data)  # Calculate the length of fetched data
 
->>>>>>> Stashed changes
         # Scroll area content widget
         self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
         self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, frame_width, rows *
@@ -124,7 +105,7 @@ class MyTraining(QMainWindow):
 
         # Loop to create and position the frames
         for item in range(rows):
-            status = row_data[item][4]
+            status = row_data[item][5]
 
             self.training = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
             self.training.setGeometry(QtCore.QRect(0, item * (frame_height + frame_spacing), frame_width, frame_height))
@@ -155,7 +136,7 @@ class MyTraining(QMainWindow):
             font.setWeight(50)
             self.department_db_2.setFont(font)
             self.department_db_2.setStyleSheet("color: white;\nfont-weight: regular;\nborder: none;\nbold: none;")
-            self.department_db_2.setText(f"{row_data[item][1]}")
+            self.department_db_2.setText(f"{row_data[item][2]}")
             self.department_db_2.setObjectName("department_db_2")
 
             self.description_label = QtWidgets.QLabel(self.training)
@@ -171,7 +152,7 @@ class MyTraining(QMainWindow):
             self.description_db = QtWidgets.QLabel(self.training)
             self.description_db.setGeometry(QtCore.QRect(230, 100, 691, 81))
             self.description_db.setStyleSheet("color: white;\nfont-weight: regular;\nborder: none;")
-            self.description_db.setText(f"{row_data[item][2]}")
+            self.description_db.setText(f"{row_data[item][3]}")
             self.description_db.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
             self.description_db.setWordWrap(True)
             self.description_db.setObjectName("description_db")
@@ -192,6 +173,8 @@ class MyTraining(QMainWindow):
                 "color: white;\nfont-weight: bold;\nborder-radius: 10px;\nbackground: #008287;")
             self.view_button.setText("View More")
             self.view_button.setObjectName("view_button")
+            self.view_button.clicked.connect(lambda _, training_id=row_data[item][0]:
+                                             self.viewTrainingDetails(training_id))
 
             self.training_name_db = QtWidgets.QPushButton(self.training)
             self.training_name_db.setGeometry(QtCore.QRect(230, 20, 691, 31))
@@ -201,8 +184,10 @@ class MyTraining(QMainWindow):
             font.setWeight(75)
             self.training_name_db.setFont(font)
             self.training_name_db.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;\ntext-align: left;\n")
-            self.training_name_db.setText(f"{row_data[item][0]}")
+            self.training_name_db.setText(f"{row_data[item][1]}")
             self.training_name_db.setObjectName("training_name_db")
+            self.training_name_db.clicked.connect(lambda _, training_id=row_data[item][0]:
+                                                  self.viewTrainingDetails(training_id))
 
         # Adjust the size of the scroll area's contents
         self.scrollAreaWidgetContents_2.setMinimumHeight(rows * (frame_height + frame_spacing))
@@ -212,21 +197,11 @@ class MyTraining(QMainWindow):
         self.setCentralWidget(self.centralwidget)
         QtCore.QMetaObject.connectSlotsByName(self)
 
-<<<<<<< Updated upstream
-=======
     def viewTrainingDetails(self, trainingID):
         try:
-<<<<<<< HEAD
-=======
-            print("Clicked ID:", trainingID)
-<<<<<<< Updated upstream
-            loadUi("training_details.ui", self)
-=======
->>>>>>> parent of 1a79545 (Merge branch 'main' into YiJia)
             loadUi("training_details-mytraining.ui", self)
             self.header.setText("Training Details")
             self.cancel_button.clicked.connect(lambda: self.recreateMyTraining())
->>>>>>> Stashed changes
 
             connectDatabase()
             self.cursor = connect.cursor()
@@ -234,19 +209,8 @@ class MyTraining(QMainWindow):
                 "SELECT t.trainingName, d.departmentName, t.short_description, t.brochure "
                 "FROM training t, department d WHERE d.departmentID = t.departmentID AND t.trainingID = ?",
                 (trainingID,))
-<<<<<<< HEAD
             row = self.cursor.fetchall()
-<<<<<<< Updated upstream
-            print(row)
-=======
-            a = self.cursor.fetchall()
->>>>>>> parent of 1a79545 (Merge branch 'main' into YiJia)
 
-            print(a)
-            # load UI and display...
-
-<<<<<<< Updated upstream
-=======
             self.training.setText(f"{row[0][0]}")
             date = datetime.strptime(row[0][1], "%d-%m-%Y")
             date = date.strftime("%d %B %Y")
@@ -261,11 +225,6 @@ class MyTraining(QMainWindow):
             self.brochure_button.setIconSize(QtCore.QSize(200, 200))
             self.brochure_button.setIcon(QtGui.QIcon(f"pictures/image{trainingID}.png"))
             self.number_participants_db.setText(f"{row[0][3]}")
-<<<<<<< HEAD
-=======
-=======
->>>>>>> parent of 1a79545 (Merge branch 'main' into YiJia)
->>>>>>> Stashed changes
 
         except Exception as e:
             logging.exception("An error occurred in viewTrainingDetails:")
@@ -289,20 +248,12 @@ class MyTraining(QMainWindow):
             )
             search_results = self.cursor.fetchall()
 
-<<<<<<< Updated upstream
-            print(search_results)
-
-            # Display the search results
-            self.updateSearchResults(search_results)
-=======
             if len(search_results) > 0:
                 # Display the search results
                 self.updateSearchResults(search_results)
             else:
                 QMessageBox.information(self, "No Results", "No training matching the search criteria was found.",
                                         QMessageBox.Ok)
-
->>>>>>> Stashed changes
 
         except Exception as e:
             # Show error message box or print the error
@@ -416,15 +367,10 @@ class MyTraining(QMainWindow):
         # Set the new layout on the scroll area
         self.scrollAreaWidgetContents_2.setLayout(new_layout)
 
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
     def recreateMyTraining(self):
         self.close()  # Close the current instance
         new_instance = MyTraining()  # Create a new instance of MyTraining
         new_instance.show()  # Show the new instance
-
->>>>>>> Stashed changes
 
 if __name__ == "__main__":
     # Create an instance of QApplication
