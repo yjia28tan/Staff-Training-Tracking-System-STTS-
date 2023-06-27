@@ -1,6 +1,6 @@
 import logging
-
 from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUi
 import sys
@@ -24,6 +24,7 @@ class MyTraining(QMainWindow):
         super(MyTraining, self).__init__()
 
         loadUi("mytraining.ui", self)
+        
 
         # Define the size and position of each frame
         frame_width = 931
@@ -115,7 +116,8 @@ class MyTraining(QMainWindow):
             self.training.setObjectName("training")
             self.training_image = QtWidgets.QLabel(self.training)
             self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
-            self.training_image.setText(f"{row_data[item][4]}")
+            self.training_image.setScaledContents(True)
+            self.training_image.setPixmap(QPixmap(f"pictures/image{row_data[item][4]}.png"))  # here to set the data from database
             self.training_image.setObjectName("training_image")
 
             self.department_label_2 = QtWidgets.QLabel(self.training)
@@ -192,9 +194,6 @@ class MyTraining(QMainWindow):
         # Adjust the size of the scroll area's contents
         self.scrollAreaWidgetContents_2.setMinimumHeight(rows * (frame_height + frame_spacing))
 
-        # Set the initial training items using row_data
-        self.updateSearchResults(row_data)
-
         # Set the scroll area widget
         self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
         self.setCentralWidget(self.centralwidget)
@@ -203,19 +202,21 @@ class MyTraining(QMainWindow):
     def viewTrainingDetails(self, trainingID):
         try:
             print("Clicked ID:", trainingID)
-            loadUi("training_details.ui", self)
+            loadUi("training_details-mytraining.ui", self)
 
             connectDatabase()
             self.cursor = connect.cursor()
             self.cursor.execute(
-                "SELECT t.trainingName, d.departmentName, t.short_description, t.brochure "
-                "FROM training t, department d WHERE d.departmentID = t.departmentID AND t.trainingID = ?",
+                "SELECT t.trainingName, t.date, t.time, t.max_par, t.brochure, t.duration, t.venue, "
+                "d.departmentName, t.description, t.brochure FROM training t, department d "
+                "WHERE d.departmentID = t.departmentID AND t.trainingID = ?",
                 (trainingID,))
-            a = self.cursor.fetchall()
+            row = self.cursor.fetchall()
+            print(row)
 
-            print(a)
-            # load UI and display...
-
+            # date_time = datetime.strptime(data[row][2], "%d-%m-%Y %H:%M")
+            # date = date_time.strftime("%d %B %Y")
+            # time = date_time.strftime("%H:%M")
 
         except Exception as e:
             logging.exception("An error occurred in viewTrainingDetails:")
@@ -232,14 +233,10 @@ class MyTraining(QMainWindow):
                 "JOIN department d ON d.departmentID = t.departmentID "
                 "JOIN application a ON a.trainingID = t.trainingID "
                 "WHERE (t.trainingName LIKE ? OR d.departmentName LIKE ? "
-                "OR t.date LIKE ? OR t.time LIKE ? OR t.duration LIKE ?) "
-                "AND a.employeeID = ?",
+                "OR t.date LIKE ? OR t.time LIKE ?) AND a.employeeID = ?",
                 ('%' + keywords + '%', '%' + keywords + '%', '%' + keywords + '%',
-                 '%' + keywords + '%', '%' + keywords + '%', employee_id)
-            )
+                 '%' + keywords + '%', employee_id))
             search_results = self.cursor.fetchall()
-
-            print(search_results)
 
             # Display the search results
             self.updateSearchResults(search_results)
@@ -250,25 +247,28 @@ class MyTraining(QMainWindow):
             QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
 
     def updateSearchResults(self, search_results):
+        # self.items = search_results
+        n = len(search_results)
         # Define the size and position of each frame
         frame_width = 931
         frame_height = 251
         frame_spacing = 20
 
         # Clear the existing contents of the scroll area
-        layout = self.scrollAreaWidgetContents_2.layout()
-        if layout is not None:
-            while layout.count():
-                item = layout.takeAt(0)
-                widget = item.widget()
-                if widget is not None:
-                    widget.deleteLater()
+        for frame in self.scrollAreaWidgetContents_2.findChildren(QtWidgets.QFrame):
+            # Remove child widgets from the frame
+            for child_widget in frame.children():
+                child_widget.deleteLater()
+            # Remove the frame itself
+            frame.deleteLater()
 
-        # Create a new layout
-        new_layout = QVBoxLayout(self.scrollAreaWidgetContents_2)
+        self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, frame_width,
+                                                                 n * (frame_height + frame_spacing)))
+        self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
 
         # Loop to create and position the frames for search results
-        for item in range(len(search_results)):
+        for item in range(n):
             status = search_results[item][5]
 
             self.training = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
@@ -279,7 +279,8 @@ class MyTraining(QMainWindow):
             self.training.setObjectName("training")
             self.training_image = QtWidgets.QLabel(self.training)
             self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
-            self.training_image.setText(f"{search_results[item][4]}")
+            self.training_image.setScaledContents(True)
+            self.training_image.setPixmap(QPixmap(f"pictures/image{search_results[item][4]}.png"))
             self.training_image.setObjectName("training_image")
 
             self.department_label_2 = QtWidgets.QLabel(self.training)
@@ -291,6 +292,7 @@ class MyTraining(QMainWindow):
             self.department_label_2.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;")
             self.department_label_2.setText("Department: ")
             self.department_label_2.setObjectName("department_label_2")
+
             self.department_db_2 = QtWidgets.QLabel(self.training)
             self.department_db_2.setGeometry(QtCore.QRect(340, 50, 581, 31))
             font = QtGui.QFont()
@@ -352,8 +354,11 @@ class MyTraining(QMainWindow):
             self.training_name_db.clicked.connect(lambda _, training_id=search_results[item][0]:
                                                   self.viewTrainingDetails(training_id))
 
-        # Set the new layout on the scroll area
-        self.scrollAreaWidgetContents_2.setLayout(new_layout)
+        # Adjust the size of the scroll area's contents
+        self.scrollAreaWidgetContents_2.setMinimumHeight(n * (frame_height + frame_spacing))
+
+        # Set the scroll area widget
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
 
 
 if __name__ == "__main__":
