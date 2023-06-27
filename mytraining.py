@@ -194,7 +194,6 @@ class MyTraining(QMainWindow):
 
     def viewTrainingDetails(self, trainingID):
         try:
-            print("Clicked ID:", trainingID)
             loadUi("training_details-mytraining.ui", self)
             self.header.setText("Training Details")
             self.cancel_button.clicked.connect(lambda: self.recreateMyTraining())
@@ -207,6 +206,7 @@ class MyTraining(QMainWindow):
                 "WHERE d.departmentID = t.departmentID AND t.trainingID = ?",
                 (trainingID,))
             row = self.cursor.fetchall()
+<<<<<<< Updated upstream
             print(row)
 
             self.training.setText(f"{row[0][0]}")
@@ -223,6 +223,8 @@ class MyTraining(QMainWindow):
             self.brochure_button.setIconSize(QtCore.QSize(200, 200))
             self.brochure_button.setIcon(QtGui.QIcon(f"pictures/image{trainingID}.png"))
             self.number_participants_db.setText(f"{row[0][3]}")
+=======
+>>>>>>> Stashed changes
 
         except Exception as e:
             logging.exception("An error occurred in viewTrainingDetails:")
