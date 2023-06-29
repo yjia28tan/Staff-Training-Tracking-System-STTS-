@@ -267,6 +267,7 @@ class Ui_MainWindow(object):
         self.cancel_button.setObjectName("cancel_button")
         self.department_pick = QtWidgets.QComboBox(self.main_frame)
         self.department_pick.setGeometry(QtCore.QRect(430, 290, 291, 41))
+        self.department_pick.setStyleSheet("color: white;")
         self.department_pick.setObjectName("department_pick")
         self.check_box = QtWidgets.QCheckBox(self.main_frame)
         self.check_box.setGeometry(QtCore.QRect(430, 350, 301, 23))
