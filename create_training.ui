@@ -323,7 +323,7 @@ color: white;</string>
        <property name="geometry">
         <rect>
          <x>430</x>
-         <y>370</y>
+         <y>390</y>
          <width>101</width>
          <height>31</height>
         </rect>
@@ -447,7 +447,7 @@ border-radius: 10px;</string>
        <property name="geometry">
         <rect>
          <x>430</x>
-         <y>420</y>
+         <y>440</y>
          <width>371</width>
          <height>211</height>
         </rect>
@@ -605,6 +605,29 @@ background: #008287;</string>
          <width>291</width>
          <height>41</height>
         </rect>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="check_box">
+       <property name="geometry">
+        <rect>
+         <x>430</x>
+         <y>350</y>
+         <width>301</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">border: none;
+color: white;</string>
+       </property>
+       <property name="text">
+        <string>Add participants by department</string>
        </property>
       </widget>
      </widget>
