@@ -606,6 +606,9 @@ background: #008287;</string>
          <height>41</height>
         </rect>
        </property>
+       <property name="styleSheet">
+        <string notr="true">color: white;</string>
+       </property>
       </widget>
       <widget class="QCheckBox" name="check_box">
        <property name="geometry">
