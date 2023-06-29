@@ -1064,53 +1064,6 @@ border: none;</string>
         </widget>
        </widget>
       </widget>
-      <widget class="QPushButton" name="search_button">
-       <property name="geometry">
-        <rect>
-         <x>950</x>
-         <y>57</y>
-         <width>31</width>
-         <height>34</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">border: none;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>search.png</normaloff>search.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>25</width>
-         <height>25</height>
-        </size>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="search_bar">
-       <property name="geometry">
-        <rect>
-         <x>805</x>
-         <y>60</y>
-         <width>141</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QLineEdit {color: white;}
-QLineEdit::placeholder {color: white;}
-QLineEdit {border-radius: 10px;
-    border: 1px solid white;}
-
-</string>
-       </property>
-       <property name="placeholderText">
-        <string>  Search...</string>
-       </property>
-      </widget>
      </widget>
     </item>
    </layout>
