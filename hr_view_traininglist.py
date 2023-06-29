@@ -50,16 +50,19 @@ class HR_Training(QMainWindow):
         connectDatabase()
         self.cursor = connect.cursor()
         self.cursor.execute(
-            "SELECT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, t.max_par, t.status, "
+            "SELECT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, t.max_par, "
+            "t.status, t.publish, "  # Add a comma after t.publish
             "CASE WHEN t.date >= DATE('now') THEN t.date ELSE NULL END AS happening_soon_date "
             "FROM training t "
             "JOIN department d ON d.departmentID = t.departmentID "
             "ORDER BY happening_soon_date DESC, t.status")
         row_data = self.cursor.fetchall()
         rows = len(row_data)
-        print(row_data)  # (0-ID, 1-Name, 2- department, 3- short description', 4 - image, 5- max par, 6-status)
+        print(row_data)
+        # print row data = (0-ID, 1-Name, 2- department, 3- short description', 4 - image, 5- max par, 6-status, 7-publish)
 
         self.app_status = "approved"
+        self.training_buttons = {}
 
         for item in range(rows):
             training_id = row_data[item][0]
@@ -69,7 +72,6 @@ class HR_Training(QMainWindow):
                                 "WHERE t.trainingID = ? AND a.applicationStatus = ?",
                                 (training_id, self.app_status,))
             application_count = str(self.cursor.fetchone()[0])
-            print(application_count)
 
             self.training = QFrame(self.scrollAreaWidgetContents_2)
             self.training.setObjectName(u"training")
@@ -131,7 +133,7 @@ class HR_Training(QMainWindow):
             self.description_db.setWordWrap(True)
             self.description_db.setText(f"{row_data[item][3]}")
 
-            self.training_name_db = QPushButton(self.training)
+            self.training_name_db = QLabel(self.training)
             self.training_name_db.setObjectName(u"training_name_db")
             self.training_name_db.setGeometry(QRect(230, 20, 691, 31))
             font2 = QFont()
@@ -144,7 +146,6 @@ class HR_Training(QMainWindow):
                                                 "border: none;\n"
                                                 "text-align: left;\n")
             self.training_name_db.setText(f"{row_data[item][1]}")
-            # self.training_name_db.clicked.connect
 
             self.participant_label = QLabel(self.training)
             self.participant_label.setObjectName(u"participant_label")
@@ -168,23 +169,12 @@ class HR_Training(QMainWindow):
             self.status_db.setObjectName(u"status_db")
             self.status_db.setGeometry(QRect(90, 200, 71, 31))
             self.status_db.setFont(font1)
+
             if row_data[item][6] == "Approved":
                 self.status_db.setStyleSheet(u"color: lightgreen;\n"
-                                             "font-weight: regular;\n"
-                                             "border: none;\n"
-                                             "bold: none;")
+                                             "font-weight: bold;\n"
+                                             "border: none;\n")
 
-            elif row_data[item][6] == "Cancelled":
-                self.status_db.setStyleSheet(u"color: #FE8886;\n"
-                                             "font-weight: regular;\n"
-                                             "border: none;\n"
-                                             "bold: none;")
-
-            elif row_data[item][6] == "Pending":
-                self.status_db.setStyleSheet(u"color: #FFAE42;\n"
-                                             "font-weight: regular;\n"
-                                             "border: none;\n"
-                                             "bold: none;")
                 self.publish_button = QPushButton(self.training)
                 self.publish_button.setObjectName(u"publish_button")
                 self.publish_button.setGeometry(QRect(810, 200, 112, 34))
@@ -192,8 +182,71 @@ class HR_Training(QMainWindow):
                                                   "font-weight: bold;\n"
                                                   "border-radius: 10px;\n"
                                                   "background: #008287;\n")
-                self.publish_button.setText("Publish")
-                self.publish_button.clicked.connect(self.publishTraining)
+                self.publish_button.setProperty("trainingID", training_id)
+                self.publish_button.clicked.connect(lambda _, publish_btn=self.publish_button: self.publishTraining(publish_btn))
+
+
+                self.modify_button = QPushButton(self.training)
+                self.modify_button.setObjectName(u"modify_button")
+                self.modify_button.setGeometry(QRect(570, 200, 112, 34))
+                self.modify_button.setStyleSheet(u"color: white;\n"
+                                                   "font-weight: bold;\n"
+                                                   "border-radius: 10px;\n"
+                                                   "background: #008287;\n")
+                self.modify_button.setText("Modify")
+                self.modify_button.clicked.connect(lambda _, trainingID = training_id: self.modifyTraining(trainingID))
+
+                self.view_more_button = QPushButton(self.training)
+                self.view_more_button.setObjectName(u"view_more_button")
+                self.view_more_button.setGeometry(QRect(690, 200, 112, 34))
+                self.view_more_button.setStyleSheet(u"color: white;\n"
+                                                 "font-weight: bold;\n"
+                                                 "border-radius: 10px;\n"
+                                                 "background: #008287;\n")
+                self.view_more_button.setText("Modify")
+                self.view_more_button.clicked.connect(lambda _, trainingID = training_id: self.viewTraining(trainingID))
+
+            elif row_data[item][6] == "Cancelled":
+                self.status_db.setStyleSheet(u"color: #FE8886;\n"
+                                             "font-weight: bold;\n"
+                                             "border: none;\n")
+
+                self.publish_button = QPushButton(self.training)
+                self.publish_button.setObjectName(u"publish_button")
+                self.publish_button.setGeometry(QRect(810, 200, 112, 34))
+                self.publish_button.setStyleSheet(u"color: white;\n"
+                                                  "font-weight: bold;\n"
+                                                  "border-radius: 10px;\n"
+                                                  "background: #008287;\n")
+                self.publish_button.setProperty("trainingID", training_id)
+                self.publish_button.clicked.connect(
+                    lambda _, publish_btn=self.publish_button: self.publishTraining(publish_btn))
+
+
+                self.view_more_button = QPushButton(self.training)
+                self.view_more_button.setObjectName(u"view_more_button")
+                self.view_more_button.setGeometry(QRect(690, 200, 112, 34))
+                self.view_more_button.setStyleSheet(u"color: white;\n"
+                                                    u"font-weight: bold;\n"
+                                                    u"border-radius: 10px;\n"
+                                                    u"background: #008287;\n")
+                self.view_more_button.setText("View More")
+                self.view_more_button.clicked.connect(lambda _, trainingID = training_id: self.viewTraining(trainingID))
+
+            elif row_data[item][6] == "Pending":
+                self.status_db.setStyleSheet(u"color: #FFAE42;\n"
+                                             "font-weight: bold;\n"
+                                             "border: none;\n")
+
+                self.publish_button = QPushButton(self.training)
+                self.publish_button.setObjectName(u"publish_button")
+                self.publish_button.setGeometry(QRect(810, 200, 112, 34))
+                self.publish_button.setStyleSheet(u"color: white;\n"
+                                                  "font-weight: bold;\n"
+                                                  "border-radius: 10px;\n"
+                                                  "background: #008287;\n")
+                self.publish_button.setProperty("trainingID", training_id)
+                self.publish_button.clicked.connect(lambda _, publish_btn=self.publish_button: self.publishTraining(publish_btn))
 
                 self.modify_button = QPushButton(self.training)
                 self.modify_button.setObjectName(u"modify_button")
@@ -203,7 +256,7 @@ class HR_Training(QMainWindow):
                                                  "border-radius: 10px;\n"
                                                  "background: #008287;\n")
                 self.modify_button.setText("Modify")
-                self.modify_button.clicked.connect(self.modifyTraining)
+                self.modify_button.clicked.connect(lambda _, trainingID = training_id: self.modifyTraining(trainingID))
 
                 self.approval_button = QPushButton(self.training)
                 self.approval_button.setObjectName(u"approval_button")
@@ -213,14 +266,41 @@ class HR_Training(QMainWindow):
                                                    "border-radius: 10px;\n"
                                                    "background: #008287;\n")
                 self.approval_button.setText("Approval")
-                self.approval_button.clicked.connect(self.approveTraining)
+                self.approval_button.clicked.connect(lambda _, trainingID = training_id:
+                                                     self.approveTraining(trainingID))
 
-            else:
-                self.status_db.setStyleSheet(u"color: #CC99FF;\n"
-                                             "font-weight: regular;\n"
-                                             "border: none;\n"
-                                             "bold: none;")
+            else:  # past training
+                self.status_db.setStyleSheet(u"color: #EABFFF;\n"
+                                             "font-weight: bold;\n"
+                                             "border: none;\n")
+
+                self.publish_button = QPushButton(self.training)
+                self.publish_button.setObjectName(u"publish_button")
+                self.publish_button.setGeometry(QRect(810, 200, 112, 34))
+                self.publish_button.setStyleSheet(u"color: white;\n"
+                                                  "font-weight: bold;\n"
+                                                  "border-radius: 10px;\n"
+                                                  "background: #008287;\n")
+                self.publish_button.setProperty("trainingID", training_id)
+                self.publish_button.clicked.connect(lambda _, publish_btn=self.publish_button:
+                                                    self.publishTraining(publish_btn))
+
+                self.view_more_button = QPushButton(self.training)
+                self.view_more_button.setObjectName(u"view_more_button")
+                self.view_more_button.setGeometry(QRect(690, 200, 112, 34))
+                self.view_more_button.setStyleSheet(u"color: white;\n"
+                                                    u"font-weight: bold;\n"
+                                                    u"border-radius: 10px;\n"
+                                                    u"background: #008287;\n")
+                self.view_more_button.setText("View More")
+                self.view_more_button.clicked.connect(lambda _, trainingID = training_id: self.viewTraining(trainingID))
+
             self.status_db.setText(f"{row_data[item][6]}")
+            publish = row_data[item][7]
+            if publish == 1:
+                self.publish_button.setText("Unpublish")
+            else:
+                self.publish_button.setText("Publish")
 
             self.participant_db = QLabel(self.training)
             self.participant_db.setObjectName(u"participant_db")
@@ -232,34 +312,6 @@ class HR_Training(QMainWindow):
                                               "bold: none;")
             self.participant_db.setText(f"{application_count}"" / " f"{row_data[item][5]}")
 
-            # self.publish_button = QPushButton(self.training)
-            # self.publish_button.setObjectName(u"publish_button")
-            # self.publish_button.setGeometry(QRect(810, 200, 112, 34))
-            # self.publish_button.setStyleSheet(u"color: white;\n"
-            #                                   "font-weight: bold;\n"
-            #                                   "border-radius: 10px;\n"
-            #                                   "background: #008287;\n")
-            # self.publish_button.setText("Publish")
-            #
-            # self.modify_button = QPushButton(self.training)
-            # self.modify_button.setObjectName(u"modify_button")
-            # self.modify_button.setGeometry(QRect(690, 200, 112, 34))
-            # self.modify_button.setStyleSheet(u"color: white;\n"
-            #                                  "font-weight: bold;\n"
-            #                                  "border-radius: 10px;\n"
-            #                                  "background: #008287;\n")
-            # self.modify_button.setText("Modify")
-            #
-            # self.approval_button = QPushButton(self.training)
-            # self.approval_button.setObjectName(u"approval_button")
-            # self.approval_button.setGeometry(QRect(570, 200, 112, 34))
-            # self.approval_button.setStyleSheet(u"color: white;\n"
-            #                                    "font-weight: bold;\n"
-            #                                    "border-radius: 10px;\n"
-            #                                    "background: #008287;\n")
-            # self.approval_button.setText("Approval")
-
-
         # Adjust the size of the scroll area's contents
         self.scrollAreaWidgetContents_2.setMinimumHeight(50 + rows * (frame_height + frame_spacing))
 
@@ -269,16 +321,28 @@ class HR_Training(QMainWindow):
     def createNewTraining(self):
         pass
 
-    def modifyTraining(self):
+    def modifyTraining(self, trainingID):
         pass
 
-    def viewTraining(self):
+    def viewTraining(self, trainingID):
         pass
 
-    def publishTraining(self):
-        pass
+    def publishTraining(self, publish_btn):
+        button = publish_btn  # Get the button object that emitted the signal
+        trainingID = button.property("trainingID")  # Get the training ID from the button's property
 
-    def approveTraining(self):
+        if button.text() == "Publish":
+            button.setText("Unpublish")
+            # Update the database to set the publish status to 1
+            self.cursor.execute("UPDATE training SET publish = 1 WHERE trainingID = ?", (trainingID,))
+            connect.commit()
+        else:
+            button.setText("Publish")
+            # Update the database to set the publish status to 0
+            self.cursor.execute("UPDATE training SET publish = 0 WHERE trainingID = ?", (trainingID,))
+            connect.commit()
+
+    def approveTraining(self, trainingID):
         pass
 
 
