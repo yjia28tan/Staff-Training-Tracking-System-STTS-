@@ -145,7 +145,7 @@ class Ui_MainWindow(object):
 "color: white;")
         self.short_description_label.setObjectName("short_description_label")
         self.description_label = QtWidgets.QLabel(self.main_frame)
-        self.description_label.setGeometry(QtCore.QRect(430, 370, 101, 31))
+        self.description_label.setGeometry(QtCore.QRect(430, 390, 101, 31))
         font = QtGui.QFont()
         font.setPointSize(8)
         font.setBold(True)
@@ -196,7 +196,7 @@ class Ui_MainWindow(object):
         self.cost.setText("")
         self.cost.setObjectName("cost")
         self.description = QtWidgets.QLabel(self.main_frame)
-        self.description.setGeometry(QtCore.QRect(430, 420, 371, 211))
+        self.description.setGeometry(QtCore.QRect(430, 440, 371, 211))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.description.setFont(font)
@@ -268,6 +268,15 @@ class Ui_MainWindow(object):
         self.department_pick = QtWidgets.QComboBox(self.main_frame)
         self.department_pick.setGeometry(QtCore.QRect(430, 290, 291, 41))
         self.department_pick.setObjectName("department_pick")
+        self.check_box = QtWidgets.QCheckBox(self.main_frame)
+        self.check_box.setGeometry(QtCore.QRect(430, 350, 301, 23))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.check_box.setFont(font)
+        self.check_box.setStyleSheet("border: none;\n"
+"color: white;")
+        self.check_box.setObjectName("check_box")
         self.horizontalLayout.addWidget(self.main_frame)
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -290,6 +299,7 @@ class Ui_MainWindow(object):
         self.time_pick.setDisplayFormat(_translate("MainWindow", "HH:mm"))
         self.create_button.setText(_translate("MainWindow", "Create"))
         self.cancel_button.setText(_translate("MainWindow", "Cancel"))
+        self.check_box.setText(_translate("MainWindow", "Add participants by department"))
 
 
 if __name__ == "__main__":
