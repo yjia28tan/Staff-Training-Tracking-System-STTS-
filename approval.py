@@ -433,24 +433,6 @@ class Ui_MainWindow(object):
         self.tableWidget.horizontalHeader().setVisible(True)
         self.tableWidget.verticalHeader().setVisible(False)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
-        self.search_button = QtWidgets.QPushButton(self.main_frame)
-        self.search_button.setGeometry(QtCore.QRect(950, 57, 31, 34))
-        self.search_button.setStyleSheet("border: none;")
-        self.search_button.setText("")
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap("search.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.search_button.setIcon(icon5)
-        self.search_button.setIconSize(QtCore.QSize(25, 25))
-        self.search_button.setObjectName("search_button")
-        self.search_bar = QtWidgets.QLineEdit(self.main_frame)
-        self.search_bar.setGeometry(QtCore.QRect(805, 60, 141, 25))
-        self.search_bar.setStyleSheet("QLineEdit {color: white;}\n"
-"QLineEdit::placeholder {color: white;}\n"
-"QLineEdit {border-radius: 10px;\n"
-"    border: 1px solid white;}\n"
-"\n"
-"")
-        self.search_bar.setObjectName("search_bar")
         self.horizontalLayout.addWidget(self.main_frame)
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -530,7 +512,6 @@ class Ui_MainWindow(object):
         item = self.tableWidget.item(3, 4)
         item.setText(_translate("MainWindow", "Pending"))
         self.tableWidget.setSortingEnabled(__sortingEnabled)
-        self.search_bar.setPlaceholderText(_translate("MainWindow", "  Search..."))
 
 
 if __name__ == "__main__":
