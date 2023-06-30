@@ -169,78 +169,10 @@ class Ui_MainWindow(object):
         self.brochure_button.setStyleSheet("border-radius: 10px;")
         self.brochure_button.setText("")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../../../../../Downloads/Lovepik_com-400278510-symbolic-linear-icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("add.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.brochure_button.setIcon(icon)
         self.brochure_button.setIconSize(QtCore.QSize(60, 60))
         self.brochure_button.setObjectName("brochure_button")
-        self.new_training_name = QtWidgets.QLabel(self.main_frame)
-        self.new_training_name.setGeometry(QtCore.QRect(60, 180, 311, 41))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.new_training_name.setFont(font)
-        self.new_training_name.setStyleSheet("borde: 1px solid white;\n"
-"color: black;\n"
-"background: white;\n"
-"border-radius: 10px;")
-        self.new_training_name.setText("")
-        self.new_training_name.setObjectName("new_training_name")
-        self.cost = QtWidgets.QLabel(self.main_frame)
-        self.cost.setGeometry(QtCore.QRect(60, 400, 111, 41))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.cost.setFont(font)
-        self.cost.setStyleSheet("borde: 1px solid white;\n"
-"color: black;\n"
-"background: white;\n"
-"border-radius: 10px;")
-        self.cost.setText("")
-        self.cost.setObjectName("cost")
-        self.description = QtWidgets.QLabel(self.main_frame)
-        self.description.setGeometry(QtCore.QRect(430, 440, 371, 211))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.description.setFont(font)
-        self.description.setStyleSheet("borde: 1px solid white;\n"
-"color: black;\n"
-"background: white;\n"
-"border-radius: 10px;")
-        self.description.setText("")
-        self.description.setWordWrap(True)
-        self.description.setObjectName("description")
-        self.short_description = QtWidgets.QLabel(self.main_frame)
-        self.short_description.setGeometry(QtCore.QRect(60, 510, 311, 141))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.short_description.setFont(font)
-        self.short_description.setStyleSheet("borde: 1px solid white;\n"
-"color: black;\n"
-"background: white;\n"
-"border-radius: 10px;")
-        self.short_description.setText("")
-        self.short_description.setWordWrap(True)
-        self.short_description.setObjectName("short_description")
-        self.max_participants = QtWidgets.QLabel(self.main_frame)
-        self.max_participants.setGeometry(QtCore.QRect(220, 400, 111, 41))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.max_participants.setFont(font)
-        self.max_participants.setStyleSheet("borde: 1px solid white;\n"
-"color: black;\n"
-"background: white;\n"
-"border-radius: 10px;")
-        self.max_participants.setText("")
-        self.max_participants.setObjectName("max_participants")
-        self.venue = QtWidgets.QLabel(self.main_frame)
-        self.venue.setGeometry(QtCore.QRect(60, 290, 311, 41))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.venue.setFont(font)
-        self.venue.setStyleSheet("borde: 1px solid white;\n"
-"color: black;\n"
-"background: white;\n"
-"border-radius: 10px;")
-        self.venue.setText("")
-        self.venue.setObjectName("venue")
         self.create_button = QtWidgets.QPushButton(self.main_frame)
         self.create_button.setGeometry(QtCore.QRect(939, 600, 101, 41))
         font = QtGui.QFont()
@@ -278,6 +210,48 @@ class Ui_MainWindow(object):
         self.check_box.setStyleSheet("border: none;\n"
 "color: white;")
         self.check_box.setObjectName("check_box")
+        self.new_training_name = QtWidgets.QLineEdit(self.main_frame)
+        self.new_training_name.setGeometry(QtCore.QRect(60, 180, 311, 41))
+        self.new_training_name.setStyleSheet("borde: 1px solid white;\n"
+"color: black;\n"
+"background: white;\n"
+"border-radius: 10px;")
+        self.new_training_name.setObjectName("new_training_name")
+        self.venue = QtWidgets.QLineEdit(self.main_frame)
+        self.venue.setGeometry(QtCore.QRect(60, 290, 311, 41))
+        self.venue.setStyleSheet("borde: 1px solid white;\n"
+"color: black;\n"
+"background: white;\n"
+"border-radius: 10px;")
+        self.venue.setObjectName("venue")
+        self.cost = QtWidgets.QLineEdit(self.main_frame)
+        self.cost.setGeometry(QtCore.QRect(60, 400, 111, 41))
+        self.cost.setStyleSheet("borde: 1px solid white;\n"
+"color: black;\n"
+"background: white;\n"
+"border-radius: 10px;")
+        self.cost.setObjectName("cost")
+        self.max_participants = QtWidgets.QLineEdit(self.main_frame)
+        self.max_participants.setGeometry(QtCore.QRect(220, 400, 111, 41))
+        self.max_participants.setStyleSheet("borde: 1px solid white;\n"
+"color: black;\n"
+"background: white;\n"
+"border-radius: 10px;")
+        self.max_participants.setObjectName("max_participants")
+        self.short_description = QtWidgets.QLineEdit(self.main_frame)
+        self.short_description.setGeometry(QtCore.QRect(60, 510, 311, 141))
+        self.short_description.setStyleSheet("borde: 1px solid white;\n"
+"color: black;\n"
+"background: white;\n"
+"border-radius: 10px;")
+        self.short_description.setObjectName("short_description")
+        self.description = QtWidgets.QLineEdit(self.main_frame)
+        self.description.setGeometry(QtCore.QRect(430, 440, 371, 211))
+        self.description.setStyleSheet("borde: 1px solid white;\n"
+"color: black;\n"
+"background: white;\n"
+"border-radius: 10px;")
+        self.description.setObjectName("description")
         self.horizontalLayout.addWidget(self.main_frame)
         MainWindow.setCentralWidget(self.centralwidget)
 
