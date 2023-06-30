@@ -3,7 +3,7 @@ import datetime
 from PyQt5 import Qt, uic
 from PyQt5.QtCore import QSize, QRect, QMetaObject, QCoreApplication, Qt, QByteArray
 from PyQt5.QtGui import QPixmap, QIcon, QFont
-from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QHBoxLayout, QSizePolicy, QPushButton, QLabel, QScrollArea, \
+from PyQt5.QtWidgets import QWidget, QFrame, QHBoxLayout, QSizePolicy, QPushButton, QLabel, QScrollArea, \
     QLineEdit, QMessageBox, QMainWindow, QTableWidget, QTableWidgetItem
 from PyQt5.uic import loadUi
 import sys
@@ -44,19 +44,22 @@ class HR_Training(QtWidgets.QMainWindow):
 
         self.header.setText("Training Lists")
 
-        self.create_button.clicked.connect(self.create_new_training)
-
         self.search_button.clicked.connect(self.search_training_hr)
+
+        self.create_button.clicked.connect(self.create_new_training)
 
         connectDatabase()
         self.cursor = connect.cursor()
         self.cursor.execute(
             "SELECT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, t.max_par, "
-            "t.status, t.publish, " 
+            "t.status, t.publish, "
             "CASE WHEN t.date >= DATE('now') THEN t.date ELSE NULL END AS happening_soon_date "
             "FROM training t "
             "JOIN department d ON d.departmentID = t.departmentID "
-            "ORDER BY happening_soon_date DESC, t.status")
+            "ORDER BY "
+            "   CASE WHEN t.status = 'Pending' THEN 0 ELSE 1 END, "
+            "   happening_soon_date DESC"
+        )
         row_data = self.cursor.fetchall()
         rows = len(row_data)
 
@@ -643,7 +646,6 @@ class HR_Training(QtWidgets.QMainWindow):
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
             QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
-            print(error_message)
 
     def publish_training(self, publish_btn):
         button = publish_btn  # Get the button object that emitted the signal
@@ -670,317 +672,320 @@ class HR_Training(QtWidgets.QMainWindow):
         pass
 
     def reset(self):
-        try:
-            # Define the size and position of each frame
-            frame_width = 931
-            frame_height = 251
-            frame_spacing = 20
+            try:
+                # Define the size and position of each frame
+                frame_width = 931
+                frame_height = 251
+                frame_spacing = 20
 
 
-            # Clear the existing contents of the scroll area
-            for frame in self.scrollAreaWidgetContents_2.findChildren(QtWidgets.QFrame):
-                # Remove child widgets from the frame
-                for child_widget in frame.children():
-                    child_widget.deleteLater()
-                # Remove the frame itself
-                frame.deleteLater()
+                # Clear the existing contents of the scroll area
+                for frame in self.scrollAreaWidgetContents_2.findChildren(QtWidgets.QFrame):
+                    # Remove child widgets from the frame
+                    for child_widget in frame.children():
+                        child_widget.deleteLater()
+                    # Remove the frame itself
+                    frame.deleteLater()
 
-            connectDatabase()
-            self.cursor = connect.cursor()
-            self.cursor.execute(
-                "SELECT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, t.max_par, "
-                "t.status, t.publish, " 
-                "CASE WHEN t.date >= DATE('now') THEN t.date ELSE NULL END AS happening_soon_date "
-                "FROM training t "
-                "JOIN department d ON d.departmentID = t.departmentID "
-                "ORDER BY happening_soon_date DESC, t.status")
-            row_data = self.cursor.fetchall()
-            rows = len(row_data)
+                connectDatabase()
+                self.cursor = connect.cursor()
+                self.cursor.execute(
+                    "SELECT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, t.max_par, "
+                    "t.status, t.publish, "
+                    "CASE WHEN t.date >= DATE('now') THEN t.date ELSE NULL END AS happening_soon_date "
+                    "FROM training t "
+                    "JOIN department d ON d.departmentID = t.departmentID "
+                    "ORDER BY "
+                    "   CASE WHEN t.status = 'Pending' THEN 0 ELSE 1 END, "
+                    "   happening_soon_date DESC"
+                )
+                row_data = self.cursor.fetchall()
+                rows = len(row_data)
 
-            self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
-            self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 50, frame_width,
-                                                                     rows * (frame_height + frame_spacing)))
-            self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
+                self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
+                self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 50, frame_width,
+                                                                         rows * (frame_height + frame_spacing)))
+                self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
 
-            self.create_button = QPushButton(self.scrollAreaWidgetContents_2)
-            self.create_button.setObjectName(u"create_button")
-            self.create_button.setGeometry(QRect(808, 3, 121, 41))
-            font1 = QFont()
-            font1.setPointSize(9)
-            font1.setBold(True)
-            font1.setWeight(75)
-            self.create_button.setFont(font1)
-            self.create_button.setStyleSheet(u"color: white;\n"
-                                             "font-weight: bold;\n"
-                                             "border: 1px solid white;\n"
-                                             "border-radius: 10px;")
-            icon2 = QIcon()
-            icon2.addFile(u"create.png", QSize(), QIcon.Normal, QIcon.Off)
-            self.create_button.setIcon(icon2)
-            self.create_button.setIconSize(QSize(30, 36))
-            self.create_button.setCheckable(False)
-            self.create_button.setText("Create")
-            self.create_button.clicked.connect(self.create_new_training)
+                self.create_button = QPushButton(self.scrollAreaWidgetContents_2)
+                self.create_button.setObjectName(u"create_button")
+                self.create_button.setGeometry(QRect(808, 3, 121, 41))
+                font1 = QFont()
+                font1.setPointSize(9)
+                font1.setBold(True)
+                font1.setWeight(75)
+                self.create_button.setFont(font1)
+                self.create_button.setStyleSheet(u"color: white;\n"
+                                                 "font-weight: bold;\n"
+                                                 "border: 1px solid white;\n"
+                                                 "border-radius: 10px;")
+                icon2 = QIcon()
+                icon2.addFile(u"create.png", QSize(), QIcon.Normal, QIcon.Off)
+                self.create_button.setIcon(icon2)
+                self.create_button.setIconSize(QSize(30, 36))
+                self.create_button.setCheckable(False)
+                self.create_button.setText("Create")
+                self.create_button.clicked.connect(self.create_new_training)
 
-            self.app_status = "approved"
+                self.app_status = "approved"
 
-            for item in range(rows):
-                training_id = row_data[item][0]
-                self.cursor.execute("SELECT COUNT(a.applicationID) "
-                                    "FROM application a "
-                                    "JOIN training t ON t.trainingID = a.trainingID "
-                                    "WHERE t.trainingID = ? AND a.applicationStatus = ?",
-                                    (training_id, self.app_status,))
-                application_count = str(self.cursor.fetchone()[0])
+                for item in range(rows):
+                    training_id = row_data[item][0]
+                    self.cursor.execute("SELECT COUNT(a.applicationID) "
+                                        "FROM application a "
+                                        "JOIN training t ON t.trainingID = a.trainingID "
+                                        "WHERE t.trainingID = ? AND a.applicationStatus = ?",
+                                        (training_id, self.app_status,))
+                    application_count = str(self.cursor.fetchone()[0])
 
-                self.training = QFrame(self.scrollAreaWidgetContents_2)
-                self.training.setObjectName(u"training")
-                self.training.setGeometry(QRect(0, 50 + (item * (frame_height + frame_spacing)), frame_width, frame_height))
-                self.training.setStyleSheet(u"border: 1px solid white;\n"
-                                            "background: #8A8A8A;\n"
-                                            "border-radius: 10px;")
-                self.training.setFrameShape(QFrame.StyledPanel)
-                self.training.setFrameShadow(QFrame.Raised)
+                    self.training = QFrame(self.scrollAreaWidgetContents_2)
+                    self.training.setObjectName(u"training")
+                    self.training.setGeometry(QRect(0, 50 + (item * (frame_height + frame_spacing)), frame_width, frame_height))
+                    self.training.setStyleSheet(u"border: 1px solid white;\n"
+                                                "background: #8A8A8A;\n"
+                                                "border-radius: 10px;")
+                    self.training.setFrameShape(QFrame.StyledPanel)
+                    self.training.setFrameShadow(QFrame.Raised)
 
-                self.training_image = QLabel(self.training)
-                self.training_image.setObjectName(u"training_image")
-                self.training_image.setGeometry(QRect(20, 10, 200, 150))
-                self.training_image.setPixmap(QtGui.QPixmap(f"pictures/image{row_data[item][4]}.png"))
+                    self.training_image = QLabel(self.training)
+                    self.training_image.setObjectName(u"training_image")
+                    self.training_image.setGeometry(QRect(20, 10, 200, 150))
+                    self.training_image.setPixmap(QtGui.QPixmap(f"pictures/image{row_data[item][4]}.png"))
 
-                self.department_label = QLabel(self.training)
-                self.department_label.setObjectName(u"department_label")
-                self.department_label.setGeometry(QRect(230, 50, 111, 31))
-                font = QFont()
-                font.setBold(True)
-                font.setWeight(75)
-                self.department_label.setFont(font)
-                self.department_label.setStyleSheet(u"color: white;\n"
+                    self.department_label = QLabel(self.training)
+                    self.department_label.setObjectName(u"department_label")
+                    self.department_label.setGeometry(QRect(230, 50, 111, 31))
+                    font = QFont()
+                    font.setBold(True)
+                    font.setWeight(75)
+                    self.department_label.setFont(font)
+                    self.department_label.setStyleSheet(u"color: white;\n"
+                                                        "font-weight: bold;\n"
+                                                        "border: none;")
+                    self.department_label.setText("Department: ")
+
+                    self.department_db = QLabel(self.training)
+                    self.department_db.setObjectName(u"department_db")
+                    self.department_db.setGeometry(QRect(340, 50, 581, 31))
+                    font1 = QFont()
+                    font1.setPointSize(8)
+                    font1.setBold(False)
+                    font1.setWeight(50)
+                    self.department_db.setFont(font1)
+                    self.department_db.setStyleSheet(u"color: white;\n"
+                                                     "font-weight: regular;\n"
+                                                     "border: none;\n"
+                                                     "bold: none;")
+                    self.department_db.setText(f"{row_data[item][2]}")
+
+                    self.description_label = QLabel(self.training)
+                    self.description_label.setObjectName(u"description_label")
+                    self.description_label.setGeometry(QRect(230, 80, 101, 21))
+                    self.description_label.setFont(font)
+                    self.description_label.setStyleSheet(u"color: white;\n"
+                                                         "font-weight: bold;\n"
+                                                         "border: none;")
+                    self.description_label.setText("Description: ")
+
+                    self.description_db = QLabel(self.training)
+                    self.description_db.setObjectName(u"description_db")
+                    self.description_db.setGeometry(QRect(230, 100, 691, 81))
+                    self.description_db.setStyleSheet(u"color: white;\n"
+                                                      "font-weight: regular;\n"
+                                                      "border: none;")
+                    self.description_db.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+                    self.description_db.setWordWrap(True)
+                    self.description_db.setText(f"{row_data[item][3]}")
+
+                    self.training_name_db = QLabel(self.training)
+                    self.training_name_db.setObjectName(u"training_name_db")
+                    self.training_name_db.setGeometry(QRect(230, 20, 691, 31))
+                    font2 = QFont()
+                    font2.setPointSize(12)
+                    font2.setBold(True)
+                    font2.setWeight(75)
+                    self.training_name_db.setFont(font2)
+                    self.training_name_db.setStyleSheet(u"color: white;\n"
+                                                        "font-weight: bold;\n"
+                                                        "border: none;\n"
+                                                        "text-align: left;\n")
+                    self.training_name_db.setText(f"{row_data[item][1]}")
+
+                    self.participant_label = QLabel(self.training)
+                    self.participant_label.setObjectName(u"participant_label")
+                    self.participant_label.setGeometry(QRect(20, 170, 101, 31))
+                    self.participant_label.setFont(font)
+                    self.participant_label.setStyleSheet(u"color: white;\n"
+                                                         "font-weight: bold;\n"
+                                                         "border: none;")
+                    self.participant_label.setText("Participant:")
+
+                    self.status_label = QLabel(self.training)
+                    self.status_label.setObjectName(u"status_label")
+                    self.status_label.setGeometry(QRect(20, 200, 61, 31))
+                    self.status_label.setFont(font)
+                    self.status_label.setStyleSheet(u"color: white;\n"
                                                     "font-weight: bold;\n"
                                                     "border: none;")
-                self.department_label.setText("Department: ")
+                    self.status_label.setText("Status:")
 
-                self.department_db = QLabel(self.training)
-                self.department_db.setObjectName(u"department_db")
-                self.department_db.setGeometry(QRect(340, 50, 581, 31))
-                font1 = QFont()
-                font1.setPointSize(8)
-                font1.setBold(False)
-                font1.setWeight(50)
-                self.department_db.setFont(font1)
-                self.department_db.setStyleSheet(u"color: white;\n"
-                                                 "font-weight: regular;\n"
-                                                 "border: none;\n"
-                                                 "bold: none;")
-                self.department_db.setText(f"{row_data[item][2]}")
+                    self.status_db = QLabel(self.training)
+                    self.status_db.setObjectName(u"status_db")
+                    self.status_db.setGeometry(QRect(90, 200, 71, 31))
+                    self.status_db.setFont(font1)
 
-                self.description_label = QLabel(self.training)
-                self.description_label.setObjectName(u"description_label")
-                self.description_label.setGeometry(QRect(230, 80, 101, 21))
-                self.description_label.setFont(font)
-                self.description_label.setStyleSheet(u"color: white;\n"
+                    if row_data[item][6] == "Approved":
+                        self.status_db.setStyleSheet(u"color: lightgreen;\n"
                                                      "font-weight: bold;\n"
-                                                     "border: none;")
-                self.description_label.setText("Description: ")
+                                                     "border: none;\n")
 
-                self.description_db = QLabel(self.training)
-                self.description_db.setObjectName(u"description_db")
-                self.description_db.setGeometry(QRect(230, 100, 691, 81))
-                self.description_db.setStyleSheet(u"color: white;\n"
-                                                  "font-weight: regular;\n"
-                                                  "border: none;")
-                self.description_db.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-                self.description_db.setWordWrap(True)
-                self.description_db.setText(f"{row_data[item][3]}")
+                        self.publish_button = QPushButton(self.training)
+                        self.publish_button.setObjectName(u"publish_button")
+                        self.publish_button.setGeometry(QRect(810, 200, 112, 34))
+                        self.publish_button.setStyleSheet(u"color: white;\n"
+                                                          "font-weight: bold;\n"
+                                                          "border-radius: 10px;\n"
+                                                          "background: #008287;\n")
+                        self.publish_button.setProperty("trainingID", training_id)
+                        self.publish_button.clicked.connect(lambda _, publish_btn=self.publish_button:
+                                                            self.publish_training(publish_btn))
 
-                self.training_name_db = QLabel(self.training)
-                self.training_name_db.setObjectName(u"training_name_db")
-                self.training_name_db.setGeometry(QRect(230, 20, 691, 31))
-                font2 = QFont()
-                font2.setPointSize(12)
-                font2.setBold(True)
-                font2.setWeight(75)
-                self.training_name_db.setFont(font2)
-                self.training_name_db.setStyleSheet(u"color: white;\n"
-                                                    "font-weight: bold;\n"
-                                                    "border: none;\n"
-                                                    "text-align: left;\n")
-                self.training_name_db.setText(f"{row_data[item][1]}")
+                        self.modify_button = QPushButton(self.training)
+                        self.modify_button.setObjectName(u"modify_button")
+                        self.modify_button.setGeometry(QRect(570, 200, 112, 34))
+                        self.modify_button.setStyleSheet(u"color: white;\n"
+                                                         u"font-weight: bold;\n"
+                                                         u"border-radius: 10px;\n"
+                                                         u"background: #008287;\n")
+                        self.modify_button.setText("Modify")
+                        self.modify_button.clicked.connect(lambda _, trainingid=training_id: self.modify_training(trainingid))
 
-                self.participant_label = QLabel(self.training)
-                self.participant_label.setObjectName(u"participant_label")
-                self.participant_label.setGeometry(QRect(20, 170, 101, 31))
-                self.participant_label.setFont(font)
-                self.participant_label.setStyleSheet(u"color: white;\n"
+                        self.view_more_button = QPushButton(self.training)
+                        self.view_more_button.setObjectName(u"view_more_button")
+                        self.view_more_button.setGeometry(QRect(690, 200, 112, 34))
+                        self.view_more_button.setStyleSheet(u"color: white;\n"
+                                                            u"font-weight: bold;\n"
+                                                            u"border-radius: 10px;\n"
+                                                            u"background: #008287;\n")
+                        self.view_more_button.setText("Modify")
+                        self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_training(trainingid))
+
+                    elif row_data[item][6] == "Cancelled":
+                        self.status_db.setStyleSheet(u"color: #FE8886;\n"
                                                      "font-weight: bold;\n"
-                                                     "border: none;")
-                self.participant_label.setText("Participant:")
+                                                     "border: none;\n")
 
-                self.status_label = QLabel(self.training)
-                self.status_label.setObjectName(u"status_label")
-                self.status_label.setGeometry(QRect(20, 200, 61, 31))
-                self.status_label.setFont(font)
-                self.status_label.setStyleSheet(u"color: white;\n"
-                                                "font-weight: bold;\n"
-                                                "border: none;")
-                self.status_label.setText("Status:")
+                        self.publish_button = QPushButton(self.training)
+                        self.publish_button.setObjectName(u"publish_button")
+                        self.publish_button.setGeometry(QRect(810, 200, 112, 34))
+                        self.publish_button.setStyleSheet(u"color: white;\n"
+                                                          "font-weight: bold;\n"
+                                                          "border-radius: 10px;\n"
+                                                          "background: #008287;\n")
+                        self.publish_button.setProperty("trainingID", training_id)
+                        self.publish_button.clicked.connect(
+                            lambda _, publish_btn=self.publish_button: self.publish_training(publish_btn))
 
-                self.status_db = QLabel(self.training)
-                self.status_db.setObjectName(u"status_db")
-                self.status_db.setGeometry(QRect(90, 200, 71, 31))
-                self.status_db.setFont(font1)
+                        self.view_more_button = QPushButton(self.training)
+                        self.view_more_button.setObjectName(u"view_more_button")
+                        self.view_more_button.setGeometry(QRect(690, 200, 112, 34))
+                        self.view_more_button.setStyleSheet(u"color: white;\n"
+                                                            u"font-weight: bold;\n"
+                                                            u"border-radius: 10px;\n"
+                                                            u"background: #008287;\n")
+                        self.view_more_button.setText("View More")
+                        self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_training(trainingid))
 
-                if row_data[item][6] == "Approved":
-                    self.status_db.setStyleSheet(u"color: lightgreen;\n"
-                                                 "font-weight: bold;\n"
-                                                 "border: none;\n")
-
-                    self.publish_button = QPushButton(self.training)
-                    self.publish_button.setObjectName(u"publish_button")
-                    self.publish_button.setGeometry(QRect(810, 200, 112, 34))
-                    self.publish_button.setStyleSheet(u"color: white;\n"
-                                                      "font-weight: bold;\n"
-                                                      "border-radius: 10px;\n"
-                                                      "background: #008287;\n")
-                    self.publish_button.setProperty("trainingID", training_id)
-                    self.publish_button.clicked.connect(lambda _, publish_btn=self.publish_button:
-                                                        self.publish_training(publish_btn))
-
-                    self.modify_button = QPushButton(self.training)
-                    self.modify_button.setObjectName(u"modify_button")
-                    self.modify_button.setGeometry(QRect(570, 200, 112, 34))
-                    self.modify_button.setStyleSheet(u"color: white;\n"
-                                                     u"font-weight: bold;\n"
-                                                     u"border-radius: 10px;\n"
-                                                     u"background: #008287;\n")
-                    self.modify_button.setText("Modify")
-                    self.modify_button.clicked.connect(lambda _, trainingid=training_id: self.modify_training(trainingid))
-
-                    self.view_more_button = QPushButton(self.training)
-                    self.view_more_button.setObjectName(u"view_more_button")
-                    self.view_more_button.setGeometry(QRect(690, 200, 112, 34))
-                    self.view_more_button.setStyleSheet(u"color: white;\n"
-                                                        u"font-weight: bold;\n"
-                                                        u"border-radius: 10px;\n"
-                                                        u"background: #008287;\n")
-                    self.view_more_button.setText("Modify")
-                    self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_training(trainingid))
-
-                elif row_data[item][6] == "Cancelled":
-                    self.status_db.setStyleSheet(u"color: #FE8886;\n"
-                                                 "font-weight: bold;\n"
-                                                 "border: none;\n")
-
-                    self.publish_button = QPushButton(self.training)
-                    self.publish_button.setObjectName(u"publish_button")
-                    self.publish_button.setGeometry(QRect(810, 200, 112, 34))
-                    self.publish_button.setStyleSheet(u"color: white;\n"
-                                                      "font-weight: bold;\n"
-                                                      "border-radius: 10px;\n"
-                                                      "background: #008287;\n")
-                    self.publish_button.setProperty("trainingID", training_id)
-                    self.publish_button.clicked.connect(
-                        lambda _, publish_btn=self.publish_button: self.publish_training(publish_btn))
-
-                    self.view_more_button = QPushButton(self.training)
-                    self.view_more_button.setObjectName(u"view_more_button")
-                    self.view_more_button.setGeometry(QRect(690, 200, 112, 34))
-                    self.view_more_button.setStyleSheet(u"color: white;\n"
-                                                        u"font-weight: bold;\n"
-                                                        u"border-radius: 10px;\n"
-                                                        u"background: #008287;\n")
-                    self.view_more_button.setText("View More")
-                    self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_training(trainingid))
-
-                elif row_data[item][6] == "Pending":
-                    self.status_db.setStyleSheet(u"color: #FFAE42;\n"
-                                                 "font-weight: bold;\n"
-                                                 "border: none;\n")
-
-                    self.publish_button = QPushButton(self.training)
-                    self.publish_button.setObjectName(u"publish_button")
-                    self.publish_button.setGeometry(QRect(810, 200, 112, 34))
-                    self.publish_button.setStyleSheet(u"color: white;\n"
-                                                      "font-weight: bold;\n"
-                                                      "border-radius: 10px;\n"
-                                                      "background: #008287;\n")
-                    self.publish_button.setProperty("trainingID", training_id)
-                    self.publish_button.clicked.connect(lambda _, publish_btn=self.publish_button:
-                                                        self.publish_training(publish_btn))
-
-                    self.modify_button = QPushButton(self.training)
-                    self.modify_button.setObjectName(u"modify_button")
-                    self.modify_button.setGeometry(QRect(690, 200, 112, 34))
-                    self.modify_button.setStyleSheet(u"color: white;\n"
+                    elif row_data[item][6] == "Pending":
+                        self.status_db.setStyleSheet(u"color: #FFAE42;\n"
                                                      "font-weight: bold;\n"
-                                                     "border-radius: 10px;\n"
-                                                     "background: #008287;\n")
-                    self.modify_button.setText("Modify")
-                    self.modify_button.clicked.connect(lambda _, trainingid=training_id: self.modify_training(trainingid))
+                                                     "border: none;\n")
 
-                    self.approval_button = QPushButton(self.training)
-                    self.approval_button.setObjectName(u"approval_button")
-                    self.approval_button.setGeometry(QRect(570, 200, 112, 34))
-                    self.approval_button.setStyleSheet(u"color: white;\n"
-                                                       "font-weight: bold;\n"
-                                                       "border-radius: 10px;\n"
-                                                       "background: #008287;\n")
-                    self.approval_button.setText("Approval")
-                    self.approval_button.clicked.connect(lambda _, trainingid=training_id:
-                                                         self.approve_training(trainingid))
+                        self.publish_button = QPushButton(self.training)
+                        self.publish_button.setObjectName(u"publish_button")
+                        self.publish_button.setGeometry(QRect(810, 200, 112, 34))
+                        self.publish_button.setStyleSheet(u"color: white;\n"
+                                                          "font-weight: bold;\n"
+                                                          "border-radius: 10px;\n"
+                                                          "background: #008287;\n")
+                        self.publish_button.setProperty("trainingID", training_id)
+                        self.publish_button.clicked.connect(lambda _, publish_btn=self.publish_button:
+                                                            self.publish_training(publish_btn))
 
-                else:  # past training
-                    self.status_db.setStyleSheet(u"color: #EABFFF;\n"
-                                                 "font-weight: bold;\n"
-                                                 "border: none;\n")
+                        self.modify_button = QPushButton(self.training)
+                        self.modify_button.setObjectName(u"modify_button")
+                        self.modify_button.setGeometry(QRect(690, 200, 112, 34))
+                        self.modify_button.setStyleSheet(u"color: white;\n"
+                                                         "font-weight: bold;\n"
+                                                         "border-radius: 10px;\n"
+                                                         "background: #008287;\n")
+                        self.modify_button.setText("Modify")
+                        self.modify_button.clicked.connect(lambda _, trainingid=training_id: self.modify_training(trainingid))
 
-                    self.publish_button = QPushButton(self.training)
-                    self.publish_button.setObjectName(u"publish_button")
-                    self.publish_button.setGeometry(QRect(810, 200, 112, 34))
-                    self.publish_button.setStyleSheet(u"color: white;\n"
-                                                      "font-weight: bold;\n"
-                                                      "border-radius: 10px;\n"
-                                                      "background: #008287;\n")
-                    self.publish_button.setProperty("trainingID", training_id)
-                    self.publish_button.clicked.connect(lambda _, publish_btn=self.publish_button:
-                                                        self.publish_training(publish_btn))
+                        self.approval_button = QPushButton(self.training)
+                        self.approval_button.setObjectName(u"approval_button")
+                        self.approval_button.setGeometry(QRect(570, 200, 112, 34))
+                        self.approval_button.setStyleSheet(u"color: white;\n"
+                                                           "font-weight: bold;\n"
+                                                           "border-radius: 10px;\n"
+                                                           "background: #008287;\n")
+                        self.approval_button.setText("Approval")
+                        self.approval_button.clicked.connect(lambda _, trainingid=training_id:
+                                                             self.approve_training(trainingid))
 
-                    self.view_more_button = QPushButton(self.training)
-                    self.view_more_button.setObjectName(u"view_more_button")
-                    self.view_more_button.setGeometry(QRect(690, 200, 112, 34))
-                    self.view_more_button.setStyleSheet(u"color: white;\n"
-                                                        u"font-weight: bold;\n"
-                                                        u"border-radius: 10px;\n"
-                                                        u"background: #008287;\n")
-                    self.view_more_button.setText("View More")
-                    self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_training(trainingid))
+                    else:  # past training
+                        self.status_db.setStyleSheet(u"color: #EABFFF;\n"
+                                                     "font-weight: bold;\n"
+                                                     "border: none;\n")
 
-                self.status_db.setText(f"{row_data[item][6]}")
-                publish = row_data[item][7]
-                if publish == 1:
-                    self.publish_button.setText("Unpublished")
-                else:
-                    self.publish_button.setText("Publish")
+                        self.publish_button = QPushButton(self.training)
+                        self.publish_button.setObjectName(u"publish_button")
+                        self.publish_button.setGeometry(QRect(810, 200, 112, 34))
+                        self.publish_button.setStyleSheet(u"color: white;\n"
+                                                          "font-weight: bold;\n"
+                                                          "border-radius: 10px;\n"
+                                                          "background: #008287;\n")
+                        self.publish_button.setProperty("trainingID", training_id)
+                        self.publish_button.clicked.connect(lambda _, publish_btn=self.publish_button:
+                                                            self.publish_training(publish_btn))
 
-                self.participant_db = QLabel(self.training)
-                self.participant_db.setObjectName(u"participant_db")
-                self.participant_db.setGeometry(QRect(130, 170, 91, 31))
-                self.participant_db.setFont(font1)
-                self.participant_db.setStyleSheet(u"color: white;\n"
-                                                  "font-weight: regular;\n"
-                                                  "border: none;\n"
-                                                  "bold: none;")
-                self.participant_db.setText(f"{application_count}"" / " f"{row_data[item][5]}")
+                        self.view_more_button = QPushButton(self.training)
+                        self.view_more_button.setObjectName(u"view_more_button")
+                        self.view_more_button.setGeometry(QRect(690, 200, 112, 34))
+                        self.view_more_button.setStyleSheet(u"color: white;\n"
+                                                            u"font-weight: bold;\n"
+                                                            u"border-radius: 10px;\n"
+                                                            u"background: #008287;\n")
+                        self.view_more_button.setText("View More")
+                        self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_training(trainingid))
 
-            # Adjust the size of the scroll area's contents
-            self.scrollAreaWidgetContents_2.setMinimumHeight(50 + rows * (frame_height + frame_spacing))
+                    self.status_db.setText(f"{row_data[item][6]}")
+                    publish = row_data[item][7]
+                    if publish == 1:
+                        self.publish_button.setText("Unpublished")
+                    else:
+                        self.publish_button.setText("Publish")
 
-            # Set the scroll area widget
-            self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
+                    self.participant_db = QLabel(self.training)
+                    self.participant_db.setObjectName(u"participant_db")
+                    self.participant_db.setGeometry(QRect(130, 170, 91, 31))
+                    self.participant_db.setFont(font1)
+                    self.participant_db.setStyleSheet(u"color: white;\n"
+                                                      "font-weight: regular;\n"
+                                                      "border: none;\n"
+                                                      "bold: none;")
+                    self.participant_db.setText(f"{application_count}"" / " f"{row_data[item][5]}")
 
-        except Exception as e:
-            # Show error message box or print the error
-            error_message = "An error occurred: " + str(e)
-            # QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+                # Adjust the size of the scroll area's contents
+                self.scrollAreaWidgetContents_2.setMinimumHeight(50 + rows * (frame_height + frame_spacing))
+
+                # Set the scroll area widget
+                self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
+
+            except Exception as e:
+                # Show error message box or print the error
+                error_message = "An error occurred: " + str(e)
+                # QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
 
 class CreateNewTraining(QtWidgets.QDialog):
     def __init__(self, parent=None):
@@ -1074,8 +1079,20 @@ class CreateNewTraining(QtWidgets.QDialog):
         self.department_label.setObjectName("department_label")
         self.department_label.setText("Department")
 
+        self.duration_label = QtWidgets.QLabel(self.main_frame)
+        self.duration_label.setGeometry(QtCore.QRect(860, 140, 71, 31))
+        font = QtGui.QFont()
+        font.setPointSize(8)
+        font.setBold(True)
+        font.setWeight(75)
+        self.duration_label.setFont(font)
+        self.duration_label.setStyleSheet("border: none;\n"
+                                          "color: white;")
+        self.duration_label.setObjectName("duration_label")
+        self.duration_label.setText("Duration")
+
         self.brochure_label = QtWidgets.QLabel(self.main_frame)
-        self.brochure_label.setGeometry(QtCore.QRect(860, 200, 81, 31))
+        self.brochure_label.setGeometry(QtCore.QRect(860, 270, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(8)
         font.setBold(True)
@@ -1173,8 +1190,17 @@ class CreateNewTraining(QtWidgets.QDialog):
         self.time_pick.setObjectName("time_pick")
         self.time_pick.setDisplayFormat("HH:mm")
 
+        self.duration_pick = QtWidgets.QSpinBox(self.main_frame)
+        self.duration_pick.setGeometry(QtCore.QRect(860, 180, 101, 41))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.duration_pick.setFont(font)
+        self.duration_pick.setStyleSheet("color:  #00ced1;")
+        self.duration_pick.setObjectName("duration_pick")
+
         self.brochure_button = QtWidgets.QPushButton(self.main_frame)
-        self.brochure_button.setGeometry(QtCore.QRect(860, 250, 321, 201))
+        self.brochure_button.setGeometry(QtCore.QRect(860, 320, 321, 201))
         self.brochure_button.setStyleSheet("border-radius: 10px;")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("add.png"),
@@ -1183,16 +1209,6 @@ class CreateNewTraining(QtWidgets.QDialog):
         self.brochure_button.setIconSize(QtCore.QSize(60, 60))
         self.brochure_button.setObjectName("brochure_button")
         self.brochure_button.clicked.connect(self.add_brochure)
-
-        # Retrieve the icon image
-        brochure_image = self.brochure_button.icon()
-        pixmap = brochure_image.pixmap(QtCore.QSize(855, 245))  # Adjust the size as needed
-        # Convert QPixmap to bytes using QByteArray
-        byte_array = QByteArray()
-        buffer = QtCore.QBuffer(byte_array)
-        buffer.open(QtCore.QIODevice.WriteOnly)
-        pixmap.save(buffer, "PNG")  # Save the pixmap as PNG
-        image_data = byte_array.data()
 
         self.new_training_name = QtWidgets.QLineEdit(self.main_frame)
         self.new_training_name.setGeometry(QtCore.QRect(60, 180, 311, 41))
@@ -1251,9 +1267,9 @@ class CreateNewTraining(QtWidgets.QDialog):
         self.department_pick.setGeometry(QtCore.QRect(430, 290, 291, 41))
         self.department_pick.setStyleSheet("color:  #00ced1;")
         self.department_pick.setObjectName("department_pick")
-        self.department_pick.addItem("Select department")  # Add a placeholder item
+        self.department_pick.addItem("Select Department")  # Add a placeholder item
         self.department_pick.addItems([department[1] for department in department_list])
-        self.department_pick.setCurrentText("Select department")  # Set the default placeholder text
+        self.department_pick.setCurrentText("Select Department")  # Set the default placeholder text
 
         self.check_box = QtWidgets.QCheckBox(self.main_frame)
         self.check_box.setGeometry(QtCore.QRect(430, 350, 301, 23))
@@ -1266,20 +1282,20 @@ class CreateNewTraining(QtWidgets.QDialog):
         self.check_box.setObjectName("check_box")
         self.check_box.setText("Add participants by department")
 
-        self.create_button = QtWidgets.QPushButton(self.main_frame)
-        self.create_button.setGeometry(QtCore.QRect(939, 600, 101, 41))
+        self.create_button2 = QtWidgets.QPushButton(self.main_frame)
+        self.create_button2.setGeometry(QtCore.QRect(939, 600, 101, 41))
         font = QtGui.QFont()
         font.setPointSize(9)
         font.setBold(True)
         font.setWeight(75)
-        self.create_button.setFont(font)
-        self.create_button.setText("Create")
-        self.create_button.setStyleSheet("color: white;\n"
+        self.create_button2.setFont(font)
+        self.create_button2.setText("Create")
+        self.create_button2.setStyleSheet("color: white;\n"
                                          "font-weight: bold;\n"
                                          "border-radius: 10px;\n"
                                          "background: #008287;")
-        self.create_button.setObjectName("create_button")
-        self.create_button.clicked.connect(self.create_training)
+        self.create_button2.setObjectName("create_button")
+        self.create_button2.clicked.connect(self.create_training)
 
         self.cancel_button = QtWidgets.QPushButton(self.main_frame)
         self.cancel_button.setGeometry(QtCore.QRect(1060, 600, 111, 41))
@@ -1308,93 +1324,121 @@ class CreateNewTraining(QtWidgets.QDialog):
             self.brochure_button.setIcon(QtGui.QIcon(pixmap))  # Set the selected image as the button's icon
             self.brochure_button.setIconSize(QtCore.QSize(855, 245))
 
-    def validate_input(self):
-        pass
-        # # Retrieve input values
-        # training_name = self.new_training_name.text()
-        # cost = self.cost.text()
-        # date = self.date_pick.date().toPyDate()
-        # duration = self.time_pick.time().hour()
-        # venue = self.venue.text()
-        # short_description = self.short_description.text()
-        # max_participants = self.max_participants.text()
-        # department = self.department_pick.currentText()
-        #
-        # # Perform validation for each input field
-        # if not training_name or len(training_name.split()) > 8:
-        #     # Training name is empty
-        #     QtWidgets.QMessageBox.warning(self, "Validation Error",
-        #                                   "Please enter a training name that less than 8 characters.")
-        #     return False
-        #
-        # if not cost or not cost.isdigit() or int(cost) <= 0:
-        #     # Cost is empty, not a valid number, or not positive
-        #     QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a valid positive cost.")
-        #     return False
-        #
-        # if date <= datetime.date.today():
-        #     # Date is not larger than today's date
-        #     QtWidgets.QMessageBox.warning(self, "Validation Error", "Please select a date larger than today's date.")
-        #     return False
-        #
-        # if duration <= 0:
-        #     # Duration is not a positive value
-        #     QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a valid positive duration in hours.")
-        #     return False
-        #
-        # if not venue:
-        #     # Venue is empty
-        #     QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a venue.")
-        #     return False
-        #
-        # if len(short_description.split()) > 100:
-        #     # Short description exceeds 500 words
-        #     QtWidgets.QMessageBox.warning(self, "Validation Error", "Short description should not exceed 500 words.")
-        #     return False
-        #
-        # if not max_participants or not max_participants.isdigit() or int(max_participants) <= 0:
-        #     # Max participants is empty, not a valid number, or not positive
-        #     QtWidgets.QMessageBox.warning(self, "Validation Error",
-        #                                   "Please enter a valid positive maximum participants count.")
-        #     return False
-        #
-        # if department == "Select department":
-        #     # Department is not selected
-        #     QtWidgets.QMessageBox.warning(self, "Validation Error", "Please select a department.")
-        #     return False
-        #
-        # # Additional validation can be performed for specific fields if needed
-        #
-        # # Validation passed
-        # return True
-
     def create_training(self):
+        try:
+            # Retrieve input values
+            training_name = self.new_training_name.text()
+            cost = self.cost.text()
+            date = self.date_pick.date().toPyDate()
+            time = self.time_pick.time().toString("HH:mm")
+            duration = self.duration_pick.value()
+            venue = self.venue.text()
+            short_description = self.short_description.text()
+            description = self.description.text()
+            max_participants = self.max_participants.text()
+            department = self.department_pick.currentText()
+
+            # Retrieve the icon image
+            brochure_image = self.brochure_button.icon()
+            pixmap = brochure_image.pixmap(QtCore.QSize(855, 245))  # Adjust the size as needed
+            # Convert QPixmap to bytes using QByteArray
+            byte_array = QByteArray()
+            buffer = QtCore.QBuffer(byte_array)
+            buffer.open(QtCore.QIODevice.WriteOnly)
+            pixmap.save(buffer, "PNG")  # Save the pixmap as PNG
+            image_data = byte_array.data()
+
+            # Perform validation for each input field
+            if not training_name:
+                # Training name is empty
+                QtWidgets.QMessageBox.warning(self, "Validation Error",
+                                              "Please enter a training name.")
+                return False
+
+            if not cost or not cost.isdigit() or int(cost) <= 0:
+                # Cost is empty, not a valid number, or not positive
+                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a valid positive cost.")
+                return False
+
+            if date <= datetime.date.today():
+                # Date is not larger than today's date
+                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please select a date larger than today's date.")
+                return False
+
+            if not time:
+                # if time empty
+                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter the time.")
+                return False
+
+            if not duration or duration <= 0:
+                # Duration is not a positive value
+                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a valid positive durations.")
+
+            if not venue:
+                # Venue is empty
+                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a venue.")
+                return False
+
+            if len(short_description.split()) > 100:
+                # Short description exceeds 500 words
+                QtWidgets.QMessageBox.warning(self, "Validation Error", "Short description should not exceed 500 words.")
+                return False
+
+            if not description:
+                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter the description.")
+                return False
+
+            if not max_participants or not max_participants.isdigit() or int(max_participants) <= 0:
+                # Max participants is empty, not a valid number, or not positive
+                QtWidgets.QMessageBox.warning(self, "Validation Error",
+                                              "Please enter a valid positive maximum participants count.")
+                return False
+
+            if department == "Select Department":
+                # Department is not selected
+                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please select a department.")
+                return False
+
+            connectDatabase()
+            self.cursor = connect.cursor()
+            self.cursor.execute("SELECT departmentID FROM department where departmentName = ?", (department,))
+            dep_id = self.cursor.fetchone()
+            department_id = dep_id[0]
+
+            status = "Pending"
+            publish = False
+
+            self.cursor.execute("""INSERT INTO training 
+            (trainingName, cost, date, time, duration, venue, short_description, description, 
+            max_par, departmentID, brochure, status, publish) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", (
+                training_name, cost, date, time, duration, venue, short_description, description, max_participants,
+                department_id, image_data, status, publish))
+            connect.commit()
+            training_id = self.cursor.lastrowid
+            print("Training data inserted successfully. Training ID:", training_id)
+            QtWidgets.QMessageBox.information(self, "Success", "Training data inserted successfully.",
+                                              QtWidgets.QMessageBox.Ok)
+
+        except sqlite3.Error as e:
+            QtWidgets.QMessageBox.critical(self, "Error", str(e), QtWidgets.QMessageBox.Ok)
+            print("An error occurred while inserting the training data:", e)
+
         if self.check_box.isChecked():
             # Checkbox is checked, show the popup dialog
             try:
-                self.validate_input()
-                add_participant = AddParticipantPage(self)
+                add_participant = AddParticipantPage(self, training_id)
                 add_participant.exec_()
             except Exception as e:
                 # Show error message box or print the error
                 error_message = "An error occurred: " + str(e)
                 QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
-                print(error_message)
-
         else:
-            self.validate_input()
-            # Checkbox is not checked, insert data to database
-            insert_new_training_database()
-
-def insert_new_training_database():
-    # Insert data to database
-    print("Inserting data to database")
-
+            self.reject()
 
 class AddParticipantPage(QtWidgets.QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, training_id, parent=None):
         super().__init__(parent)
-        # loadUi("hr_add_by_department.ui", self)
+        print(training_id)
 
         self.setObjectName(u"AddParticipants")
         self.resize(720, 560)
@@ -1436,118 +1480,28 @@ class AddParticipantPage(QtWidgets.QDialog):
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
         self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 664, 461))
 
-        self.training_name_db = QLabel(self.scrollAreaWidgetContents)
-        self.training_name_db.setObjectName(u"training_name_db_2")
-        self.training_name_db.setGeometry(QRect(10, 10, 500, 51))
-        font1 = QFont()
-        font1.setPointSize(15)
-        font1.setBold(True)
-        font1.setWeight(75)
-        self.training_name_db.setFont(font1)
-        self.training_name_db.setStyleSheet(u"color: white;\n"
-                                            "font-weight: bold;\n"
-                                            "border: none;\n"
-                                            "text-align: left;\n")
-        self.training_name_db.setText("ddd")
-
-        # self.department_table = QTableWidget(self.scrollAreaWidgetContents)
-        # if (self.department_table.columnCount() < 2):
-        #     self.department_table.setColumnCount(2)
-        # font2 = QFont()
-        # font2.setPointSize(10)
-        # font2.setBold(True)
-        # font2.setWeight(75)
-        # __qtablewidgetitem = QTableWidgetItem()
-        # __qtablewidgetitem.setFont(font2);
-        # self.department_table.setHorizontalHeaderItem(0, __qtablewidgetitem)
-        # font3 = QFont()
-        # font3.setBold(True)
-        # font3.setWeight(75)
-        # __qtablewidgetitem1 = QTableWidgetItem()
-        # __qtablewidgetitem1.setFont(font3);
-        # self.department_table.setHorizontalHeaderItem(1, __qtablewidgetitem1)
-        # if (self.department_table.rowCount() < 4):
-        #     self.department_table.setRowCount(4)
-        # __qtablewidgetitem2 = QTableWidgetItem()
-        # __qtablewidgetitem2.setFont(font3);
-        # self.department_table.setVerticalHeaderItem(0, __qtablewidgetitem2)
-        # __qtablewidgetitem3 = QTableWidgetItem()
-        # __qtablewidgetitem3.setFont(font3);
-        # self.department_table.setVerticalHeaderItem(1, __qtablewidgetitem3)
-        # __qtablewidgetitem4 = QTableWidgetItem()
-        # __qtablewidgetitem4.setFont(font3);
-        # self.department_table.setVerticalHeaderItem(2, __qtablewidgetitem4)
-        # __qtablewidgetitem5 = QTableWidgetItem()
-        # __qtablewidgetitem5.setFont(font3);
-        # self.department_table.setVerticalHeaderItem(3, __qtablewidgetitem5)
-        # brush = QBrush(QColor(255, 255, 255, 255))
-        # brush.setStyle(Qt.NoBrush)
-        # __qtablewidgetitem6 = QTableWidgetItem()
-        # __qtablewidgetitem6.setTextAlignment(Qt.AlignCenter);
-        # __qtablewidgetitem6.setForeground(brush);
-        # self.department_table.setItem(0, 0, __qtablewidgetitem6)
-        # brush1 = QBrush(QColor(255, 255, 255, 255))
-        # brush1.setStyle(Qt.NoBrush)
-        # __qtablewidgetitem7 = QTableWidgetItem()
-        # __qtablewidgetitem7.setTextAlignment(Qt.AlignCenter);
-        # __qtablewidgetitem7.setFont(font3);
-        # __qtablewidgetitem7.setForeground(brush1);
-        # self.department_table.setItem(0, 1, __qtablewidgetitem7)
-        # brush2 = QBrush(QColor(255, 255, 255, 255))
-        # brush2.setStyle(Qt.NoBrush)
-        # __qtablewidgetitem8 = QTableWidgetItem()
-        # __qtablewidgetitem8.setTextAlignment(Qt.AlignCenter);
-        # __qtablewidgetitem8.setForeground(brush2);
-        # self.department_table.setItem(1, 0, __qtablewidgetitem8)
-        # brush3 = QBrush(QColor(255, 255, 255, 255))
-        # brush3.setStyle(Qt.NoBrush)
-        # __qtablewidgetitem9 = QTableWidgetItem()
-        # __qtablewidgetitem9.setTextAlignment(Qt.AlignCenter);
-        # __qtablewidgetitem9.setFont(font3);
-        # __qtablewidgetitem9.setForeground(brush3);
-        # self.department_table.setItem(1, 1, __qtablewidgetitem9)
-        # brush4 = QBrush(QColor(255, 255, 255, 255))
-        # brush4.setStyle(Qt.NoBrush)
-        # __qtablewidgetitem10 = QTableWidgetItem()
-        # __qtablewidgetitem10.setTextAlignment(Qt.AlignCenter);
-        # __qtablewidgetitem10.setForeground(brush4);
-        # self.department_table.setItem(2, 0, __qtablewidgetitem10)
-        # brush5 = QBrush(QColor(255, 255, 255, 255))
-        # brush5.setStyle(Qt.NoBrush)
-        # __qtablewidgetitem11 = QTableWidgetItem()
-        # __qtablewidgetitem11.setTextAlignment(Qt.AlignCenter);
-        # __qtablewidgetitem11.setFont(font3);
-        # __qtablewidgetitem11.setForeground(brush5);
-        # self.department_table.setItem(2, 1, __qtablewidgetitem11)
-        # brush6 = QBrush(QColor(255, 255, 255, 255))
-        # brush6.setStyle(Qt.NoBrush)
-        # __qtablewidgetitem12 = QTableWidgetItem()
-        # __qtablewidgetitem12.setTextAlignment(Qt.AlignCenter);
-        # __qtablewidgetitem12.setForeground(brush6);
-        # self.department_table.setItem(3, 0, __qtablewidgetitem12)
-        # brush7 = QBrush(QColor(255, 255, 255, 255))
-        # brush7.setStyle(Qt.NoBrush)
-        # __qtablewidgetitem13 = QTableWidgetItem()
-        # __qtablewidgetitem13.setTextAlignment(Qt.AlignCenter);
-        # __qtablewidgetitem13.setFont(font3);
-        # __qtablewidgetitem13.setForeground(brush7);
-        #
-        # self.department_table.setItem(3, 1, __qtablewidgetitem13)
-        # self.department_table.setObjectName(u"department_table_2")
-        # self.department_table.setGeometry(QRect(10, 190, 660, 250))
-        # sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # sizePolicy1.setHorizontalStretch(0)
-        # sizePolicy1.setVerticalStretch(0)
-        # sizePolicy1.setHeightForWidth(self.department_table.sizePolicy().hasHeightForWidth())
-        # self.department_table.setSizePolicy(sizePolicy1)
-        # self.department_table.setStyleSheet(u"qproperty-uniformRowHeights: true;")
-        # self.department_table.setSelectionMode(QAbstractItemView.SingleSelection)
-        # self.department_table.setShowGrid(True)
-        # self.department_table.setGridStyle(Qt.SolidLine)
-        # self.department_table.setSortingEnabled(True)
-        # self.department_table.setCornerButtonEnabled(False)
-        # self.department_table.horizontalHeader().setVisible(True)
-        # self.department_table.verticalHeader().setVisible(False)
+        # Initialize the table
+        self.add_department_into_table = QtWidgets.QTableWidget(self.scrollAreaWidgetContents)
+        self.add_department_into_table.setGeometry(QtCore.QRect(10, 190, 921, 381))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.add_department_into_table.sizePolicy().hasHeightForWidth())
+        self.add_department_into_table.setSizePolicy(sizePolicy)
+        self.add_department_into_table.setStyleSheet("qproperty-uniformRowHeights: true;")
+        self.add_department_into_table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.add_department_into_table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.add_department_into_table.setShowGrid(True)
+        self.add_department_into_table.setGridStyle(QtCore.Qt.SolidLine)
+        self.add_department_into_table.setCornerButtonEnabled(False)
+        self.add_department_into_table.setObjectName("department_table")
+        self.add_department_into_table.setColumnCount(2)
+        self.add_department_into_table.setHorizontalHeaderLabels(["Index", "Department"])
+        self.add_department_into_table.setRowCount(0)  # Initially, 0 rows
+        # Set the width of column 2
+        self.add_department_into_table.setColumnWidth(1, 400)
+        self.add_department_into_table.horizontalHeader().setVisible(True)
+        self.add_department_into_table.verticalHeader().setVisible(False)
 
         connectDatabase()
         self.cursor = connect.cursor()
@@ -1556,11 +1510,12 @@ class AddParticipantPage(QtWidgets.QDialog):
 
         self.department_pick = QtWidgets.QComboBox(self.scrollAreaWidgetContents)
         self.department_pick.setGeometry(QtCore.QRect(10, 120, 281, 51))
-        self.department_pick.setStyleSheet("color:  white;")
+        self.department_pick.setStyleSheet(u"color: white;\n"
+                                           "border: 1px solid white;")
         self.department_pick.setObjectName("department_pick")
-        self.department_pick.addItem("Select department")  # Add a placeholder item
+        self.department_pick.addItem("Select Department")  # Add a placeholder item
         self.department_pick.addItems([department[1] for department in department_list])
-        self.department_pick.setCurrentText("Select department")  # Set the default placeholder text
+        self.department_pick.setCurrentText("Select Department")  # Set the default placeholder text
 
         self.department_label = QLabel(self.scrollAreaWidgetContents)
         self.department_label.setObjectName(u"department_label")
@@ -1573,21 +1528,23 @@ class AddParticipantPage(QtWidgets.QDialog):
         self.department_label.setStyleSheet(u"color: white;")
         self.department_label.setText("Department")
 
-        self.add_button_2 = QPushButton(self.scrollAreaWidgetContents)
-        self.add_button_2.setObjectName(u"add_button_2")
-        self.add_button_2.setGeometry(QRect(300, 130, 31, 31))
+        self.add_button = QPushButton(self.scrollAreaWidgetContents)
+        self.add_button.setObjectName(u"add_button_2")
+        self.add_button.setGeometry(QRect(300, 130, 31, 31))
         icon = QIcon()
         icon.addFile(u"plus.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.add_button_2.setIcon(icon)
-        self.add_button_2.setIconSize(QSize(36, 36))
+        self.add_button.setIcon(icon)
+        self.add_button.setIconSize(QSize(36, 36))
+        self.add_button.clicked.connect(self.add_row)
 
-        self.remove_button_2 = QPushButton(self.scrollAreaWidgetContents)
-        self.remove_button_2.setObjectName(u"remove_button_2")
-        self.remove_button_2.setGeometry(QRect(340, 130, 31, 31))
+        self.remove_button = QPushButton(self.scrollAreaWidgetContents)
+        self.remove_button.setObjectName(u"remove_button_2")
+        self.remove_button.setGeometry(QRect(340, 130, 31, 31))
         icon1 = QIcon()
         icon1.addFile(u"minus.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.remove_button_2.setIcon(icon1)
-        self.remove_button_2.setIconSize(QSize(42, 42))
+        self.remove_button.setIcon(icon1)
+        self.remove_button.setIconSize(QSize(42, 42))
+        self.remove_button.clicked.connect(self.remove_row)
 
         self.cancel_button = QPushButton(self.scrollAreaWidgetContents)
         self.cancel_button.setObjectName(u"cancel_button")
@@ -1599,7 +1556,7 @@ class AddParticipantPage(QtWidgets.QDialog):
                                          "background: #008287;\n"
                                          "border-color: white;")
         self.cancel_button.setText("Cancel")
-        self.cancel_button.clicked.connect(self.reject())
+        self.cancel_button.clicked.connect(self.reject)
 
         self.create_button = QPushButton(self.scrollAreaWidgetContents)
         self.create_button.setObjectName(u"create_button")
@@ -1610,9 +1567,48 @@ class AddParticipantPage(QtWidgets.QDialog):
                                          "background: #008287;\n"
                                          "border-color: white;")
         self.create_button.setText("Create")
-        self.create_button.clicked.connect(insert_new_training_database())
+        self.create_button.clicked.connect(self.add_participant_list)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
+    def add_row(self):
+        selected_department = self.department_pick.currentText()
+
+        # Check if the selected department is empty
+        if selected_department == "Select Department":
+            QMessageBox.critical(self, "Error", "Please select a department.")
+            return
+
+        # Check for duplicate department in the table
+        for row in range(self.add_department_into_table.rowCount()):
+            item = self.add_department_into_table.item(row, 1)
+            if item and item.text() == selected_department:
+                QMessageBox.critical(self, "Error", "Department already exists in the table.")
+                return
+
+        # Add the row to the table
+        current_row = self.add_department_into_table.rowCount()
+        self.add_department_into_table.insertRow(current_row)
+
+        index_item = QtWidgets.QTableWidgetItem(str(current_row + 1))
+        index_item.setForeground(QtGui.QColor("white"))  # Set index text color to white
+        self.add_department_into_table.setItem(current_row, 0, index_item)
+
+        department_item = QtWidgets.QTableWidgetItem(selected_department)
+        department_item.setForeground(QtGui.QColor("white"))  # Set department text color to white
+        self.add_department_into_table.setItem(current_row, 1, department_item)
+        self.add_department_into_table.resizeColumnsToContents()
+
+    def remove_row(self):
+        selected_row = self.add_department_into_table.currentRow()
+        if selected_row >= 0:
+            self.add_department_into_table.removeRow(selected_row)
+            # Update index values of subsequent rows
+            row_count = self.add_department_into_table.rowCount()
+            for row in range(selected_row, row_count):
+                self.add_department_into_table.item(row, 0).setText(str(row + 1))
+
+    def add_participant_list(self):
+        pass
 
 
 if __name__ == "__main__":
