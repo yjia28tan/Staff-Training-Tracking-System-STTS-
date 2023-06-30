@@ -227,7 +227,7 @@ QCalendarWidget {
        <property name="geometry">
         <rect>
          <x>860</x>
-         <y>200</y>
+         <y>270</y>
          <width>81</width>
          <height>31</height>
         </rect>
@@ -373,7 +373,7 @@ color: white;</string>
        <property name="geometry">
         <rect>
          <x>860</x>
-         <y>250</y>
+         <y>320</y>
          <width>321</width>
          <height>201</height>
         </rect>
@@ -577,6 +577,49 @@ border-radius: 10px;</string>
 color: black;
 background: white;
 border-radius: 10px;</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="duration_label">
+       <property name="geometry">
+        <rect>
+         <x>860</x>
+         <y>140</y>
+         <width>71</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">border: none;
+color: white;</string>
+       </property>
+       <property name="text">
+        <string>Duration</string>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="duration_pick">
+       <property name="geometry">
+        <rect>
+         <x>860</x>
+         <y>180</y>
+         <width>101</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: white;</string>
        </property>
       </widget>
      </widget>
