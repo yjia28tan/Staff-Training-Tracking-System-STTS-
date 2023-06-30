@@ -1,10 +1,10 @@
 import logging
 import datetime
 from PyQt5 import Qt, uic
-from PyQt5.QtCore import QSize, QRect, QMetaObject, QCoreApplication, Qt
+from PyQt5.QtCore import QSize, QRect, QMetaObject, QCoreApplication, Qt, QByteArray
 from PyQt5.QtGui import QPixmap, QIcon, QFont
 from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QHBoxLayout, QSizePolicy, QPushButton, QLabel, QScrollArea, \
-    QLineEdit, QMessageBox, QMainWindow
+    QLineEdit, QMessageBox, QMainWindow, QTableWidget, QTableWidgetItem
 from PyQt5.uic import loadUi
 import sys
 import sqlite3
@@ -985,7 +985,6 @@ class HR_Training(QtWidgets.QMainWindow):
 class CreateNewTraining(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        print("called class create training")
 
         self.setObjectName("Create New Training")
         self.setWindowTitle("Create Training")
@@ -1156,7 +1155,6 @@ class CreateNewTraining(QtWidgets.QDialog):
                                      "    color: black;}\n"
                                      "QCalendarWidget QMenu {\n"
                                      "    color: black;}")
-
         # Set the default date to today's date
         current_date = datetime.date.today()
         self.date_pick.setDate(current_date)
@@ -1178,7 +1176,6 @@ class CreateNewTraining(QtWidgets.QDialog):
         self.brochure_button = QtWidgets.QPushButton(self.main_frame)
         self.brochure_button.setGeometry(QtCore.QRect(860, 250, 321, 201))
         self.brochure_button.setStyleSheet("border-radius: 10px;")
-        # self.brochure_button.setText("")  # get the brochure image input from hr
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("add.png"),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -1187,78 +1184,62 @@ class CreateNewTraining(QtWidgets.QDialog):
         self.brochure_button.setObjectName("brochure_button")
         self.brochure_button.clicked.connect(self.add_brochure)
 
-        self.new_training_name = QtWidgets.QLabel(self.main_frame)
+        # Retrieve the icon image
+        brochure_image = self.brochure_button.icon()
+        pixmap = brochure_image.pixmap(QtCore.QSize(855, 245))  # Adjust the size as needed
+        # Convert QPixmap to bytes using QByteArray
+        byte_array = QByteArray()
+        buffer = QtCore.QBuffer(byte_array)
+        buffer.open(QtCore.QIODevice.WriteOnly)
+        pixmap.save(buffer, "PNG")  # Save the pixmap as PNG
+        image_data = byte_array.data()
+
+        self.new_training_name = QtWidgets.QLineEdit(self.main_frame)
         self.new_training_name.setGeometry(QtCore.QRect(60, 180, 311, 41))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.new_training_name.setFont(font)
         self.new_training_name.setStyleSheet("borde: 1px solid white;\n"
                                              "color: black;\n"
                                              "background: white;\n"
                                              "border-radius: 10px;")
-        # self.new_training_name.setText("")
         self.new_training_name.setObjectName("new_training_name")
 
-        self.cost = QtWidgets.QLabel(self.main_frame)
+        self.cost = QtWidgets.QLineEdit(self.main_frame)
         self.cost.setGeometry(QtCore.QRect(60, 400, 111, 41))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.cost.setFont(font)
         self.cost.setStyleSheet("borde: 1px solid white;\n"
                                 "color: black;\n"
                                 "background: white;\n"
                                 "border-radius: 10px;")
-        # self.cost.setText("")
         self.cost.setObjectName("cost")
 
-        self.description = QtWidgets.QLabel(self.main_frame)
+        self.description = QtWidgets.QLineEdit(self.main_frame)
         self.description.setGeometry(QtCore.QRect(430, 440, 371, 211))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.description.setFont(font)
         self.description.setStyleSheet("borde: 1px solid white;\n"
                                        "color: black;\n"
                                        "background: white;\n"
                                        "border-radius: 10px;")
-        # self.description.setText("")
-        self.description.setWordWrap(True)
         self.description.setObjectName("description")
 
-        self.short_description = QtWidgets.QLabel(self.main_frame)
+        self.short_description = QtWidgets.QLineEdit(self.main_frame)
         self.short_description.setGeometry(QtCore.QRect(60, 510, 311, 141))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.short_description.setFont(font)
         self.short_description.setStyleSheet("borde: 1px solid white;\n"
                                              "color: black;\n"
                                              "background: white;\n"
                                              "border-radius: 10px;")
-        # self.short_description.setText("")
-        self.short_description.setWordWrap(True)
         self.short_description.setObjectName("short_description")
 
-        self.max_participants = QtWidgets.QLabel(self.main_frame)
+        self.max_participants = QtWidgets.QLineEdit(self.main_frame)
         self.max_participants.setGeometry(QtCore.QRect(220, 400, 111, 41))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.max_participants.setFont(font)
         self.max_participants.setStyleSheet("borde: 1px solid white;\n"
                                             "color: black;\n"
                                             "background: white;\n"
                                             "border-radius: 10px;")
-        # self.max_participants.setText("")
         self.max_participants.setObjectName("max_participants")
 
-        self.venue = QtWidgets.QLabel(self.main_frame)
+        self.venue = QtWidgets.QLineEdit(self.main_frame)
         self.venue.setGeometry(QtCore.QRect(60, 290, 311, 41))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.venue.setFont(font)
         self.venue.setStyleSheet("borde: 1px solid white;\n"
                                  "color: black;\n"
                                  "background: white;\n"
                                  "border-radius: 10px;")
-        # self.venue.setText("")
         self.venue.setObjectName("venue")
 
         connectDatabase()
@@ -1269,10 +1250,10 @@ class CreateNewTraining(QtWidgets.QDialog):
         self.department_pick = QtWidgets.QComboBox(self.main_frame)
         self.department_pick.setGeometry(QtCore.QRect(430, 290, 291, 41))
         self.department_pick.setStyleSheet("color:  #00ced1;")
-        self.department_pick.setEditText("  Select Department ")
         self.department_pick.setObjectName("department_pick")
+        self.department_pick.addItem("Select department")  # Add a placeholder item
         self.department_pick.addItems([department[1] for department in department_list])
-
+        self.department_pick.setCurrentText("Select department")  # Set the default placeholder text
 
         self.check_box = QtWidgets.QCheckBox(self.main_frame)
         self.check_box.setGeometry(QtCore.QRect(430, 350, 301, 23))
@@ -1284,17 +1265,6 @@ class CreateNewTraining(QtWidgets.QDialog):
                                      "color: white;")
         self.check_box.setObjectName("check_box")
         self.check_box.setText("Add participants by department")
-
-        # selected_date = self.date_pick.date().toString("yyyy-MM-dd")  # Retrieve the selected date as a string
-        selected_time = self.time_pick.time().toString("HH:mm")  # Retrifeve the selected time as a string
-        # brochure_image_path = self.brochure_image_path  # Assuming you have stored the brochure image path in a variable
-        new_training_name_text = self.new_training_name.text()
-        cost_text = self.cost.text()
-        description_text = self.description.text()
-        short_description_text = self.short_description.text()
-        venue_text = self.venue.text()
-        department_input = self.department_pick.currentText()  # Retrieve the selected department
-        add_participants_by_department = self.check_box.isChecked()  # Retrieve the state of the checkbox
 
         self.create_button = QtWidgets.QPushButton(self.main_frame)
         self.create_button.setGeometry(QtCore.QRect(939, 600, 101, 41))
@@ -1309,7 +1279,7 @@ class CreateNewTraining(QtWidgets.QDialog):
                                          "border-radius: 10px;\n"
                                          "background: #008287;")
         self.create_button.setObjectName("create_button")
-        self.create_button.clicked.connect(self.created_training)
+        self.create_button.clicked.connect(self.create_training)
 
         self.cancel_button = QtWidgets.QPushButton(self.main_frame)
         self.cancel_button.setGeometry(QtCore.QRect(1060, 600, 111, 41))
@@ -1325,11 +1295,7 @@ class CreateNewTraining(QtWidgets.QDialog):
                                          "background: #008287;")
         self.cancel_button.setObjectName("cancel_button")
         self.cancel_button.clicked.connect(self.reject)
-
         self.horizontalLayout.addWidget(self.main_frame)
-
-        # QtCore.QMetaObject.connectSlotsByName(self)
-
 
     def add_brochure(self):
         file_dialog = QtWidgets.QFileDialog()
@@ -1339,13 +1305,314 @@ class CreateNewTraining(QtWidgets.QDialog):
 
         if image_path:
             pixmap = QtGui.QPixmap(image_path)
-            self.brochure_button.setPixmap(pixmap.scaled(
-                self.brochure_button.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
-            ))
+            self.brochure_button.setIcon(QtGui.QIcon(pixmap))  # Set the selected image as the button's icon
+            self.brochure_button.setIconSize(QtCore.QSize(855, 245))
 
-
-    def created_training(self):
+    def validate_input(self):
         pass
+        # # Retrieve input values
+        # training_name = self.new_training_name.text()
+        # cost = self.cost.text()
+        # date = self.date_pick.date().toPyDate()
+        # duration = self.time_pick.time().hour()
+        # venue = self.venue.text()
+        # short_description = self.short_description.text()
+        # max_participants = self.max_participants.text()
+        # department = self.department_pick.currentText()
+        #
+        # # Perform validation for each input field
+        # if not training_name or len(training_name.split()) > 8:
+        #     # Training name is empty
+        #     QtWidgets.QMessageBox.warning(self, "Validation Error",
+        #                                   "Please enter a training name that less than 8 characters.")
+        #     return False
+        #
+        # if not cost or not cost.isdigit() or int(cost) <= 0:
+        #     # Cost is empty, not a valid number, or not positive
+        #     QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a valid positive cost.")
+        #     return False
+        #
+        # if date <= datetime.date.today():
+        #     # Date is not larger than today's date
+        #     QtWidgets.QMessageBox.warning(self, "Validation Error", "Please select a date larger than today's date.")
+        #     return False
+        #
+        # if duration <= 0:
+        #     # Duration is not a positive value
+        #     QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a valid positive duration in hours.")
+        #     return False
+        #
+        # if not venue:
+        #     # Venue is empty
+        #     QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a venue.")
+        #     return False
+        #
+        # if len(short_description.split()) > 100:
+        #     # Short description exceeds 500 words
+        #     QtWidgets.QMessageBox.warning(self, "Validation Error", "Short description should not exceed 500 words.")
+        #     return False
+        #
+        # if not max_participants or not max_participants.isdigit() or int(max_participants) <= 0:
+        #     # Max participants is empty, not a valid number, or not positive
+        #     QtWidgets.QMessageBox.warning(self, "Validation Error",
+        #                                   "Please enter a valid positive maximum participants count.")
+        #     return False
+        #
+        # if department == "Select department":
+        #     # Department is not selected
+        #     QtWidgets.QMessageBox.warning(self, "Validation Error", "Please select a department.")
+        #     return False
+        #
+        # # Additional validation can be performed for specific fields if needed
+        #
+        # # Validation passed
+        # return True
+
+    def create_training(self):
+        if self.check_box.isChecked():
+            # Checkbox is checked, show the popup dialog
+            try:
+                self.validate_input()
+                add_participant = AddParticipantPage(self)
+                add_participant.exec_()
+            except Exception as e:
+                # Show error message box or print the error
+                error_message = "An error occurred: " + str(e)
+                QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+                print(error_message)
+
+        else:
+            self.validate_input()
+            # Checkbox is not checked, insert data to database
+            insert_new_training_database()
+
+def insert_new_training_database():
+    # Insert data to database
+    print("Inserting data to database")
+
+
+class AddParticipantPage(QtWidgets.QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        # loadUi("hr_add_by_department.ui", self)
+
+        self.setObjectName(u"AddParticipants")
+        self.resize(720, 560)
+        self.setStyleSheet(u"background-color: #696969;")
+        self.main_frame = QFrame(self)
+        self.main_frame.setObjectName(u"main_frame")
+        self.main_frame.setGeometry(QRect(10, 10, 700, 540))
+        self.main_frame.setStyleSheet(u"border: 1px solid white;")
+        self.main_frame.setFrameShape(QFrame.StyledPanel)
+        self.main_frame.setFrameShadow(QFrame.Raised)
+
+        self.header = QLabel(self.main_frame)
+        self.header.setObjectName(u"header")
+        self.header.setGeometry(QRect(10, 10, 671, 61))
+        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.header.sizePolicy().hasHeightForWidth())
+        self.header.setSizePolicy(sizePolicy)
+        font = QFont()
+        font.setPointSize(22)
+        font.setBold(True)
+        font.setWeight(75)
+        self.header.setFont(font)
+        self.header.setStyleSheet(u"border: none;\n"
+                                  "border-bottom: 1px solid white;\n"
+                                  "color: white;\n"
+                                  "font-weight: bold;\n")
+        self.header.setText("Create Participants List")
+
+        self.scrollArea = QScrollArea(self.main_frame)
+        self.scrollArea.setObjectName(u"scrollArea")
+        self.scrollArea.setGeometry(QRect(10, 75, 685, 461))
+        self.scrollArea.setStyleSheet(u"border: none;")
+        self.scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.scrollArea.setWidgetResizable(True)
+
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 664, 461))
+
+        self.training_name_db = QLabel(self.scrollAreaWidgetContents)
+        self.training_name_db.setObjectName(u"training_name_db_2")
+        self.training_name_db.setGeometry(QRect(10, 10, 500, 51))
+        font1 = QFont()
+        font1.setPointSize(15)
+        font1.setBold(True)
+        font1.setWeight(75)
+        self.training_name_db.setFont(font1)
+        self.training_name_db.setStyleSheet(u"color: white;\n"
+                                            "font-weight: bold;\n"
+                                            "border: none;\n"
+                                            "text-align: left;\n")
+        self.training_name_db.setText("ddd")
+
+        # self.department_table = QTableWidget(self.scrollAreaWidgetContents)
+        # if (self.department_table.columnCount() < 2):
+        #     self.department_table.setColumnCount(2)
+        # font2 = QFont()
+        # font2.setPointSize(10)
+        # font2.setBold(True)
+        # font2.setWeight(75)
+        # __qtablewidgetitem = QTableWidgetItem()
+        # __qtablewidgetitem.setFont(font2);
+        # self.department_table.setHorizontalHeaderItem(0, __qtablewidgetitem)
+        # font3 = QFont()
+        # font3.setBold(True)
+        # font3.setWeight(75)
+        # __qtablewidgetitem1 = QTableWidgetItem()
+        # __qtablewidgetitem1.setFont(font3);
+        # self.department_table.setHorizontalHeaderItem(1, __qtablewidgetitem1)
+        # if (self.department_table.rowCount() < 4):
+        #     self.department_table.setRowCount(4)
+        # __qtablewidgetitem2 = QTableWidgetItem()
+        # __qtablewidgetitem2.setFont(font3);
+        # self.department_table.setVerticalHeaderItem(0, __qtablewidgetitem2)
+        # __qtablewidgetitem3 = QTableWidgetItem()
+        # __qtablewidgetitem3.setFont(font3);
+        # self.department_table.setVerticalHeaderItem(1, __qtablewidgetitem3)
+        # __qtablewidgetitem4 = QTableWidgetItem()
+        # __qtablewidgetitem4.setFont(font3);
+        # self.department_table.setVerticalHeaderItem(2, __qtablewidgetitem4)
+        # __qtablewidgetitem5 = QTableWidgetItem()
+        # __qtablewidgetitem5.setFont(font3);
+        # self.department_table.setVerticalHeaderItem(3, __qtablewidgetitem5)
+        # brush = QBrush(QColor(255, 255, 255, 255))
+        # brush.setStyle(Qt.NoBrush)
+        # __qtablewidgetitem6 = QTableWidgetItem()
+        # __qtablewidgetitem6.setTextAlignment(Qt.AlignCenter);
+        # __qtablewidgetitem6.setForeground(brush);
+        # self.department_table.setItem(0, 0, __qtablewidgetitem6)
+        # brush1 = QBrush(QColor(255, 255, 255, 255))
+        # brush1.setStyle(Qt.NoBrush)
+        # __qtablewidgetitem7 = QTableWidgetItem()
+        # __qtablewidgetitem7.setTextAlignment(Qt.AlignCenter);
+        # __qtablewidgetitem7.setFont(font3);
+        # __qtablewidgetitem7.setForeground(brush1);
+        # self.department_table.setItem(0, 1, __qtablewidgetitem7)
+        # brush2 = QBrush(QColor(255, 255, 255, 255))
+        # brush2.setStyle(Qt.NoBrush)
+        # __qtablewidgetitem8 = QTableWidgetItem()
+        # __qtablewidgetitem8.setTextAlignment(Qt.AlignCenter);
+        # __qtablewidgetitem8.setForeground(brush2);
+        # self.department_table.setItem(1, 0, __qtablewidgetitem8)
+        # brush3 = QBrush(QColor(255, 255, 255, 255))
+        # brush3.setStyle(Qt.NoBrush)
+        # __qtablewidgetitem9 = QTableWidgetItem()
+        # __qtablewidgetitem9.setTextAlignment(Qt.AlignCenter);
+        # __qtablewidgetitem9.setFont(font3);
+        # __qtablewidgetitem9.setForeground(brush3);
+        # self.department_table.setItem(1, 1, __qtablewidgetitem9)
+        # brush4 = QBrush(QColor(255, 255, 255, 255))
+        # brush4.setStyle(Qt.NoBrush)
+        # __qtablewidgetitem10 = QTableWidgetItem()
+        # __qtablewidgetitem10.setTextAlignment(Qt.AlignCenter);
+        # __qtablewidgetitem10.setForeground(brush4);
+        # self.department_table.setItem(2, 0, __qtablewidgetitem10)
+        # brush5 = QBrush(QColor(255, 255, 255, 255))
+        # brush5.setStyle(Qt.NoBrush)
+        # __qtablewidgetitem11 = QTableWidgetItem()
+        # __qtablewidgetitem11.setTextAlignment(Qt.AlignCenter);
+        # __qtablewidgetitem11.setFont(font3);
+        # __qtablewidgetitem11.setForeground(brush5);
+        # self.department_table.setItem(2, 1, __qtablewidgetitem11)
+        # brush6 = QBrush(QColor(255, 255, 255, 255))
+        # brush6.setStyle(Qt.NoBrush)
+        # __qtablewidgetitem12 = QTableWidgetItem()
+        # __qtablewidgetitem12.setTextAlignment(Qt.AlignCenter);
+        # __qtablewidgetitem12.setForeground(brush6);
+        # self.department_table.setItem(3, 0, __qtablewidgetitem12)
+        # brush7 = QBrush(QColor(255, 255, 255, 255))
+        # brush7.setStyle(Qt.NoBrush)
+        # __qtablewidgetitem13 = QTableWidgetItem()
+        # __qtablewidgetitem13.setTextAlignment(Qt.AlignCenter);
+        # __qtablewidgetitem13.setFont(font3);
+        # __qtablewidgetitem13.setForeground(brush7);
+        #
+        # self.department_table.setItem(3, 1, __qtablewidgetitem13)
+        # self.department_table.setObjectName(u"department_table_2")
+        # self.department_table.setGeometry(QRect(10, 190, 660, 250))
+        # sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # sizePolicy1.setHorizontalStretch(0)
+        # sizePolicy1.setVerticalStretch(0)
+        # sizePolicy1.setHeightForWidth(self.department_table.sizePolicy().hasHeightForWidth())
+        # self.department_table.setSizePolicy(sizePolicy1)
+        # self.department_table.setStyleSheet(u"qproperty-uniformRowHeights: true;")
+        # self.department_table.setSelectionMode(QAbstractItemView.SingleSelection)
+        # self.department_table.setShowGrid(True)
+        # self.department_table.setGridStyle(Qt.SolidLine)
+        # self.department_table.setSortingEnabled(True)
+        # self.department_table.setCornerButtonEnabled(False)
+        # self.department_table.horizontalHeader().setVisible(True)
+        # self.department_table.verticalHeader().setVisible(False)
+
+        connectDatabase()
+        self.cursor = connect.cursor()
+        self.cursor.execute("SELECT * FROM department")
+        department_list = self.cursor.fetchall()
+
+        self.department_pick = QtWidgets.QComboBox(self.scrollAreaWidgetContents)
+        self.department_pick.setGeometry(QtCore.QRect(10, 120, 281, 51))
+        self.department_pick.setStyleSheet("color:  white;")
+        self.department_pick.setObjectName("department_pick")
+        self.department_pick.addItem("Select department")  # Add a placeholder item
+        self.department_pick.addItems([department[1] for department in department_list])
+        self.department_pick.setCurrentText("Select department")  # Set the default placeholder text
+
+        self.department_label = QLabel(self.scrollAreaWidgetContents)
+        self.department_label.setObjectName(u"department_label")
+        self.department_label.setGeometry(QRect(10, 70, 131, 41))
+        font4 = QFont()
+        font4.setPointSize(9)
+        font4.setBold(True)
+        font4.setWeight(75)
+        self.department_label.setFont(font4)
+        self.department_label.setStyleSheet(u"color: white;")
+        self.department_label.setText("Department")
+
+        self.add_button_2 = QPushButton(self.scrollAreaWidgetContents)
+        self.add_button_2.setObjectName(u"add_button_2")
+        self.add_button_2.setGeometry(QRect(300, 130, 31, 31))
+        icon = QIcon()
+        icon.addFile(u"plus.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.add_button_2.setIcon(icon)
+        self.add_button_2.setIconSize(QSize(36, 36))
+
+        self.remove_button_2 = QPushButton(self.scrollAreaWidgetContents)
+        self.remove_button_2.setObjectName(u"remove_button_2")
+        self.remove_button_2.setGeometry(QRect(340, 130, 31, 31))
+        icon1 = QIcon()
+        icon1.addFile(u"minus.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.remove_button_2.setIcon(icon1)
+        self.remove_button_2.setIconSize(QSize(42, 42))
+
+        self.cancel_button = QPushButton(self.scrollAreaWidgetContents)
+        self.cancel_button.setObjectName(u"cancel_button")
+        self.cancel_button.setGeometry(QRect(560, 410, 90, 31))
+        self.cancel_button.setFont(font4)
+        self.cancel_button.setStyleSheet(u"color: white;\n"
+                                         "font-weight: bold;\n"
+                                         "border-radius: 10px;\n"
+                                         "background: #008287;\n"
+                                         "border-color: white;")
+        self.cancel_button.setText("Cancel")
+        self.cancel_button.clicked.connect(self.reject())
+
+        self.create_button = QPushButton(self.scrollAreaWidgetContents)
+        self.create_button.setObjectName(u"create_button")
+        self.create_button.setGeometry(QRect(439, 410, 90, 31))
+        self.create_button.setFont(font4)
+        self.create_button.setStyleSheet(u"color: white;\n"
+                                         "border-radius: 10px;\n"
+                                         "background: #008287;\n"
+                                         "border-color: white;")
+        self.create_button.setText("Create")
+        self.create_button.clicked.connect(insert_new_training_database())
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+
 
 
 if __name__ == "__main__":
