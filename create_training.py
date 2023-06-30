@@ -105,7 +105,7 @@ class Ui_MainWindow(object):
         self.date_pick.setCalendarPopup(True)
         self.date_pick.setObjectName("date_pick")
         self.brochure_label = QtWidgets.QLabel(self.main_frame)
-        self.brochure_label.setGeometry(QtCore.QRect(860, 200, 81, 31))
+        self.brochure_label.setGeometry(QtCore.QRect(860, 270, 81, 31))
         font = QtGui.QFont()
         font.setPointSize(8)
         font.setBold(True)
@@ -165,7 +165,7 @@ class Ui_MainWindow(object):
         self.time_pick.setAlignment(QtCore.Qt.AlignCenter)
         self.time_pick.setObjectName("time_pick")
         self.brochure_button = QtWidgets.QPushButton(self.main_frame)
-        self.brochure_button.setGeometry(QtCore.QRect(860, 250, 321, 201))
+        self.brochure_button.setGeometry(QtCore.QRect(860, 320, 321, 201))
         self.brochure_button.setStyleSheet("border-radius: 10px;")
         self.brochure_button.setText("")
         icon = QtGui.QIcon()
@@ -252,6 +252,24 @@ class Ui_MainWindow(object):
 "background: white;\n"
 "border-radius: 10px;")
         self.description.setObjectName("description")
+        self.duration_label = QtWidgets.QLabel(self.main_frame)
+        self.duration_label.setGeometry(QtCore.QRect(860, 140, 71, 31))
+        font = QtGui.QFont()
+        font.setPointSize(8)
+        font.setBold(True)
+        font.setWeight(75)
+        self.duration_label.setFont(font)
+        self.duration_label.setStyleSheet("border: none;\n"
+"color: white;")
+        self.duration_label.setObjectName("duration_label")
+        self.duration_pick = QtWidgets.QSpinBox(self.main_frame)
+        self.duration_pick.setGeometry(QtCore.QRect(860, 180, 101, 41))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.duration_pick.setFont(font)
+        self.duration_pick.setStyleSheet("color: white;")
+        self.duration_pick.setObjectName("duration_pick")
         self.horizontalLayout.addWidget(self.main_frame)
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -275,6 +293,7 @@ class Ui_MainWindow(object):
         self.create_button.setText(_translate("MainWindow", "Create"))
         self.cancel_button.setText(_translate("MainWindow", "Cancel"))
         self.check_box.setText(_translate("MainWindow", "Add participants by department"))
+        self.duration_label.setText(_translate("MainWindow", "Duration"))
 
 
 if __name__ == "__main__":
