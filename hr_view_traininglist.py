@@ -1328,7 +1328,7 @@ class CreateNewTraining(QtWidgets.QDialog):
         try:
             # Retrieve input values
             training_name = self.new_training_name.text()
-            cost = self.cost.text()
+            cost_per_person = self.cost.text()
             date = self.date_pick.date().toPyDate()
             time = self.time_pick.time().toString("HH:mm")
             duration = self.duration_pick.value()
@@ -1340,13 +1340,16 @@ class CreateNewTraining(QtWidgets.QDialog):
 
             # Retrieve the icon image
             brochure_image = self.brochure_button.icon()
-            pixmap = brochure_image.pixmap(QtCore.QSize(855, 245))  # Adjust the size as needed
-            # Convert QPixmap to bytes using QByteArray
-            byte_array = QByteArray()
-            buffer = QtCore.QBuffer(byte_array)
-            buffer.open(QtCore.QIODevice.WriteOnly)
-            pixmap.save(buffer, "PNG")  # Save the pixmap as PNG
-            image_data = byte_array.data()
+            if not brochure_image.isNull():
+                pixmap = brochure_image.pixmap(QtCore.QSize(855, 245))  # Adjust the size as needed
+                # Convert QPixmap to bytes using QByteArray
+                byte_array = QByteArray()
+                buffer = QtCore.QBuffer(byte_array)
+                buffer.open(QtCore.QIODevice.WriteOnly)
+                pixmap.save(buffer, "PNG")  # Save the pixmap as PNG
+                image_data = byte_array.data()
+            else:
+                image_data = None
 
             # Perform validation for each input field
             if not training_name:
@@ -1355,7 +1358,7 @@ class CreateNewTraining(QtWidgets.QDialog):
                                               "Please enter a training name.")
                 return False
 
-            if not cost or not cost.isdigit() or int(cost) <= 0:
+            if not cost_per_person or not cost_per_person.isdigit() or int(cost_per_person) <= 0:
                 # Cost is empty, not a valid number, or not positive
                 QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a valid positive cost.")
                 return False
@@ -1407,15 +1410,21 @@ class CreateNewTraining(QtWidgets.QDialog):
 
             status = "Pending"
             publish = False
+            cost = float(cost_per_person) * int(max_participants)
 
-            self.cursor.execute("""INSERT INTO training 
-            (trainingName, cost, date, time, duration, venue, short_description, description, 
-            max_par, departmentID, brochure, status, publish) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", (
-                training_name, cost, date, time, duration, venue, short_description, description, max_participants,
-                department_id, image_data, status, publish))
+            self.cursor.execute(
+                """INSERT INTO training 
+                (trainingName, cost, date, time, duration, venue, short_description, description, 
+                max_par, departmentID, brochure, status, publish) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    training_name, cost, date, time, duration, venue, short_description, description,
+                    max_participants, department_id, image_data if image_data else None,  status, publish
+                )
+            )
+
             connect.commit()
             training_id = self.cursor.lastrowid
-            print("Training data inserted successfully. Training ID:", training_id)
             QtWidgets.QMessageBox.information(self, "Success", "Training data inserted successfully.",
                                               QtWidgets.QMessageBox.Ok)
 
