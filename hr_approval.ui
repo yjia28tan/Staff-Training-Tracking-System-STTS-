@@ -427,7 +427,7 @@ text-align: left;
           <string>Cyber Security</string>
          </property>
         </widget>
-        <widget class="QLabel" name="department_db_5">
+        <widget class="QLabel" name="training_status_db">
          <property name="geometry">
           <rect>
            <x>850</x>
@@ -453,7 +453,7 @@ bold: none;</string>
           <string>Pending</string>
          </property>
         </widget>
-        <widget class="QLabel" name="department_label_5">
+        <widget class="QLabel" name="training_status_label">
          <property name="geometry">
           <rect>
            <x>710</x>
@@ -477,7 +477,7 @@ border: none;</string>
           <string>Training Status:</string>
          </property>
         </widget>
-        <widget class="QTableWidget" name="tableWidget">
+        <widget class="QTableWidget" name="application_table">
          <property name="geometry">
           <rect>
            <x>0</x>
