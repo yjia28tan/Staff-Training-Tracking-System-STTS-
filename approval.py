@@ -433,6 +433,18 @@ class Ui_MainWindow(object):
         self.application_table.horizontalHeader().setVisible(True)
         self.application_table.verticalHeader().setVisible(False)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
+        self.reject_training_button = QtWidgets.QPushButton(self.main_frame)
+        self.reject_training_button.setGeometry(QtCore.QRect(860, 50, 112, 34))
+        self.reject_training_button.setStyleSheet("color: white;\n"
+"border-radius: 10px;")
+        self.reject_training_button.setIcon(icon3)
+        self.reject_training_button.setObjectName("reject_training_button")
+        self.approve_training_button = QtWidgets.QPushButton(self.main_frame)
+        self.approve_training_button.setGeometry(QtCore.QRect(740, 50, 112, 34))
+        self.approve_training_button.setStyleSheet("color: white;\n"
+"border-radius: 10px;")
+        self.approve_training_button.setIcon(icon2)
+        self.approve_training_button.setObjectName("approve_training_button")
         self.horizontalLayout.addWidget(self.main_frame)
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -512,6 +524,8 @@ class Ui_MainWindow(object):
         item = self.application_table.item(3, 4)
         item.setText(_translate("MainWindow", "Pending"))
         self.application_table.setSortingEnabled(__sortingEnabled)
+        self.reject_training_button.setText(_translate("MainWindow", "Reject"))
+        self.approve_training_button.setText(_translate("MainWindow", "Approve"))
 
 
 if __name__ == "__main__":
