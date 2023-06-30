@@ -386,163 +386,13 @@ color: white;</string>
        </property>
        <property name="icon">
         <iconset>
-         <normaloff>../../../../../Downloads/Lovepik_com-400278510-symbolic-linear-icon.png</normaloff>../../../../../Downloads/Lovepik_com-400278510-symbolic-linear-icon.png</iconset>
+         <normaloff>add.png</normaloff>add.png</iconset>
        </property>
        <property name="iconSize">
         <size>
          <width>60</width>
          <height>60</height>
         </size>
-       </property>
-      </widget>
-      <widget class="QLabel" name="new_training_name">
-       <property name="geometry">
-        <rect>
-         <x>60</x>
-         <y>180</y>
-         <width>311</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">borde: 1px solid white;
-color: black;
-background: white;
-border-radius: 10px;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QLabel" name="cost">
-       <property name="geometry">
-        <rect>
-         <x>60</x>
-         <y>400</y>
-         <width>111</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">borde: 1px solid white;
-color: black;
-background: white;
-border-radius: 10px;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QLabel" name="description">
-       <property name="geometry">
-        <rect>
-         <x>430</x>
-         <y>440</y>
-         <width>371</width>
-         <height>211</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">borde: 1px solid white;
-color: black;
-background: white;
-border-radius: 10px;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
-       </property>
-      </widget>
-      <widget class="QLabel" name="short_description">
-       <property name="geometry">
-        <rect>
-         <x>60</x>
-         <y>510</y>
-         <width>311</width>
-         <height>141</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">borde: 1px solid white;
-color: black;
-background: white;
-border-radius: 10px;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
-       </property>
-      </widget>
-      <widget class="QLabel" name="max_participants">
-       <property name="geometry">
-        <rect>
-         <x>220</x>
-         <y>400</y>
-         <width>111</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">borde: 1px solid white;
-color: black;
-background: white;
-border-radius: 10px;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QLabel" name="venue">
-       <property name="geometry">
-        <rect>
-         <x>60</x>
-         <y>290</y>
-         <width>311</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">borde: 1px solid white;
-color: black;
-background: white;
-border-radius: 10px;</string>
-       </property>
-       <property name="text">
-        <string/>
        </property>
       </widget>
       <widget class="QPushButton" name="create_button">
@@ -631,6 +481,102 @@ color: white;</string>
        </property>
        <property name="text">
         <string>Add participants by department</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="new_training_name">
+       <property name="geometry">
+        <rect>
+         <x>60</x>
+         <y>180</y>
+         <width>311</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">borde: 1px solid white;
+color: black;
+background: white;
+border-radius: 10px;</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="venue">
+       <property name="geometry">
+        <rect>
+         <x>60</x>
+         <y>290</y>
+         <width>311</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">borde: 1px solid white;
+color: black;
+background: white;
+border-radius: 10px;</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="cost">
+       <property name="geometry">
+        <rect>
+         <x>60</x>
+         <y>400</y>
+         <width>111</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">borde: 1px solid white;
+color: black;
+background: white;
+border-radius: 10px;</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="max_participants">
+       <property name="geometry">
+        <rect>
+         <x>220</x>
+         <y>400</y>
+         <width>111</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">borde: 1px solid white;
+color: black;
+background: white;
+border-radius: 10px;</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="short_description">
+       <property name="geometry">
+        <rect>
+         <x>60</x>
+         <y>510</y>
+         <width>311</width>
+         <height>141</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">borde: 1px solid white;
+color: black;
+background: white;
+border-radius: 10px;</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="description">
+       <property name="geometry">
+        <rect>
+         <x>430</x>
+         <y>440</y>
+         <width>371</width>
+         <height>211</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">borde: 1px solid white;
+color: black;
+background: white;
+border-radius: 10px;</string>
        </property>
       </widget>
      </widget>
