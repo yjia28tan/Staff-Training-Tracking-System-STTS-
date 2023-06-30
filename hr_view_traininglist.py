@@ -4,7 +4,7 @@ from PyQt5 import Qt, uic
 from PyQt5.QtCore import QSize, QRect, QMetaObject, QCoreApplication, Qt, QByteArray
 from PyQt5.QtGui import QPixmap, QIcon, QFont
 from PyQt5.QtWidgets import QWidget, QFrame, QHBoxLayout, QSizePolicy, QPushButton, QLabel, QScrollArea, \
-    QLineEdit, QMessageBox, QMainWindow, QTableWidget, QTableWidgetItem
+    QLineEdit, QMessageBox
 from PyQt5.uic import loadUi
 import sys
 import sqlite3
@@ -63,7 +63,7 @@ class HR_Training(QtWidgets.QMainWindow):
         row_data = self.cursor.fetchall()
         rows = len(row_data)
 
-        self.app_status = "approved"
+        self.app_status = "Approved"
 
         for item in range(rows):
             training_id = row_data[item][0]
@@ -73,6 +73,7 @@ class HR_Training(QtWidgets.QMainWindow):
                                 "WHERE t.trainingID = ? AND a.applicationStatus = ?",
                                 (training_id, self.app_status,))
             application_count = str(self.cursor.fetchone()[0])
+            print(application_count)
 
             self.training = QFrame(self.scrollAreaWidgetContents_2)
             self.training.setObjectName(u"training")
@@ -727,7 +728,7 @@ class HR_Training(QtWidgets.QMainWindow):
                 self.create_button.setText("Create")
                 self.create_button.clicked.connect(self.create_new_training)
 
-                self.app_status = "approved"
+                self.app_status = "Approved"
 
                 for item in range(rows):
                     training_id = row_data[item][0]
@@ -740,7 +741,8 @@ class HR_Training(QtWidgets.QMainWindow):
 
                     self.training = QFrame(self.scrollAreaWidgetContents_2)
                     self.training.setObjectName(u"training")
-                    self.training.setGeometry(QRect(0, 50 + (item * (frame_height + frame_spacing)), frame_width, frame_height))
+                    self.training.setGeometry(QRect(0, 50 + (item * (frame_height + frame_spacing)),
+                                                    frame_width, frame_height))
                     self.training.setStyleSheet(u"border: 1px solid white;\n"
                                                 "background: #8A8A8A;\n"
                                                 "border-radius: 10px;")
@@ -957,7 +959,8 @@ class HR_Training(QtWidgets.QMainWindow):
                                                             u"border-radius: 10px;\n"
                                                             u"background: #008287;\n")
                         self.view_more_button.setText("View More")
-                        self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_training(trainingid))
+                        self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
+                                                              self.view_training(trainingid))
 
                     self.status_db.setText(f"{row_data[item][6]}")
                     publish = row_data[item][7]
@@ -985,7 +988,7 @@ class HR_Training(QtWidgets.QMainWindow):
             except Exception as e:
                 # Show error message box or print the error
                 error_message = "An error occurred: " + str(e)
-                # QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+                QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
 
 class CreateNewTraining(QtWidgets.QDialog):
     def __init__(self, parent=None):
@@ -1226,7 +1229,7 @@ class CreateNewTraining(QtWidgets.QDialog):
                                 "border-radius: 10px;")
         self.cost.setObjectName("cost")
 
-        self.description = QtWidgets.QLineEdit(self.main_frame)
+        self.description = QtWidgets.QPlainTextEdit(self.main_frame)
         self.description.setGeometry(QtCore.QRect(430, 440, 371, 211))
         self.description.setStyleSheet("borde: 1px solid white;\n"
                                        "color: black;\n"
@@ -1234,7 +1237,7 @@ class CreateNewTraining(QtWidgets.QDialog):
                                        "border-radius: 10px;")
         self.description.setObjectName("description")
 
-        self.short_description = QtWidgets.QLineEdit(self.main_frame)
+        self.short_description = QtWidgets.QPlainTextEdit(self.main_frame)
         self.short_description.setGeometry(QtCore.QRect(60, 510, 311, 141))
         self.short_description.setStyleSheet("borde: 1px solid white;\n"
                                              "color: black;\n"
@@ -1333,8 +1336,8 @@ class CreateNewTraining(QtWidgets.QDialog):
             time = self.time_pick.time().toString("HH:mm")
             duration = self.duration_pick.value()
             venue = self.venue.text()
-            short_description = self.short_description.text()
-            description = self.description.text()
+            description_text = self.description.toPlainText()
+            short_description_text = self.short_description.toPlainText()
             max_participants = self.max_participants.text()
             department = self.department_pick.currentText()
 
@@ -1376,18 +1379,20 @@ class CreateNewTraining(QtWidgets.QDialog):
             if not duration or duration <= 0:
                 # Duration is not a positive value
                 QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a valid positive durations.")
+                return False
 
             if not venue:
                 # Venue is empty
                 QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a venue.")
                 return False
 
-            if len(short_description.split()) > 100:
-                # Short description exceeds 500 words
-                QtWidgets.QMessageBox.warning(self, "Validation Error", "Short description should not exceed 500 words.")
+            if not short_description_text or len(short_description_text.split()) > 100:
+                # Short description exceeds 100 words
+                QtWidgets.QMessageBox.warning(self, "Validation Error",
+                                              "Short description should not empty and exceed 100 words.")
                 return False
 
-            if not description:
+            if not description_text:
                 QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter the description.")
                 return False
 
@@ -1402,54 +1407,65 @@ class CreateNewTraining(QtWidgets.QDialog):
                 QtWidgets.QMessageBox.warning(self, "Validation Error", "Please select a department.")
                 return False
 
-            connectDatabase()
-            self.cursor = connect.cursor()
-            self.cursor.execute("SELECT departmentID FROM department where departmentName = ?", (department,))
-            dep_id = self.cursor.fetchone()
-            department_id = dep_id[0]
+            else:
+                connectDatabase()
+                self.cursor = connect.cursor()
+                self.cursor.execute("SELECT departmentID FROM department where departmentName = ?", (department,))
+                dep_id = self.cursor.fetchone()
+                department_id = dep_id[0]
 
-            status = "Pending"
-            publish = False
-            cost = float(cost_per_person) * int(max_participants)
+                status = "Pending"
+                publish = False
+                cost = float(cost_per_person) * int(max_participants)
 
-            self.cursor.execute(
-                """INSERT INTO training 
-                (trainingName, cost, date, time, duration, venue, short_description, description, 
-                max_par, departmentID, brochure, status, publish) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (
-                    training_name, cost, date, time, duration, venue, short_description, description,
-                    max_participants, department_id, image_data if image_data else None,  status, publish
+                self.cursor.execute(
+                    """INSERT INTO training 
+                    (trainingName, cost, date, time, duration, venue, short_description, description, 
+                    max_par, departmentID, brochure, status, publish) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        training_name, cost, date, time, duration, venue, short_description_text, description_text,
+                        max_participants, department_id, image_data if image_data else None,  status, publish
+                    )
                 )
-            )
 
-            connect.commit()
-            training_id = self.cursor.lastrowid
-            QtWidgets.QMessageBox.information(self, "Success", "Training data inserted successfully.",
-                                              QtWidgets.QMessageBox.Ok)
+                connect.commit()
+                # global training_id_for_create_list
+                training_id_for_create_list = None
+                training_id_for_create_list = self.cursor.lastrowid
+                QtWidgets.QMessageBox.information(self, "Success", "Training data inserted successfully.",
+                                                  QtWidgets.QMessageBox.Ok)
+
+                if self.check_box.isChecked():
+                    if training_id_for_create_list is not None:
+                        try:
+                            add_participant = AddParticipantPage(training_id_for_create_list, self)
+                            add_participant.exec_()
+                            self.reject()
+                        except Exception as e:
+                            # Show error message box or print the error
+                            error_message = "An error occurred: " + str(e)
+                            QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+                    else:
+                        # Handle the case where training_id_for_create_list is None
+                        # Display an error message or perform appropriate actions
+                        error_message = "Training ID is not available."
+                        QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+                else:
+                    self.reject()
 
         except sqlite3.Error as e:
             QtWidgets.QMessageBox.critical(self, "Error", str(e), QtWidgets.QMessageBox.Ok)
-            print("An error occurred while inserting the training data:", e)
 
-        if self.check_box.isChecked():
-            # Checkbox is checked, show the popup dialog
-            try:
-                add_participant = AddParticipantPage(self, training_id)
-                add_participant.exec_()
-            except Exception as e:
-                # Show error message box or print the error
-                error_message = "An error occurred: " + str(e)
-                QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
-        else:
-            self.reject()
 
 class AddParticipantPage(QtWidgets.QDialog):
     def __init__(self, training_id, parent=None):
         super().__init__(parent)
-        print(training_id)
+        self.training_id_for_insertion = training_id
+        self.department_list_items = []
 
         self.setObjectName(u"AddParticipants")
+        self.setWindowTitle("Add Participants")
         self.resize(720, 560)
         self.setStyleSheet(u"background-color: #696969;")
         self.main_frame = QFrame(self)
@@ -1605,19 +1621,59 @@ class AddParticipantPage(QtWidgets.QDialog):
         department_item = QtWidgets.QTableWidgetItem(selected_department)
         department_item.setForeground(QtGui.QColor("white"))  # Set department text color to white
         self.add_department_into_table.setItem(current_row, 1, department_item)
-        self.add_department_into_table.resizeColumnsToContents()
+        # self.add_department_into_table.resizeColumnsToContents()
+
+        # Add the selected department to the department items list
+        self.department_list_items.append(selected_department)
 
     def remove_row(self):
         selected_row = self.add_department_into_table.currentRow()
         if selected_row >= 0:
-            self.add_department_into_table.removeRow(selected_row)
-            # Update index values of subsequent rows
-            row_count = self.add_department_into_table.rowCount()
-            for row in range(selected_row, row_count):
-                self.add_department_into_table.item(row, 0).setText(str(row + 1))
+            # Retrieve the department item from the table
+            department_item = self.add_department_into_table.item(selected_row, 1)
+            if department_item:
+                department = department_item.text()
+
+                # Remove the row from the table
+                self.add_department_into_table.removeRow(selected_row)
+
+                # Remove the department item from the list
+                if department in self.department_list_items:
+                    self.department_list_items.remove(department)
+
+                # Update index values of subsequent rows
+                row_count = self.add_department_into_table.rowCount()
+                for row in range(selected_row, row_count):
+                    self.add_department_into_table.item(row, 0).setText(str(row + 1))
 
     def add_participant_list(self):
-        pass
+        app_status = "Approved"
+        app_date = datetime.date.today()
+
+        for department in self.department_list_items:
+            connectDatabase()
+            self.cursor = connect.cursor()
+            self.cursor.execute("SELECT departmentID FROM department WHERE departmentName = ?", (department,))
+            department_id1 = self.cursor.fetchone()  # Use fetchone() instead of fetchall()
+            department_id = department_id1[0]
+
+            connectDatabase()
+            self.cursor = connect.cursor()
+            self.cursor.execute("SELECT employeeID FROM employee WHERE departmentID = ?", (department_id,))
+            employees = self.cursor.fetchall()
+            employee_list = len(employees)
+
+            for employee in range(employee_list):
+                employee_id = employees[employee][0]
+
+                connectDatabase()
+                self.cursor = connect.cursor()
+                self.cursor.execute("""INSERT INTO application(employeeID, trainingID, applicationStatus, applicationDate) 
+                        VALUES (?, ?, ?, ?)""", (employee_id, self.training_id_for_insertion, app_status, app_date))
+                connect.commit()
+
+        QtWidgets.QMessageBox.information(self, "Success", "Application added successfully.", QtWidgets.QMessageBox.Ok)
+        self.reject()
 
 
 if __name__ == "__main__":
