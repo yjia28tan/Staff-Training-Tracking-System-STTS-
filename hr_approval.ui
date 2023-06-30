@@ -1064,6 +1064,48 @@ border: none;</string>
         </widget>
        </widget>
       </widget>
+      <widget class="QPushButton" name="reject_training_button">
+       <property name="geometry">
+        <rect>
+         <x>860</x>
+         <y>50</y>
+         <width>112</width>
+         <height>34</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: white;
+border-radius: 10px;</string>
+       </property>
+       <property name="text">
+        <string>Reject</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>reject.png</normaloff>reject.png</iconset>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="approve_training_button">
+       <property name="geometry">
+        <rect>
+         <x>740</x>
+         <y>50</y>
+         <width>112</width>
+         <height>34</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: white;
+border-radius: 10px;</string>
+       </property>
+       <property name="text">
+        <string>Approve</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>success.png</normaloff>success.png</iconset>
+       </property>
+      </widget>
      </widget>
     </item>
    </layout>
