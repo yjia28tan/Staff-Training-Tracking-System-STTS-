@@ -1,787 +1,532 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>AddParticipants</class>
+ <widget class="QDialog" name="AddParticipants">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
-    <height>720</height>
+    <width>720</width>
+    <height>560</height>
    </rect>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>1280</width>
-    <height>720</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>1280</width>
-    <height>720</height>
-   </size>
-  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
-  </property>
-  <property name="autoFillBackground">
-   <bool>false</bool>
+   <string>Dialog</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: #696969;</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <property name="minimumSize">
-    <size>
-     <width>1280</width>
-     <height>720</height>
-    </size>
+  <widget class="QFrame" name="main_frame">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>700</width>
+     <height>540</height>
+    </rect>
    </property>
-   <property name="maximumSize">
-    <size>
-     <width>1280</width>
-     <height>720</height>
-    </size>
+   <property name="styleSheet">
+    <string notr="true">border: 1px solid white;</string>
    </property>
-   <property name="autoFillBackground">
-    <bool>false</bool>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
-    <item>
-     <widget class="QFrame" name="side_frame">
-      <property name="minimumSize">
-       <size>
-        <width>240</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>240</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">border: 1px solid white;</string>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <widget class="QFrame" name="profile_frame">
-       <property name="geometry">
-        <rect>
-         <x>14</x>
-         <y>80</y>
-         <width>212</width>
-         <height>329</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">border-radius: 10px;</string>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <widget class="QPushButton" name="profile_button">
-        <property name="geometry">
-         <rect>
-          <x>63</x>
-          <y>40</y>
-          <width>90</width>
-          <height>90</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>90</width>
-          <height>90</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>90</width>
-          <height>90</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: none;
-border-radius: 50%;
-</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>profile.png</normaloff>profile.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>90</width>
-          <height>90</height>
-         </size>
-        </property>
-       </widget>
-       <widget class="QLabel" name="name_label">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>150</y>
-          <width>191</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: none;
-color: white;
-font-weight: bold;
-</string>
-        </property>
-        <property name="text">
-         <string>Name</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-       <widget class="QLabel" name="staff_id_label">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>200</y>
-          <width>191</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: none;
-color: white;
-font-weight: bold;</string>
-        </property>
-        <property name="text">
-         <string>Staff ID</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-       <widget class="QLabel" name="department_label">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>250</y>
-          <width>191</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: none;
-color: white;
-font-weight: bold;</string>
-        </property>
-        <property name="text">
-         <string>Department</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-       <widget class="QLabel" name="name_db">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>170</y>
-          <width>191</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: none;
-color: white;</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-       <widget class="QLabel" name="id_db">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>220</y>
-          <width>191</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: none;
-color: white;</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-       <widget class="QLabel" name="department_db">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>270</y>
-          <width>191</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: none;
-color: white;</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QPushButton" name="list_button">
-       <property name="geometry">
-        <rect>
-         <x>14</x>
-         <y>470</y>
-         <width>211</width>
-         <height>91</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">color: white;
-font-weight: bold;
-border-radius: 10px;</string>
-       </property>
-       <property name="text">
-        <string>Training List</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="logout_button">
-       <property name="geometry">
-        <rect>
-         <x>14</x>
-         <y>650</y>
-         <width>51</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">border: none;
-border-radius: 50%;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>logout.png</normaloff>logout.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>45</width>
-         <height>45</height>
-        </size>
-       </property>
-      </widget>
-      <widget class="QLabel" name="notification_menu_dot">
-       <property name="geometry">
-        <rect>
-         <x>170</x>
-         <y>570</y>
-         <width>21</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">border: none;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="scaledContents">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </widget>
-    </item>
-    <item>
-     <widget class="QFrame" name="main_frame">
-      <property name="styleSheet">
-       <string notr="true">border: 1px solid white;</string>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <widget class="QLabel" name="header">
-       <property name="geometry">
-        <rect>
-         <x>14</x>
-         <y>14</y>
-         <width>971</width>
-         <height>81</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>22</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">border: none;
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QLabel" name="header">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>671</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>22</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: none;
 border-bottom: 1px solid white;
 color: white;
 font-weight: bold;
 </string>
-       </property>
-       <property name="text">
-        <string>Create Participants List</string>
-       </property>
-      </widget>
-      <widget class="QScrollArea" name="scrollArea">
-       <property name="geometry">
-        <rect>
-         <x>14</x>
-         <y>99</y>
-         <width>971</width>
-         <height>581</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">border: none;</string>
-       </property>
-       <property name="verticalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOn</enum>
-       </property>
-       <property name="widgetResizable">
-        <bool>true</bool>
-       </property>
-       <widget class="QWidget" name="scrollAreaWidgetContents_2">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>945</width>
-          <height>581</height>
-         </rect>
-        </property>
-        <widget class="QPushButton" name="training_name_db">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>10</y>
-           <width>921</width>
-           <height>51</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>15</pointsize>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: white;
+    </property>
+    <property name="text">
+     <string>Create Participants List</string>
+    </property>
+   </widget>
+   <widget class="QScrollArea" name="scrollArea">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>75</y>
+      <width>685</width>
+      <height>461</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: none;</string>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOn</enum>
+    </property>
+    <property name="widgetResizable">
+     <bool>true</bool>
+    </property>
+    <widget class="QWidget" name="scrollAreaWidgetContents">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>664</width>
+       <height>461</height>
+      </rect>
+     </property>
+     <widget class="QPushButton" name="training_name_db_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>500</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>15</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: white;
 font-weight: bold;
 border: none;
 text-align: left;
 </string>
-         </property>
-         <property name="text">
-          <string>Cyber Security</string>
-         </property>
-        </widget>
-        <widget class="QTableWidget" name="department_table">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>190</y>
-           <width>921</width>
-           <height>381</height>
-          </rect>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">qproperty-uniformRowHeights: true;</string>
-         </property>
-         <property name="selectionMode">
-          <enum>QAbstractItemView::SingleSelection</enum>
-         </property>
-         <property name="showGrid">
-          <bool>true</bool>
-         </property>
-         <property name="gridStyle">
-          <enum>Qt::SolidLine</enum>
-         </property>
-         <property name="sortingEnabled">
-          <bool>true</bool>
-         </property>
-         <property name="cornerButtonEnabled">
-          <bool>false</bool>
-         </property>
-         <attribute name="horizontalHeaderVisible">
-          <bool>true</bool>
-         </attribute>
-         <attribute name="verticalHeaderVisible">
-          <bool>false</bool>
-         </attribute>
-         <row>
-          <property name="text">
-           <string>1</string>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-         </row>
-         <row>
-          <property name="text">
-           <string>2</string>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-         </row>
-         <row>
-          <property name="text">
-           <string>3</string>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-         </row>
-         <row>
-          <property name="text">
-           <string>4</string>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-         </row>
-         <column>
-          <property name="text">
-           <string>Index</string>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Department</string>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-         </column>
-         <item row="0" column="0">
-          <property name="text">
-           <string>1</string>
-          </property>
-          <property name="textAlignment">
-           <set>AlignCenter</set>
-          </property>
-          <property name="foreground">
-           <brush brushstyle="NoBrush">
-            <color alpha="255">
-             <red>255</red>
-             <green>255</green>
-             <blue>255</blue>
-            </color>
-           </brush>
-          </property>
-         </item>
-         <item row="0" column="1">
-          <property name="text">
-           <string>IT</string>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="textAlignment">
-           <set>AlignCenter</set>
-          </property>
-          <property name="foreground">
-           <brush brushstyle="NoBrush">
-            <color alpha="255">
-             <red>255</red>
-             <green>255</green>
-             <blue>255</blue>
-            </color>
-           </brush>
-          </property>
-         </item>
-         <item row="1" column="0">
-          <property name="text">
-           <string>2</string>
-          </property>
-          <property name="textAlignment">
-           <set>AlignCenter</set>
-          </property>
-          <property name="foreground">
-           <brush brushstyle="NoBrush">
-            <color alpha="255">
-             <red>255</red>
-             <green>255</green>
-             <blue>255</blue>
-            </color>
-           </brush>
-          </property>
-         </item>
-         <item row="1" column="1">
-          <property name="text">
-           <string>Human Resource</string>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="textAlignment">
-           <set>AlignCenter</set>
-          </property>
-          <property name="foreground">
-           <brush brushstyle="NoBrush">
-            <color alpha="255">
-             <red>255</red>
-             <green>255</green>
-             <blue>255</blue>
-            </color>
-           </brush>
-          </property>
-         </item>
-         <item row="2" column="0">
-          <property name="text">
-           <string>3</string>
-          </property>
-          <property name="textAlignment">
-           <set>AlignCenter</set>
-          </property>
-          <property name="foreground">
-           <brush brushstyle="NoBrush">
-            <color alpha="255">
-             <red>255</red>
-             <green>255</green>
-             <blue>255</blue>
-            </color>
-           </brush>
-          </property>
-         </item>
-         <item row="2" column="1">
-          <property name="text">
-           <string>Finance</string>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="textAlignment">
-           <set>AlignCenter</set>
-          </property>
-          <property name="foreground">
-           <brush brushstyle="NoBrush">
-            <color alpha="255">
-             <red>255</red>
-             <green>255</green>
-             <blue>255</blue>
-            </color>
-           </brush>
-          </property>
-         </item>
-         <item row="3" column="0">
-          <property name="text">
-           <string>4</string>
-          </property>
-          <property name="textAlignment">
-           <set>AlignCenter</set>
-          </property>
-          <property name="foreground">
-           <brush brushstyle="NoBrush">
-            <color alpha="255">
-             <red>255</red>
-             <green>255</green>
-             <blue>255</blue>
-            </color>
-           </brush>
-          </property>
-         </item>
-         <item row="3" column="1">
-          <property name="text">
-           <string>Finance</string>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="textAlignment">
-           <set>AlignCenter</set>
-          </property>
-          <property name="foreground">
-           <brush brushstyle="NoBrush">
-            <color alpha="255">
-             <red>255</red>
-             <green>255</green>
-             <blue>255</blue>
-            </color>
-           </brush>
-          </property>
-         </item>
-        </widget>
-        <widget class="QComboBox" name="department_list">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>120</y>
-           <width>281</width>
-           <height>51</height>
-          </rect>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: white;
-border: 1px solid white;</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="department_label_2">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>70</y>
-           <width>131</width>
-           <height>41</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: white;</string>
-         </property>
-         <property name="text">
-          <string>Department</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="add_button">
-         <property name="geometry">
-          <rect>
-           <x>300</x>
-           <y>130</y>
-           <width>31</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>plus.png</normaloff>plus.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>36</width>
-           <height>36</height>
-          </size>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="remove_button">
-         <property name="geometry">
-          <rect>
-           <x>340</x>
-           <y>130</y>
-           <width>31</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>minus.png</normaloff>minus.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>42</width>
-           <height>42</height>
-          </size>
-         </property>
-        </widget>
-       </widget>
-      </widget>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
      </widget>
-    </item>
-   </layout>
+     <widget class="QTableWidget" name="department_table_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>190</y>
+        <width>660</width>
+        <height>250</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">qproperty-uniformRowHeights: true;</string>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::SingleSelection</enum>
+      </property>
+      <property name="showGrid">
+       <bool>true</bool>
+      </property>
+      <property name="gridStyle">
+       <enum>Qt::SolidLine</enum>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
+      <property name="cornerButtonEnabled">
+       <bool>false</bool>
+      </property>
+      <attribute name="horizontalHeaderVisible">
+       <bool>true</bool>
+      </attribute>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+      <row>
+       <property name="text">
+        <string>1</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </row>
+      <row>
+       <property name="text">
+        <string>2</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </row>
+      <row>
+       <property name="text">
+        <string>3</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </row>
+      <row>
+       <property name="text">
+        <string>4</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </row>
+      <column>
+       <property name="text">
+        <string>Index</string>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Department</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </column>
+      <item row="0" column="0">
+       <property name="text">
+        <string>1</string>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>255</red>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </property>
+      </item>
+      <item row="0" column="1">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>255</red>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </property>
+      </item>
+      <item row="1" column="0">
+       <property name="text">
+        <string>2</string>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>255</red>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </property>
+      </item>
+      <item row="1" column="1">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>255</red>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </property>
+      </item>
+      <item row="2" column="0">
+       <property name="text">
+        <string>3</string>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>255</red>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </property>
+      </item>
+      <item row="2" column="1">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>255</red>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </property>
+      </item>
+      <item row="3" column="0">
+       <property name="text">
+        <string>4</string>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>255</red>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </property>
+      </item>
+      <item row="3" column="1">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>255</red>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </property>
+      </item>
+     </widget>
+     <widget class="QComboBox" name="department_list_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>120</y>
+        <width>281</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: white;
+border: 1px solid white;</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="department_label">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>70</y>
+        <width>131</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: white;</string>
+      </property>
+      <property name="text">
+       <string>Department</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="add_button_2">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>130</y>
+        <width>31</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>plus.png</normaloff>plus.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>36</width>
+        <height>36</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="remove_button_2">
+      <property name="geometry">
+       <rect>
+        <x>340</x>
+        <y>130</y>
+        <width>31</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>minus.png</normaloff>minus.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>42</width>
+        <height>42</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="cancel_button">
+      <property name="geometry">
+       <rect>
+        <x>560</x>
+        <y>410</y>
+        <width>90</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: white;
+font-weight: bold;
+border-radius: 10px;
+background: #008287;
+border-color: white;</string>
+      </property>
+      <property name="text">
+       <string>Cancel</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="create_button">
+      <property name="geometry">
+       <rect>
+        <x>439</x>
+        <y>410</y>
+        <width>90</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: white;
+font-weight: bold;
+border-radius: 10px;
+background: #008287;
+border-color: white;</string>
+      </property>
+      <property name="text">
+       <string>Create</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
   </widget>
  </widget>
  <resources/>
