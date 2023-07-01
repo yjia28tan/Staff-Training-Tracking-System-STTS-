@@ -1,4 +1,8 @@
     def delete_training(self, trainingID):
+        delete_date = QtCore.QDate.currentDate()
+        delete_date_string = app_date.toString("yyyy-MM-dd")
+        employees_lists = []
+
         # Confirm the deletion with a message box
         confirm = QtWidgets.QMessageBox.question(self, "Confirm Deletion",
                                                  "Are you sure you want to delete this training?",
@@ -10,10 +14,31 @@
 
             try:
                 # Perform the deletion operation in the database
+
+                # get the employees that registered in the training
+                cursor.execute("SELECT a.applicationID, a.employeeID FROM training t "
+                                    "JOIN application a ON a.trainingID = t.trainingID "
+                                    "WHERE t.trainingID = ?", (trainingID,))
+                result = cursor.fetchall()
+                employees = result[0][1]
+                employees_lists.extend(employees)
+                # print(result)
+                # print(employees)
+                # print(employees_lists)
+
                 self.cursor.execute("DELETE FROM training WHERE trainingID = ?", (trainingID,))
                 connect.commit()
                 QtWidgets.QMessageBox.information(self, "Deletion Successful", "Training deleted successfully.",
                                                   QtWidgets.QMessageBox.Ok)
+                if employees_lists is not None:
+                    for employee in employees_lists:
+                        self.cursor.execute("""INSERT INTO notification(notification_status, notification_date, employeeID,
+                        trainingID, is_read) VALUES (?, ?, ?, ?, ?)""", 
+                                            ("Cancelled", delete_date_string, employee_id, self.training_id_for_insertion, False))
+                        connect.commit()
+                    QtWidgets.QMessageBox.information(self, "Notification Sent Successful", "Notification successfully sent to registered participants.",
+                                                      QtWidgets.QMessageBox.Ok)
+
                 self.close()
             except Exception as e:
                 print("Deletion failed:", str(e))
