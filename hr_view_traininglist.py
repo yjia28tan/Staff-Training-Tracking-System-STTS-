@@ -3007,7 +3007,7 @@ class Notification(QtWidgets.QMainWindow):
             self.training_name.setObjectName("training_name")
 
             self.time = QtWidgets.QLabel(self.notification_frame)
-            self.time.setGeometry(QtCore.QRect(810, 40, 68, 19))
+            self.time.setGeometry(QtCore.QRect(820, 40, 68, 19))
             font = QtGui.QFont()
             font.setPointSize(8)
             font.setBold(False)
@@ -3040,7 +3040,7 @@ class Notification(QtWidgets.QMainWindow):
             self.notification_text.setObjectName("notification_text")
 
             self.date = QtWidgets.QLabel(self.notification_frame)
-            self.date.setGeometry(QtCore.QRect(758, 60, 161, 20))
+            self.date.setGeometry(QtCore.QRect(790, 60, 125, 20))
             font = QtGui.QFont()
             font.setBold(False)
             font.setWeight(50)
