@@ -192,7 +192,7 @@ class Notification(object):
         self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
         # template for each the notification
         for row in range(self.rows):
-            date_time = datetime.strptime(data[row][2], "%d-%m-%Y %H:%M")
+            date_time = datetime.strptime(data[row][2], "%Y-%m-%d %H:%M")
             date = date_time.strftime("%d %B %Y")
             time = date_time.strftime("%H:%M")
             self.notification_frame = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
@@ -338,7 +338,7 @@ class Notification(object):
         self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 945, rows * (91 + 19)))
         self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
         for row in range(rows):
-            date_time = datetime.strptime(data[row][2], "%d-%m-%Y %H:%M")
+            date_time = datetime.strptime(data[row][2], "%Y-%m-%d %H:%M")
             date = date_time.strftime("%d %B %Y")
             time = date_time.strftime("%H:%M")
             self.notification_frame = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
