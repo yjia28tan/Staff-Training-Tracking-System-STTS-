@@ -1,5 +1,6 @@
 import logging
 import datetime
+from functools import partial
 from io import BytesIO
 from PIL import Image
 from PyQt5 import Qt
@@ -133,9 +134,9 @@ class HrView(QtWidgets.QMainWindow):
         self.id_db.setText(str(display[0][1]))
         cursor.execute('SELECT departmentName FROM department WHERE departmentID=?', (display[0][2],))
         self.department_db.setText(cursor.fetchone()[0])
-        self.profile_button.setIcon(QtGui.QIcon("pictures/profile.png"))
+        self.profile_button.setIcon(QtGui.QIcon("profile.png"))
         self.profile_button.clicked.connect(self.goto_profile)
-        self.logout_button.setIcon(QtGui.QIcon("pictures/logout.png"))
+        self.logout_button.setIcon(QtGui.QIcon("logout.png"))
         self.logout_button.clicked.connect(gotologin)
         # Connect the button's clicked signal to the reset function
         self.list_button.clicked.connect(self.reset)
@@ -147,7 +148,7 @@ class HrView(QtWidgets.QMainWindow):
         self.cursor = connect.cursor()
         self.cursor.execute(
             "SELECT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, t.max_par, "
-            "t.status, t.publish, "
+            "t.status, t.publish, t.cost, t.date, t.time, t.venue,"
             "CASE WHEN t.date >= DATE('now') THEN t.date ELSE NULL END AS happening_soon_date "
             "FROM training t "
             "JOIN department d ON d.departmentID = t.departmentID "
@@ -158,9 +159,36 @@ class HrView(QtWidgets.QMainWindow):
         row_data = self.cursor.fetchall()
         rows = len(row_data)
 
+        self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 50, frame_width,
+                                                                 rows * (frame_height + frame_spacing)))
+        self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
+
+        self.create_button = QPushButton(self.scrollAreaWidgetContents_2)
+        self.create_button.setObjectName(u"create_button")
+        self.create_button.setGeometry(QRect(808, 3, 121, 41))
+        font1 = QFont()
+        font1.setPointSize(9)
+        font1.setBold(True)
+        font1.setWeight(75)
+        self.create_button.setFont(font1)
+        self.create_button.setStyleSheet(u"color: white;\n"
+                                         "font-weight: bold;\n"
+                                         "border: 1px solid white;\n"
+                                         "border-radius: 10px;")
+        icon2 = QIcon()
+        icon2.addFile(u"create.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.create_button.setIcon(icon2)
+        self.create_button.setIconSize(QSize(30, 36))
+        self.create_button.setCheckable(False)
+        self.create_button.setText("Create")
+        self.create_button.clicked.connect(self.create_new_training)
+
         self.app_status = "Approved"
 
         for item in range(rows):
+            date = datetime.datetime.strptime(row_data[item][9], "%Y-%m-%d")
+            date = date.strftime("%d %B %Y")
             training_id = row_data[item][0]
             self.cursor.execute("SELECT COUNT(a.applicationID) "
                                 "FROM application a "
@@ -169,106 +197,213 @@ class HrView(QtWidgets.QMainWindow):
                                 (training_id, self.app_status,))
             application_count = str(self.cursor.fetchone()[0])
 
+            # training frame
             self.training = QFrame(self.scrollAreaWidgetContents_2)
             self.training.setObjectName(u"training")
-            self.training.setGeometry(QRect(0, 50 + (item * (frame_height + frame_spacing)), frame_width, frame_height))
+            self.training.setGeometry(QRect(0, 50 + (item * (frame_height + frame_spacing)),
+                                            frame_width, frame_height))
             self.training.setStyleSheet(u"border: 1px solid white;\n"
                                         "background: #8A8A8A;\n"
                                         "border-radius: 10px;")
             self.training.setFrameShape(QFrame.StyledPanel)
             self.training.setFrameShadow(QFrame.Raised)
 
-            # blob_data = row_data[item][4]
-            # image = Image.open(BytesIO(blob_data))
-            # image.save(f"pictures/image{item}.png", "PNG")
-            #
-            # self.training_image = QLabel(self.training)
-            # self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
-            # self.training_image.setScaledContents(True)
-            # self.training_image.setPixmap(QtGui.QPixmap(f"pictures/image{item}.png"))
-            # self.training_image.setObjectName(f"training_image_{item}")
+            # training image
+            blob_data = row_data[item][4]
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(blob_data)
 
-            self.department_label = QLabel(self.training)
-            self.department_label.setObjectName(u"department_label")
-            self.department_label.setGeometry(QRect(230, 50, 111, 31))
-            font = QFont()
-            font.setBold(True)
-            font.setWeight(75)
-            self.department_label.setFont(font)
-            self.department_label.setStyleSheet(u"color: white;\n"
-                                                "font-weight: bold;\n"
-                                                "border: none;")
-            self.department_label.setText("Department: ")
+            self.training_image = QLabel(self.training)
+            self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
+            self.training_image.setScaledContents(True)
+            self.training_image.setPixmap(pixmap)
+            self.training_image.setObjectName(f"training_image_{training_id}")
 
-            self.department_db = QLabel(self.training)
-            self.department_db.setObjectName(u"department_db")
-            self.department_db.setGeometry(QRect(340, 50, 581, 31))
-            font1 = QFont()
-            font1.setPointSize(8)
-            font1.setBold(False)
-            font1.setWeight(50)
-            self.department_db.setFont(font1)
-            self.department_db.setStyleSheet(u"color: white;\n"
-                                             "font-weight: regular;\n"
-                                             "border: none;\n"
-                                             "bold: none;")
-            self.department_db.setText(f"{row_data[item][2]}")
-
-            self.description_label = QLabel(self.training)
-            self.description_label.setObjectName(u"description_label")
-            self.description_label.setGeometry(QRect(230, 80, 101, 21))
-            self.description_label.setFont(font)
-            self.description_label.setStyleSheet(u"color: white;\n"
-                                                 "font-weight: bold;\n"
-                                                 "border: none;")
-            self.description_label.setText("Description: ")
-
-            self.description_db = QLabel(self.training)
-            self.description_db.setObjectName(u"description_db")
-            self.description_db.setGeometry(QRect(230, 100, 691, 81))
-            self.description_db.setStyleSheet(u"color: white;\n"
-                                              "font-weight: regular;\n"
-                                              "border: none;")
-            self.description_db.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-            self.description_db.setWordWrap(True)
-            self.description_db.setText(f"{row_data[item][3]}")
-
+            # training Name
             self.training_name_db = QLabel(self.training)
             self.training_name_db.setObjectName(u"training_name_db")
             self.training_name_db.setGeometry(QRect(230, 20, 691, 31))
-            font2 = QFont()
-            font2.setPointSize(12)
-            font2.setBold(True)
-            font2.setWeight(75)
-            self.training_name_db.setFont(font2)
+            font3 = QFont()
+            font3.setPointSize(12)
+            font3.setBold(True)
+            font3.setWeight(75)
+            self.training_name_db.setFont(font3)
             self.training_name_db.setStyleSheet(u"color: white;\n"
                                                 "font-weight: bold;\n"
                                                 "border: none;\n"
-                                                "text-align: left;\n")
+                                                "text-align: left;\n"
+                                                "")
             self.training_name_db.setText(f"{row_data[item][1]}")
 
-            self.participant_label = QLabel(self.training)
-            self.participant_label.setObjectName(u"participant_label")
-            self.participant_label.setGeometry(QRect(20, 170, 101, 31))
-            self.participant_label.setFont(font)
-            self.participant_label.setStyleSheet(u"color: white;\n"
+            # department label
+            self.department_label_2 = QLabel(self.training)
+            self.department_label_2.setObjectName(u"department_label_2")
+            self.department_label_2.setGeometry(QRect(230, 50, 111, 31))
+            font1 = QFont()
+            font1.setBold(True)
+            font1.setWeight(75)
+            self.department_label_2.setFont(font1)
+            self.department_label_2.setStyleSheet(u"color: white;\n"
+                                                  "font-weight: bold;\n"
+                                                  "border: none;")
+            self.department_label_2.setText("Department:")
+
+            # department database
+            self.department_db_2 = QLabel(self.training)
+            self.department_db_2.setObjectName(u"department_db_2")
+            self.department_db_2.setGeometry(QRect(340, 50, 581, 31))
+            font2 = QFont()
+            font2.setPointSize(8)
+            font2.setBold(False)
+            font2.setWeight(50)
+            self.department_db_2.setFont(font2)
+            self.department_db_2.setStyleSheet(u"color: white;\n"
+                                               "font-weight: regular;\n"
+                                               "border: none;\n"
+                                               "bold: none;")
+            self.department_db_2.setText(f"{row_data[item][2]}")
+
+            # description label
+            self.description_label = QLabel(self.training)
+            self.description_label.setObjectName(u"description_label")
+            self.description_label.setGeometry(QRect(230, 80, 101, 21))
+            self.description_label.setFont(font1)
+            self.description_label.setStyleSheet(u"color: white;\n"
                                                  "font-weight: bold;\n"
                                                  "border: none;")
-            self.participant_label.setText("Participant:")
+            self.description_label.setText("Description:")
 
+            # description database
+            self.description_db = QLabel(self.training)
+            self.description_db.setObjectName(u"description_db")
+            self.description_db.setGeometry(QRect(230, 100, 691, 61))
+            self.description_db.setStyleSheet(u"color: white;\n"
+                                              "font-weight: regular;\n"
+                                              "border: none;")
+            self.description_db.setAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignTop)
+            self.description_db.setWordWrap(True)
+            self.description_db.setText(f"{row_data[item][3]}")
+
+            # date label
+            self.date_label = QLabel(self.training)
+            self.date_label.setObjectName(u"date_label")
+            self.date_label.setGeometry(QRect(20, 160, 51, 31))
+            self.date_label.setFont(font1)
+            self.date_label.setStyleSheet(u"color: white;\n"
+                                          "font-weight: bold;\n"
+                                          "border: none;")
+            self.date_label.setText("Date:")
+
+            # date db
+            self.date_db = QLabel(self.training)
+            self.date_db.setObjectName(u"date_db")
+            self.date_db.setGeometry(QRect(80, 160, 141, 31))
+            self.date_db.setFont(font2)
+            self.date_db.setStyleSheet(u"color: white;\n"
+                                       "font-weight: regular;\n"
+                                       "border: none;\n"
+                                       "bold: none;")
+            self.date_db.setText(f"{date}")
+
+            # time label
+            self.time_label = QLabel(self.training)
+            self.time_label.setObjectName(u"time_label")
+            self.time_label.setGeometry(QRect(240, 160, 51, 31))
+            self.time_label.setFont(font1)
+            self.time_label.setStyleSheet(u"color: white;\n"
+                                          "font-weight: bold;\n"
+                                          "border: none;")
+            self.time_label.setText("Time:")
+
+            # time db
+            self.time_db = QLabel(self.training)
+            self.time_db.setObjectName(u"time_db")
+            self.time_db.setGeometry(QRect(300, 160, 51, 31))
+            self.time_db.setFont(font2)
+            self.time_db.setStyleSheet(u"color: white;\n"
+                                       "font-weight: regular;\n"
+                                       "border: none;\n"
+                                       "bold: none;")
+            self.time_db.setText(f"{row_data[item][10]}")
+
+            # venue label
+            self.venue_label = QLabel(self.training)
+            self.venue_label.setObjectName(u"venue_label")
+            self.venue_label.setGeometry(QRect(20, 190, 61, 21))
+            self.venue_label.setFont(font1)
+            self.venue_label.setStyleSheet(u"color: white;\n"
+                                           "font-weight: bold;\n"
+                                           "border: none;")
+            self.venue_label.setText("Venue:")
+
+            # venue db
+            self.venue_db = QLabel(self.training)
+            self.venue_db.setObjectName(u"venue_db")
+            self.venue_db.setGeometry(QRect(90, 190, 471, 21))
+            self.venue_db.setFont(font2)
+            self.venue_db.setStyleSheet(u"color: white;\n"
+                                        "font-weight: regular;\n"
+                                        "border: none;\n"
+                                        "bold: none;")
+            self.venue_db.setText(f"{row_data[item][11]}")
+
+            # status label
             self.status_label = QLabel(self.training)
             self.status_label.setObjectName(u"status_label")
-            self.status_label.setGeometry(QRect(20, 200, 61, 31))
-            self.status_label.setFont(font)
+            self.status_label.setGeometry(QRect(20, 210, 61, 31))
+            self.status_label.setFont(font1)
             self.status_label.setStyleSheet(u"color: white;\n"
                                             "font-weight: bold;\n"
                                             "border: none;")
             self.status_label.setText("Status:")
 
+            # status db
             self.status_db = QLabel(self.training)
             self.status_db.setObjectName(u"status_db")
-            self.status_db.setGeometry(QRect(90, 200, 71, 31))
-            self.status_db.setFont(font1)
+            self.status_db.setGeometry(QRect(90, 210, 71, 31))
+            self.status_db.setFont(font2)
+
+            # participants label
+            self.participant_label = QLabel(self.training)
+            self.participant_label.setObjectName(u"participant_label")
+            self.participant_label.setGeometry(QRect(180, 210, 101, 31))
+            self.participant_label.setFont(font1)
+            self.participant_label.setStyleSheet(u"color: white;\n"
+                                                 "font-weight: bold;\n"
+                                                 "border: none;")
+            self.participant_label.setText("Participant:")
+
+            # participants db
+            self.participant_db = QLabel(self.training)
+            self.participant_db.setObjectName(u"participant_db")
+            self.participant_db.setGeometry(QRect(290, 210, 81, 31))
+            self.participant_db.setFont(font2)
+            self.participant_db.setStyleSheet(u"color: white;\n"
+                                              "font-weight: regular;\n"
+                                              "border: none;\n"
+                                              "bold: none;")
+            self.participant_db.setText(f"{application_count}"" / " f"{row_data[item][5]}")
+
+            # cost label
+            self.cost_label = QLabel(self.training)
+            self.cost_label.setObjectName(u"cost_label")
+            self.cost_label.setGeometry(QRect(390, 210, 51, 31))
+            self.cost_label.setFont(font1)
+            self.cost_label.setStyleSheet(u"color: white;\n"
+                                          "font-weight: bold;\n"
+                                          "border: none;")
+            self.cost_label.setText("Cost:")
+
+            # cost db
+            self.cost_db = QLabel(self.training)
+            self.cost_db.setObjectName(u"cost_db")
+            self.cost_db.setGeometry(QRect(440, 210, 81, 31))
+            self.cost_db.setFont(font2)
+            self.cost_db.setStyleSheet(u"color: white;\n"
+                                       "font-weight: regular;\n"
+                                       "border: none;\n"
+                                       "bold: none;")
+            self.cost_db.setText(f"{row_data[item][8]}")
 
             if row_data[item][6] == "Approved":
                 self.status_db.setStyleSheet(u"color: lightgreen;\n"
@@ -294,7 +429,8 @@ class HrView(QtWidgets.QMainWindow):
                                                  u"border-radius: 10px;\n"
                                                  u"background: #008287;\n")
                 self.modify_button.setText("Modify")
-                self.modify_button.clicked.connect(lambda _, trainingid=training_id: self.modify_training(trainingid))
+                self.modify_button.clicked.connect(lambda _, trainingid=training_id:
+                                                   self.modify_training(trainingid))
 
                 self.view_more_button = QPushButton(self.training)
                 self.view_more_button.setObjectName(u"view_more_button")
@@ -304,7 +440,8 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"border-radius: 10px;\n"
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("Modify")
-                self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_training(trainingid))
+                self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
+                                                      self.view_training(trainingid))
 
             elif row_data[item][6] == "Cancelled":
                 self.status_db.setStyleSheet(u"color: #FE8886;\n"
@@ -319,8 +456,8 @@ class HrView(QtWidgets.QMainWindow):
                                                   "border-radius: 10px;\n"
                                                   "background: #008287;\n")
                 self.publish_button.setProperty("trainingID", training_id)
-                self.publish_button.clicked.connect(lambda _, publish_btn=self.publish_button:
-                                                    self.publish_training(publish_btn))
+                self.publish_button.clicked.connect(
+                    lambda _, publish_btn=self.publish_button: self.publish_training(publish_btn))
 
                 self.view_more_button = QPushButton(self.training)
                 self.view_more_button.setObjectName(u"view_more_button")
@@ -330,7 +467,8 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"border-radius: 10px;\n"
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
-                self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_training(trainingid))
+                self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
+                                                      self.view_training(trainingid))
 
             elif row_data[item][6] == "Pending":
                 self.status_db.setStyleSheet(u"color: #FFAE42;\n"
@@ -356,7 +494,8 @@ class HrView(QtWidgets.QMainWindow):
                                                  "border-radius: 10px;\n"
                                                  "background: #008287;\n")
                 self.modify_button.setText("Modify")
-                self.modify_button.clicked.connect(lambda _, trainingid=training_id: self.modify_training(trainingid))
+                self.modify_button.clicked.connect(lambda _, trainingid=training_id:
+                                                   self.modify_training(trainingid))
 
                 self.approval_button = QPushButton(self.training)
                 self.approval_button.setObjectName(u"approval_button")
@@ -393,7 +532,8 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"border-radius: 10px;\n"
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
-                self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_training(trainingid))
+                self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
+                                                      self.view_training(trainingid))
 
             self.status_db.setText(f"{row_data[item][6]}")
             publish = row_data[item][7]
@@ -402,18 +542,11 @@ class HrView(QtWidgets.QMainWindow):
             else:
                 self.publish_button.setText("Publish")
 
-            self.participant_db = QLabel(self.training)
-            self.participant_db.setObjectName(u"participant_db")
-            self.participant_db.setGeometry(QRect(130, 170, 91, 31))
-            self.participant_db.setFont(font1)
-            self.participant_db.setStyleSheet(u"color: white;\n"
-                                              "font-weight: regular;\n"
-                                              "border: none;\n"
-                                              "bold: none;")
-            self.participant_db.setText(f"{application_count}"" / " f"{row_data[item][5]}")
-
         # Adjust the size of the scroll area's contents
         self.scrollAreaWidgetContents_2.setMinimumHeight(50 + rows * (frame_height + frame_spacing))
+
+        # Set the scroll area widget
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
 
     def search_training_hr(self):
         try:
@@ -423,7 +556,7 @@ class HrView(QtWidgets.QMainWindow):
             connect_database()
             self.cursor.execute(
                 "SELECT DISTINCT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, "
-                "t.max_par, t.status, t.publish "
+                "t.max_par, t.status, t.publish, t.cost, t.date, t.time, t.venue "
                 "FROM training t "
                 "JOIN department d ON d.departmentID = t.departmentID "
                 "WHERE (t.trainingName LIKE ? OR d.departmentName LIKE ?) "
@@ -486,6 +619,8 @@ class HrView(QtWidgets.QMainWindow):
         self.create_button.clicked.connect(self.create_new_training)
 
         for item in range(n):
+            date = datetime.datetime.strptime(search_results[item][9], "%Y-%m-%d")
+            date = date.strftime("%d %B %Y")
             training_id = search_results[item][0]
             self.cursor.execute("SELECT COUNT(a.applicationID) "
                                 "FROM application a "
@@ -494,107 +629,213 @@ class HrView(QtWidgets.QMainWindow):
                                 (training_id, self.app_status,))
             application_count = str(self.cursor.fetchone()[0])
 
+            # training frame
             self.training = QFrame(self.scrollAreaWidgetContents_2)
             self.training.setObjectName(u"training")
-            self.training.setGeometry(QRect(0, 50 + (item * (frame_height + frame_spacing)), frame_width, frame_height))
+            self.training.setGeometry(QRect(0, 50 + (item * (frame_height + frame_spacing)),
+                                            frame_width, frame_height))
             self.training.setStyleSheet(u"border: 1px solid white;\n"
                                         "background: #8A8A8A;\n"
                                         "border-radius: 10px;")
             self.training.setFrameShape(QFrame.StyledPanel)
             self.training.setFrameShadow(QFrame.Raised)
 
-            # blob_data = search_results[item][4]
+            # training image
+            blob_data = search_results[item][4]
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(blob_data)
 
-            # image = Image.open(BytesIO(blob_data))
-            # image.save(f"pictures/image{item}.png", "PNG")
-            #
-            # self.training_image = QLabel(self.training)
-            # self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
-            # self.training_image.setScaledContents(True)
-            # self.training_image.setPixmap(QtGui.QPixmap(f"pictures/image{item}.png"))
-            # self.training_image.setObjectName(f"training_image_{item}")
+            self.training_image = QLabel(self.training)
+            self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
+            self.training_image.setScaledContents(True)
+            self.training_image.setPixmap(pixmap)
+            self.training_image.setObjectName(f"training_image_{training_id}")
 
-            self.department_label = QLabel(self.training)
-            self.department_label.setObjectName(u"department_label")
-            self.department_label.setGeometry(QRect(230, 50, 111, 31))
-            font = QFont()
-            font.setBold(True)
-            font.setWeight(75)
-            self.department_label.setFont(font)
-            self.department_label.setStyleSheet(u"color: white;\n"
-                                                "font-weight: bold;\n"
-                                                "border: none;")
-            self.department_label.setText("Department: ")
-
-            self.department_db = QLabel(self.training)
-            self.department_db.setObjectName(u"department_db")
-            self.department_db.setGeometry(QRect(340, 50, 581, 31))
-            font1 = QFont()
-            font1.setPointSize(8)
-            font1.setBold(False)
-            font1.setWeight(50)
-            self.department_db.setFont(font1)
-            self.department_db.setStyleSheet(u"color: white;\n"
-                                             "font-weight: regular;\n"
-                                             "border: none;\n"
-                                             "bold: none;")
-            self.department_db.setText(f"{search_results[item][2]}")
-
-            self.description_label = QLabel(self.training)
-            self.description_label.setObjectName(u"description_label")
-            self.description_label.setGeometry(QRect(230, 80, 101, 21))
-            self.description_label.setFont(font)
-            self.description_label.setStyleSheet(u"color: white;\n"
-                                                 "font-weight: bold;\n"
-                                                 "border: none;")
-            self.description_label.setText("Description: ")
-
-            self.description_db = QLabel(self.training)
-            self.description_db.setObjectName(u"description_db")
-            self.description_db.setGeometry(QRect(230, 100, 691, 81))
-            self.description_db.setStyleSheet(u"color: white;\n"
-                                              "font-weight: regular;\n"
-                                              "border: none;")
-            self.description_db.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-            self.description_db.setWordWrap(True)
-            self.description_db.setText(f"{search_results[item][3]}")
-
+            # training Name
             self.training_name_db = QLabel(self.training)
             self.training_name_db.setObjectName(u"training_name_db")
             self.training_name_db.setGeometry(QRect(230, 20, 691, 31))
-            font2 = QFont()
-            font2.setPointSize(12)
-            font2.setBold(True)
-            font2.setWeight(75)
-            self.training_name_db.setFont(font2)
+            font3 = QFont()
+            font3.setPointSize(12)
+            font3.setBold(True)
+            font3.setWeight(75)
+            self.training_name_db.setFont(font3)
             self.training_name_db.setStyleSheet(u"color: white;\n"
                                                 "font-weight: bold;\n"
                                                 "border: none;\n"
-                                                "text-align: left;\n")
+                                                "text-align: left;\n"
+                                                "")
             self.training_name_db.setText(f"{search_results[item][1]}")
 
-            self.participant_label = QLabel(self.training)
-            self.participant_label.setObjectName(u"participant_label")
-            self.participant_label.setGeometry(QRect(20, 170, 101, 31))
-            self.participant_label.setFont(font)
-            self.participant_label.setStyleSheet(u"color: white;\n"
+            # department label
+            self.department_label_2 = QLabel(self.training)
+            self.department_label_2.setObjectName(u"department_label_2")
+            self.department_label_2.setGeometry(QRect(230, 50, 111, 31))
+            font1 = QFont()
+            font1.setBold(True)
+            font1.setWeight(75)
+            self.department_label_2.setFont(font1)
+            self.department_label_2.setStyleSheet(u"color: white;\n"
+                                                  "font-weight: bold;\n"
+                                                  "border: none;")
+            self.department_label_2.setText("Department:")
+
+            # department database
+            self.department_db_2 = QLabel(self.training)
+            self.department_db_2.setObjectName(u"department_db_2")
+            self.department_db_2.setGeometry(QRect(340, 50, 581, 31))
+            font2 = QFont()
+            font2.setPointSize(8)
+            font2.setBold(False)
+            font2.setWeight(50)
+            self.department_db_2.setFont(font2)
+            self.department_db_2.setStyleSheet(u"color: white;\n"
+                                               "font-weight: regular;\n"
+                                               "border: none;\n"
+                                               "bold: none;")
+            self.department_db_2.setText(f"{search_results[item][2]}")
+
+            # description label
+            self.description_label = QLabel(self.training)
+            self.description_label.setObjectName(u"description_label")
+            self.description_label.setGeometry(QRect(230, 80, 101, 21))
+            self.description_label.setFont(font1)
+            self.description_label.setStyleSheet(u"color: white;\n"
                                                  "font-weight: bold;\n"
                                                  "border: none;")
-            self.participant_label.setText("Participant:")
+            self.description_label.setText("Description:")
 
+            # description database
+            self.description_db = QLabel(self.training)
+            self.description_db.setObjectName(u"description_db")
+            self.description_db.setGeometry(QRect(230, 100, 691, 61))
+            self.description_db.setStyleSheet(u"color: white;\n"
+                                              "font-weight: regular;\n"
+                                              "border: none;")
+            self.description_db.setAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignTop)
+            self.description_db.setWordWrap(True)
+            self.description_db.setText(f"{search_results[item][3]}")
+
+            # date label
+            self.date_label = QLabel(self.training)
+            self.date_label.setObjectName(u"date_label")
+            self.date_label.setGeometry(QRect(20, 160, 51, 31))
+            self.date_label.setFont(font1)
+            self.date_label.setStyleSheet(u"color: white;\n"
+                                          "font-weight: bold;\n"
+                                          "border: none;")
+            self.date_label.setText("Date:")
+
+            # date db
+            self.date_db = QLabel(self.training)
+            self.date_db.setObjectName(u"date_db")
+            self.date_db.setGeometry(QRect(80, 160, 141, 31))
+            self.date_db.setFont(font2)
+            self.date_db.setStyleSheet(u"color: white;\n"
+                                       "font-weight: regular;\n"
+                                       "border: none;\n"
+                                       "bold: none;")
+            self.date_db.setText(f"{date}")
+
+            # time label
+            self.time_label = QLabel(self.training)
+            self.time_label.setObjectName(u"time_label")
+            self.time_label.setGeometry(QRect(240, 160, 51, 31))
+            self.time_label.setFont(font1)
+            self.time_label.setStyleSheet(u"color: white;\n"
+                                          "font-weight: bold;\n"
+                                          "border: none;")
+            self.time_label.setText("Time:")
+
+            # time db
+            self.time_db = QLabel(self.training)
+            self.time_db.setObjectName(u"time_db")
+            self.time_db.setGeometry(QRect(300, 160, 51, 31))
+            self.time_db.setFont(font2)
+            self.time_db.setStyleSheet(u"color: white;\n"
+                                       "font-weight: regular;\n"
+                                       "border: none;\n"
+                                       "bold: none;")
+            self.time_db.setText(f"{search_results[item][10]}")
+
+            # venue label
+            self.venue_label = QLabel(self.training)
+            self.venue_label.setObjectName(u"venue_label")
+            self.venue_label.setGeometry(QRect(20, 190, 61, 21))
+            self.venue_label.setFont(font1)
+            self.venue_label.setStyleSheet(u"color: white;\n"
+                                           "font-weight: bold;\n"
+                                           "border: none;")
+            self.venue_label.setText("Venue:")
+
+            # venue db
+            self.venue_db = QLabel(self.training)
+            self.venue_db.setObjectName(u"venue_db")
+            self.venue_db.setGeometry(QRect(90, 190, 471, 21))
+            self.venue_db.setFont(font2)
+            self.venue_db.setStyleSheet(u"color: white;\n"
+                                        "font-weight: regular;\n"
+                                        "border: none;\n"
+                                        "bold: none;")
+            self.venue_db.setText(f"{search_results[item][11]}")
+
+            # status label
             self.status_label = QLabel(self.training)
             self.status_label.setObjectName(u"status_label")
-            self.status_label.setGeometry(QRect(20, 200, 61, 31))
-            self.status_label.setFont(font)
+            self.status_label.setGeometry(QRect(20, 210, 61, 31))
+            self.status_label.setFont(font1)
             self.status_label.setStyleSheet(u"color: white;\n"
                                             "font-weight: bold;\n"
                                             "border: none;")
             self.status_label.setText("Status:")
 
+            # status db
             self.status_db = QLabel(self.training)
             self.status_db.setObjectName(u"status_db")
-            self.status_db.setGeometry(QRect(90, 200, 71, 31))
-            self.status_db.setFont(font1)
+            self.status_db.setGeometry(QRect(90, 210, 71, 31))
+            self.status_db.setFont(font2)
+
+            # participants label
+            self.participant_label = QLabel(self.training)
+            self.participant_label.setObjectName(u"participant_label")
+            self.participant_label.setGeometry(QRect(180, 210, 101, 31))
+            self.participant_label.setFont(font1)
+            self.participant_label.setStyleSheet(u"color: white;\n"
+                                                 "font-weight: bold;\n"
+                                                 "border: none;")
+            self.participant_label.setText("Participant:")
+
+            # participants db
+            self.participant_db = QLabel(self.training)
+            self.participant_db.setObjectName(u"participant_db")
+            self.participant_db.setGeometry(QRect(290, 210, 81, 31))
+            self.participant_db.setFont(font2)
+            self.participant_db.setStyleSheet(u"color: white;\n"
+                                              "font-weight: regular;\n"
+                                              "border: none;\n"
+                                              "bold: none;")
+            self.participant_db.setText(f"{application_count}"" / " f"{search_results[item][5]}")
+
+            # cost label
+            self.cost_label = QLabel(self.training)
+            self.cost_label.setObjectName(u"cost_label")
+            self.cost_label.setGeometry(QRect(390, 210, 51, 31))
+            self.cost_label.setFont(font1)
+            self.cost_label.setStyleSheet(u"color: white;\n"
+                                          "font-weight: bold;\n"
+                                          "border: none;")
+            self.cost_label.setText("Cost:")
+
+            # cost db
+            self.cost_db = QLabel(self.training)
+            self.cost_db.setObjectName(u"cost_db")
+            self.cost_db.setGeometry(QRect(440, 210, 81, 31))
+            self.cost_db.setFont(font2)
+            self.cost_db.setStyleSheet(u"color: white;\n"
+                                       "font-weight: regular;\n"
+                                       "border: none;\n"
+                                       "bold: none;")
+            self.cost_db.setText(f"{search_results[item][8]}")
 
             if search_results[item][6] == "Approved":
                 self.status_db.setStyleSheet(u"color: lightgreen;\n"
@@ -728,15 +969,6 @@ class HrView(QtWidgets.QMainWindow):
             else:
                 self.publish_button.setText("Publish")
 
-            self.participant_db = QLabel(self.training)
-            self.participant_db.setObjectName(u"participant_db")
-            self.participant_db.setGeometry(QRect(130, 170, 91, 31))
-            self.participant_db.setFont(font1)
-            self.participant_db.setStyleSheet(u"color: white;\n"
-                                              "font-weight: regular;\n"
-                                              "border: none;\n"
-                                              "bold: none;")
-            self.participant_db.setText(f"{application_count}"" / " f"{search_results[item][5]}")
 
         # Adjust the size of the scroll area's contents
         self.scrollAreaWidgetContents_2.setMinimumHeight(50 + n * (frame_height + frame_spacing))
@@ -754,19 +986,23 @@ class HrView(QtWidgets.QMainWindow):
             QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
 
     def publish_training(self, publish_btn):
-        button = publish_btn  # Get the button object that emitted the signal
-        training_id = button.property("trainingID")  # Get the training ID from the button's property
+        try:
+            button = publish_btn  # Get the button object that emitted the signal
+            training_id = button.property("trainingID")  # Get the training ID from the button's property
 
-        if button.text() == "Publish":
-            button.setText("Unpublished")
-            # Update the database to set the publishing status to 1
-            self.cursor.execute("UPDATE training SET publish = 1 WHERE trainingID = ?", (training_id,))
-            connect.commit()
-        else:
-            button.setText("Publish")
-            # Update the database to set the publishing status to 0
-            self.cursor.execute("UPDATE training SET publish = 0 WHERE trainingID = ?", (training_id,))
-            connect.commit()
+            if button.text() == "Publish":
+                button.setText("Unpublished")
+                # Update the database to set the publishing status to 1
+                self.cursor.execute("UPDATE training SET publish = 1 WHERE trainingID = ?", (training_id,))
+                connect.commit()
+            else:
+                button.setText("Publish")
+                # Update the database to set the publishing status to 0
+                self.cursor.execute("UPDATE training SET publish = 0 WHERE trainingID = ?", (training_id,))
+                connect.commit()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e), QMessageBox.Ok)
+            print(str(e))
 
     def modify_training(self, training_id):
         try:
@@ -777,11 +1013,29 @@ class HrView(QtWidgets.QMainWindow):
             error_message = "An error occurred: " + str(e)
             QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
 
-    def view_training(self, training_id):
-        pass
+    # def view_training(self, training_id):
+    #     try:
+    #         view_training = Approval(training_id)
+    #         widget.addWidget(view_training)
+    #         widget.setCurrentIndex(widget.currentIndex() + 1)
+    #
+    #     except Exception as e:
+    #         # Show error message box or print the error
+    #         error_message = "An error occurred: " + str(e)
+    #         QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+    #         print(error_message)
 
     def approve_training(self, training_id):
-        pass
+        try:
+            approval_window = Approval(training_id)
+            widget.addWidget(approval_window)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+
+        except Exception as e:
+            # Show error message box or print the error
+            error_message = "An error occurred: " + str(e)
+            QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+            print(error_message)
 
     def reset(self):
         try:
@@ -802,7 +1056,7 @@ class HrView(QtWidgets.QMainWindow):
             self.cursor = connect.cursor()
             self.cursor.execute(
                 "SELECT t.trainingID, t.trainingName, d.departmentName, t.short_description, t.brochure, t.max_par, "
-                "t.status, t.publish, "
+                "t.status, t.publish, t.cost, t.date, t.time, t.venue,"
                 "CASE WHEN t.date >= DATE('now') THEN t.date ELSE NULL END AS happening_soon_date "
                 "FROM training t "
                 "JOIN department d ON d.departmentID = t.departmentID "
@@ -841,6 +1095,8 @@ class HrView(QtWidgets.QMainWindow):
             self.app_status = "Approved"
 
             for item in range(rows):
+                date = datetime.datetime.strptime(row_data[item][9], "%Y-%m-%d")
+                date = date.strftime("%d %B %Y")
                 training_id = row_data[item][0]
                 self.cursor.execute("SELECT COUNT(a.applicationID) "
                                     "FROM application a "
@@ -849,6 +1105,7 @@ class HrView(QtWidgets.QMainWindow):
                                     (training_id, self.app_status,))
                 application_count = str(self.cursor.fetchone()[0])
 
+                # training frame
                 self.training = QFrame(self.scrollAreaWidgetContents_2)
                 self.training.setObjectName(u"training")
                 self.training.setGeometry(QRect(0, 50 + (item * (frame_height + frame_spacing)),
@@ -859,97 +1116,202 @@ class HrView(QtWidgets.QMainWindow):
                 self.training.setFrameShape(QFrame.StyledPanel)
                 self.training.setFrameShadow(QFrame.Raised)
 
-                # blob_data = row_data[item][4]
-                # image = Image.open(BytesIO(blob_data))
-                # image.save(f"pictures/image{item}.png", "PNG")
-                #
-                # self.training_image = QLabel(self.training)
-                # self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
-                # self.training_image.setScaledContents(True)
-                # self.training_image.setPixmap(QtGui.QPixmap(f"pictures/image{item}.png"))
-                # self.training_image.setObjectName(f"training_image_{item}")
+                # training image
+                blob_data = row_data[item][4]
+                pixmap = QtGui.QPixmap()
+                pixmap.loadFromData(blob_data)
 
-                self.department_label = QLabel(self.training)
-                self.department_label.setObjectName(u"department_label")
-                self.department_label.setGeometry(QRect(230, 50, 111, 31))
-                font = QFont()
-                font.setBold(True)
-                font.setWeight(75)
-                self.department_label.setFont(font)
-                self.department_label.setStyleSheet(u"color: white;\n"
-                                                    "font-weight: bold;\n"
-                                                    "border: none;")
-                self.department_label.setText("Department: ")
+                self.training_image = QLabel(self.training)
+                self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
+                self.training_image.setScaledContents(True)
+                self.training_image.setPixmap(pixmap)
+                self.training_image.setObjectName(f"training_image_{training_id}")
 
-                self.department_db = QLabel(self.training)
-                self.department_db.setObjectName(u"department_db")
-                self.department_db.setGeometry(QRect(340, 50, 581, 31))
-                font1 = QFont()
-                font1.setPointSize(8)
-                font1.setBold(False)
-                font1.setWeight(50)
-                self.department_db.setFont(font1)
-                self.department_db.setStyleSheet(u"color: white;\n"
-                                                 "font-weight: regular;\n"
-                                                 "border: none;\n"
-                                                 "bold: none;")
-                self.department_db.setText(f"{row_data[item][2]}")
-
-                self.description_label = QLabel(self.training)
-                self.description_label.setObjectName(u"description_label")
-                self.description_label.setGeometry(QRect(230, 80, 101, 21))
-                self.description_label.setFont(font)
-                self.description_label.setStyleSheet(u"color: white;\n"
-                                                     "font-weight: bold;\n"
-                                                     "border: none;")
-                self.description_label.setText("Description: ")
-
-                self.description_db = QLabel(self.training)
-                self.description_db.setObjectName(u"description_db")
-                self.description_db.setGeometry(QRect(230, 100, 691, 81))
-                self.description_db.setStyleSheet(u"color: white;\n"
-                                                  "font-weight: regular;\n"
-                                                  "border: none;")
-                self.description_db.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-                self.description_db.setWordWrap(True)
-                self.description_db.setText(f"{row_data[item][3]}")
-
+                # training Name
                 self.training_name_db = QLabel(self.training)
                 self.training_name_db.setObjectName(u"training_name_db")
                 self.training_name_db.setGeometry(QRect(230, 20, 691, 31))
-                font2 = QFont()
-                font2.setPointSize(12)
-                font2.setBold(True)
-                font2.setWeight(75)
-                self.training_name_db.setFont(font2)
+                font3 = QFont()
+                font3.setPointSize(12)
+                font3.setBold(True)
+                font3.setWeight(75)
+                self.training_name_db.setFont(font3)
                 self.training_name_db.setStyleSheet(u"color: white;\n"
                                                     "font-weight: bold;\n"
                                                     "border: none;\n"
-                                                    "text-align: left;\n")
+                                                    "text-align: left;\n"
+                                                    "")
                 self.training_name_db.setText(f"{row_data[item][1]}")
 
-                self.participant_label = QLabel(self.training)
-                self.participant_label.setObjectName(u"participant_label")
-                self.participant_label.setGeometry(QRect(20, 170, 101, 31))
-                self.participant_label.setFont(font)
-                self.participant_label.setStyleSheet(u"color: white;\n"
+                # department label
+                self.department_label_2 = QLabel(self.training)
+                self.department_label_2.setObjectName(u"department_label_2")
+                self.department_label_2.setGeometry(QRect(230, 50, 111, 31))
+                font1 = QFont()
+                font1.setBold(True)
+                font1.setWeight(75)
+                self.department_label_2.setFont(font1)
+                self.department_label_2.setStyleSheet(u"color: white;\n"
+                                                      "font-weight: bold;\n"
+                                                      "border: none;")
+                self.department_label_2.setText("Department:")
+
+                # department database
+                self.department_db_2 = QLabel(self.training)
+                self.department_db_2.setObjectName(u"department_db_2")
+                self.department_db_2.setGeometry(QRect(340, 50, 581, 31))
+                font2 = QFont()
+                font2.setPointSize(8)
+                font2.setBold(False)
+                font2.setWeight(50)
+                self.department_db_2.setFont(font2)
+                self.department_db_2.setStyleSheet(u"color: white;\n"
+                                                   "font-weight: regular;\n"
+                                                   "border: none;\n"
+                                                   "bold: none;")
+                self.department_db_2.setText(f"{row_data[item][2]}")
+
+                # description label
+                self.description_label = QLabel(self.training)
+                self.description_label.setObjectName(u"description_label")
+                self.description_label.setGeometry(QRect(230, 80, 101, 21))
+                self.description_label.setFont(font1)
+                self.description_label.setStyleSheet(u"color: white;\n"
                                                      "font-weight: bold;\n"
                                                      "border: none;")
-                self.participant_label.setText("Participant:")
+                self.description_label.setText("Description:")
 
+                # description database
+                self.description_db = QLabel(self.training)
+                self.description_db.setObjectName(u"description_db")
+                self.description_db.setGeometry(QRect(230, 100, 691, 61))
+                self.description_db.setStyleSheet(u"color: white;\n"
+                                                  "font-weight: regular;\n"
+                                                  "border: none;")
+                self.description_db.setAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignTop)
+                self.description_db.setWordWrap(True)
+                self.description_db.setText(f"{row_data[item][3]}")
+
+                # date label
+                self.date_label = QLabel(self.training)
+                self.date_label.setObjectName(u"date_label")
+                self.date_label.setGeometry(QRect(20, 160, 51, 31))
+                self.date_label.setFont(font1)
+                self.date_label.setStyleSheet(u"color: white;\n"
+                                              "font-weight: bold;\n"
+                                              "border: none;")
+                self.date_label.setText("Date:")
+
+                # date db
+                self.date_db = QLabel(self.training)
+                self.date_db.setObjectName(u"date_db")
+                self.date_db.setGeometry(QRect(80, 160, 141, 31))
+                self.date_db.setFont(font2)
+                self.date_db.setStyleSheet(u"color: white;\n"
+                                           "font-weight: regular;\n"
+                                           "border: none;\n"
+                                           "bold: none;")
+                self.date_db.setText(f"{date}")
+
+                # time label
+                self.time_label = QLabel(self.training)
+                self.time_label.setObjectName(u"time_label")
+                self.time_label.setGeometry(QRect(240, 160, 51, 31))
+                self.time_label.setFont(font1)
+                self.time_label.setStyleSheet(u"color: white;\n"
+                                              "font-weight: bold;\n"
+                                              "border: none;")
+                self.time_label.setText("Time:")
+
+                # time db
+                self.time_db = QLabel(self.training)
+                self.time_db.setObjectName(u"time_db")
+                self.time_db.setGeometry(QRect(300, 160, 51, 31))
+                self.time_db.setFont(font2)
+                self.time_db.setStyleSheet(u"color: white;\n"
+                                           "font-weight: regular;\n"
+                                           "border: none;\n"
+                                           "bold: none;")
+                self.time_db.setText(f"{row_data[item][10]}")
+
+                # venue label
+                self.venue_label = QLabel(self.training)
+                self.venue_label.setObjectName(u"venue_label")
+                self.venue_label.setGeometry(QRect(20, 190, 61, 21))
+                self.venue_label.setFont(font1)
+                self.venue_label.setStyleSheet(u"color: white;\n"
+                                               "font-weight: bold;\n"
+                                               "border: none;")
+                self.venue_label.setText("Venue:")
+
+                # venue db
+                self.venue_db = QLabel(self.training)
+                self.venue_db.setObjectName(u"venue_db")
+                self.venue_db.setGeometry(QRect(90, 190, 471, 21))
+                self.venue_db.setFont(font2)
+                self.venue_db.setStyleSheet(u"color: white;\n"
+                                            "font-weight: regular;\n"
+                                            "border: none;\n"
+                                            "bold: none;")
+                self.venue_db.setText(f"{row_data[item][11]}")
+
+                # status label
                 self.status_label = QLabel(self.training)
                 self.status_label.setObjectName(u"status_label")
-                self.status_label.setGeometry(QRect(20, 200, 61, 31))
-                self.status_label.setFont(font)
+                self.status_label.setGeometry(QRect(20, 210, 61, 31))
+                self.status_label.setFont(font1)
                 self.status_label.setStyleSheet(u"color: white;\n"
                                                 "font-weight: bold;\n"
                                                 "border: none;")
                 self.status_label.setText("Status:")
 
+                # status db
                 self.status_db = QLabel(self.training)
                 self.status_db.setObjectName(u"status_db")
-                self.status_db.setGeometry(QRect(90, 200, 71, 31))
-                self.status_db.setFont(font1)
+                self.status_db.setGeometry(QRect(90, 210, 71, 31))
+                self.status_db.setFont(font2)
+
+                # participants label
+                self.participant_label = QLabel(self.training)
+                self.participant_label.setObjectName(u"participant_label")
+                self.participant_label.setGeometry(QRect(180, 210, 101, 31))
+                self.participant_label.setFont(font1)
+                self.participant_label.setStyleSheet(u"color: white;\n"
+                                                     "font-weight: bold;\n"
+                                                     "border: none;")
+                self.participant_label.setText("Participant:")
+
+                # participants db
+                self.participant_db = QLabel(self.training)
+                self.participant_db.setObjectName(u"participant_db")
+                self.participant_db.setGeometry(QRect(290, 210, 81, 31))
+                self.participant_db.setFont(font2)
+                self.participant_db.setStyleSheet(u"color: white;\n"
+                                                  "font-weight: regular;\n"
+                                                  "border: none;\n"
+                                                  "bold: none;")
+                self.participant_db.setText(f"{application_count}"" / " f"{row_data[item][5]}")
+
+                # cost label
+                self.cost_label = QLabel(self.training)
+                self.cost_label.setObjectName(u"cost_label")
+                self.cost_label.setGeometry(QRect(390, 210, 51, 31))
+                self.cost_label.setFont(font1)
+                self.cost_label.setStyleSheet(u"color: white;\n"
+                                              "font-weight: bold;\n"
+                                              "border: none;")
+                self.cost_label.setText("Cost:")
+
+                # cost db
+                self.cost_db = QLabel(self.training)
+                self.cost_db.setObjectName(u"cost_db")
+                self.cost_db.setGeometry(QRect(440, 210, 81, 31))
+                self.cost_db.setFont(font2)
+                self.cost_db.setStyleSheet(u"color: white;\n"
+                                           "font-weight: regular;\n"
+                                           "border: none;\n"
+                                           "bold: none;")
+                self.cost_db.setText(f"{row_data[item][8]}")
 
                 if row_data[item][6] == "Approved":
                     self.status_db.setStyleSheet(u"color: lightgreen;\n"
@@ -1088,16 +1450,6 @@ class HrView(QtWidgets.QMainWindow):
                 else:
                     self.publish_button.setText("Publish")
 
-                self.participant_db = QLabel(self.training)
-                self.participant_db.setObjectName(u"participant_db")
-                self.participant_db.setGeometry(QRect(130, 170, 91, 31))
-                self.participant_db.setFont(font1)
-                self.participant_db.setStyleSheet(u"color: white;\n"
-                                                  "font-weight: regular;\n"
-                                                  "border: none;\n"
-                                                  "bold: none;")
-                self.participant_db.setText(f"{application_count}"" / " f"{row_data[item][5]}")
-
             # Adjust the size of the scroll area's contents
             self.scrollAreaWidgetContents_2.setMinimumHeight(50 + rows * (frame_height + frame_spacing))
 
@@ -1108,6 +1460,502 @@ class HrView(QtWidgets.QMainWindow):
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
             QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+
+    def goto_profile(self):
+        # make a popup window to view profile information
+        self.profile = Profile()
+        self.profile.show()
+
+
+class Approval(QtWidgets.QMainWindow):
+    def __init__(self, training_id):
+        super(Approval, self).__init__()
+        training_id = training_id
+        connect_database()
+        self.centralwidget = QtWidgets.QWidget(self)
+        self.centralwidget.setMinimumSize(QtCore.QSize(1280, 720))
+        self.centralwidget.setMaximumSize(QtCore.QSize(1280, 720))
+        self.centralwidget.setObjectName("centralwidget")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+
+        self.setObjectName("MainWindow")
+        self.resize(1280, 720)
+        self.setMinimumSize(QtCore.QSize(1280, 720))
+        self.setMaximumSize(QtCore.QSize(1280, 720))
+        self.setAutoFillBackground(False)
+        self.setStyleSheet("background-color: #696969;")
+
+        self.centralwidget = QtWidgets.QWidget(self)
+        self.centralwidget.setMinimumSize(QtCore.QSize(1280, 720))
+        self.centralwidget.setMaximumSize(QtCore.QSize(1280, 720))
+        self.centralwidget.setAutoFillBackground(False)
+        self.centralwidget.setObjectName("centralwidget")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+
+        # Side frame
+        self.side_frame = QtWidgets.QFrame(self.centralwidget)
+        self.side_frame.setMinimumSize(QtCore.QSize(240, 0))
+        self.side_frame.setMaximumSize(QtCore.QSize(240, 16777215))
+        self.side_frame.setStyleSheet("border: 1px solid white;")
+        self.side_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.side_frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.side_frame.setObjectName("side_frame")
+
+        # profile frame to display profile details (ID, Name, Department)
+        self.profile_frame = QtWidgets.QFrame(self.side_frame)
+        self.profile_frame.setGeometry(QtCore.QRect(14, 80, 212, 329))
+        self.profile_frame.setStyleSheet("border-radius: 10px;")
+        self.profile_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.profile_frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.profile_frame.setObjectName("profile_frame")
+
+        # profile button to see more profile details
+        self.profile_button = QtWidgets.QPushButton(self.profile_frame)
+        self.profile_button.setGeometry(QtCore.QRect(63, 40, 90, 90))
+        size_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        size_policy.setHorizontalStretch(0)
+        size_policy.setVerticalStretch(0)
+        size_policy.setHeightForWidth(self.profile_button.sizePolicy().hasHeightForWidth())
+        self.profile_button.setSizePolicy(size_policy)
+        self.profile_button.setMinimumSize(QtCore.QSize(90, 90))
+        self.profile_button.setMaximumSize(QtCore.QSize(90, 90))
+        self.profile_button.setStyleSheet("border: none;\nborder-radius: 50%;\n")
+        self.profile_button.setText("")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("profile.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.profile_button.setIcon(icon)
+        self.profile_button.setIconSize(QtCore.QSize(90, 90))
+        self.profile_button.clicked.connect(self.goto_profile)
+        self.profile_button.setObjectName("profile_button")
+
+        # display name
+        self.name_label = QtWidgets.QLabel(self.profile_frame)
+        self.name_label.setGeometry(QtCore.QRect(10, 150, 191, 20))
+        self.name_label.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.name_label.setStyleSheet("border: none;\ncolor: white;\nfont-weight: bold;\n")
+        self.name_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.name_label.setObjectName("name_label")
+
+        # display id
+        self.staff_id_label = QtWidgets.QLabel(self.profile_frame)
+        self.staff_id_label.setGeometry(QtCore.QRect(10, 200, 191, 20))
+        self.staff_id_label.setStyleSheet("border: none;\ncolor: white;\nfont-weight: bold;")
+        self.staff_id_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.staff_id_label.setObjectName("staff_id_label")
+        self.staff_id_label.setText("Staff ID")
+
+        # display department
+        self.department_label = QtWidgets.QLabel(self.profile_frame)
+        self.department_label.setGeometry(QtCore.QRect(10, 250, 191, 20))
+        self.department_label.setStyleSheet("border: none;\ncolor: white;\nfont-weight: bold;")
+        self.department_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.department_label.setObjectName("department_label")
+
+        # calling the user details from db and set it in these variable
+        self.name_db = QtWidgets.QLabel(self.profile_frame)
+        self.name_db.setGeometry(QtCore.QRect(10, 170, 191, 20))
+        self.name_db.setStyleSheet("border: none;\ncolor: white;")
+        self.name_db.setAlignment(QtCore.Qt.AlignCenter)
+        self.name_db.setObjectName("name_db")
+        self.name_label.setText("Name")
+
+        self.id_db = QtWidgets.QLabel(self.profile_frame)
+        self.id_db.setGeometry(QtCore.QRect(10, 220, 191, 20))
+        self.id_db.setStyleSheet("border: none;\ncolor: white;")
+        self.id_db.setAlignment(QtCore.Qt.AlignCenter)
+        self.id_db.setObjectName("id_db")
+
+        self.department_db = QtWidgets.QLabel(self.profile_frame)
+        self.department_db.setGeometry(QtCore.QRect(10, 270, 191, 20))
+        self.department_db.setStyleSheet("border: none;\ncolor: white;")
+        self.department_db.setAlignment(QtCore.Qt.AlignCenter)
+        self.department_db.setObjectName("department_db")
+        self.department_label.setText("Department")
+
+        cursor.execute("SELECT name, employeeID, departmentName FROM employee e, department d WHERE e.departmentID="
+                       "d.departmentID AND employeeID = ?", (employeeID,))
+        info = cursor.fetchone()
+        self.id = str(info[1])
+        self.name_db.setText(info[0])
+        self.id_db.setText(str(info[1]))
+        self.department_db.setText(str(info[2]))
+
+        # View whole training lists button
+        self.list_button = QtWidgets.QPushButton(self.side_frame)
+        self.list_button.setGeometry(QtCore.QRect(14, 470, 211, 91))
+        self.list_button.setStyleSheet("color: white;\nfont-weight: bold;\nborder-radius: 10px;")
+        self.list_button.setObjectName("list_button")
+        self.list_button.setText("Training List")
+        self.list_button.clicked.connect(self.back_to_hr_training_lists)
+
+        # Log out button
+        self.logout_button = QtWidgets.QPushButton(self.side_frame)
+        self.logout_button.setGeometry(QtCore.QRect(14, 650, 51, 41))
+        self.logout_button.setStyleSheet("border: none;\nborder-radius: 50%;")
+        self.logout_button.setText("")
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap("logout.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.logout_button.setIcon(icon1)
+        self.logout_button.setIconSize(QtCore.QSize(45, 45))
+        self.logout_button.clicked.connect(gotologin)
+        self.logout_button.setObjectName("logout_button")
+        self.horizontalLayout.addWidget(self.side_frame)
+
+        # Right frame
+        self.main_frame = QtWidgets.QFrame(self.centralwidget)
+        self.main_frame.setStyleSheet("border: 1px solid white;")
+        self.main_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.main_frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.main_frame.setObjectName("main_frame")
+
+        # Title for the page
+        self.header = QtWidgets.QLabel(self.main_frame)
+        self.header.setGeometry(QtCore.QRect(14, 14, 971, 81))
+        size_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        size_policy.setHorizontalStretch(0)
+        size_policy.setVerticalStretch(0)
+        size_policy.setHeightForWidth(self.header.sizePolicy().hasHeightForWidth())
+        self.header.setSizePolicy(size_policy)
+        font = QtGui.QFont()
+        font.setPointSize(22)
+        font.setBold(True)
+        font.setWeight(75)
+        self.header.setFont(font)
+        self.header.setStyleSheet("border: none;\nborder-bottom: 1px solid white;\ncolor: white;\nfont-weight: bold;\n")
+        self.header.setObjectName("header")
+        self.header.setText("Approval")
+
+        cursor.execute("SELECT trainingName FROM training WHERE trainingID=?", (training_id,))
+        training_name = cursor.fetchone()[0]
+        self.training_name_db = QtWidgets.QPushButton(self.main_frame)
+        self.training_name_db.setGeometry(QtCore.QRect(30, 100, 681, 31))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.training_name_db.setFont(font)
+        self.training_name_db.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;\ntext-align: left;\n")
+        self.training_name_db.setObjectName("training_name_db")
+        self.training_name_db.setText(training_name)
+
+        # display training status
+        self.training_status_db = QtWidgets.QLabel(self.main_frame)
+        self.training_status_db.setGeometry(QtCore.QRect(870, 100, 73, 31))
+        font = QtGui.QFont()
+        font.setPointSize(8)
+        font.setBold(False)
+        font.setWeight(50)
+        self.training_status_db.setFont(font)
+        self.training_status_db.setStyleSheet("color: lightblue;\nfont-weight: regular;\nborder: none;")
+        self.training_status_db.setObjectName("training_status_db")
+        self.training_status_db.setText("Pending")
+        self.training_status_label = QtWidgets.QLabel(self.main_frame)
+        self.training_status_label.setGeometry(QtCore.QRect(730, 100, 131, 31))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.training_status_label.setFont(font)
+        self.training_status_label.setStyleSheet("color: white;\nfont-weight: bold;\nborder: none;")
+        self.training_status_label.setObjectName("training_status_label")
+        self.training_status_label.setText("Training Status:")
+
+        # retrieve data from db
+        cursor.execute("SELECT count(applicationID) FROM application WHERE trainingID=?", (training_id,))
+        rows = cursor.fetchone()
+        cursor.execute("SELECT a.employeeID, e.name, d.departmentName, a.applicationStatus "
+                       "FROM application a, employee e, department d "
+                       "WHERE a.employeeID=e.employeeID AND e.departmentID=d.departmentID AND "
+                       "trainingID=?", (training_id,))
+        application_info = cursor.fetchall()
+
+        # display table
+        self.application_table = QtWidgets.QTableWidget(self.main_frame)
+        self.application_table.setGeometry(QtCore.QRect(20, 140, 961, 531))
+        size_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        size_policy.setHorizontalStretch(0)
+        size_policy.setVerticalStretch(0)
+        size_policy.setHeightForWidth(self.application_table.sizePolicy().hasHeightForWidth())
+        self.application_table.setSizePolicy(size_policy)
+        self.application_table.setStyleSheet("qproperty-uniformRowHeights: true;\nborder: none;")
+        self.application_table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.application_table.setShowGrid(True)
+        self.application_table.setGridStyle(QtCore.Qt.SolidLine)
+        self.application_table.setCornerButtonEnabled(False)
+        self.application_table.setObjectName("application_table")
+        self.application_table.setColumnCount(5)
+        self.application_table.setRowCount(rows[0])
+        self.application_table.setSortingEnabled(True)
+
+        # Set the header labels
+        header_labels = ["Index", "Employee ID", "Name", "Department", "Status"]
+        self.application_table.setHorizontalHeaderLabels(header_labels)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setWeight(75)
+        self.application_table.horizontalHeader().setFont(font)
+        self.application_table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+
+        # insert data to table
+        for row, info in enumerate(application_info):
+            index_item = QtWidgets.QTableWidgetItem(str(row + 1))
+            brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
+            brush.setStyle(QtCore.Qt.NoBrush)
+            index_item.setForeground(brush)
+            index_item.setTextAlignment(QtCore.Qt.AlignCenter)
+            self.application_table.setItem(row, 0, index_item)
+            for column, data in enumerate(info):
+                item = QtWidgets.QTableWidgetItem(str(data))
+                item.setTextAlignment(QtCore.Qt.AlignCenter)
+                item.setForeground(brush)
+                self.application_table.setItem(row, column + 1, item)
+                if column + 1 == 3:
+                    font = QtGui.QFont()
+                    font.setBold(True)
+                    item.setFont(font)
+                if column + 1 == 4:
+                    if data == "Pending":
+                        self.application_table.setCellWidget(row, column + 1, self.add_button(data, row))
+                    elif data == "Approved":
+                        button = QtWidgets.QPushButton(data)
+                        button.setStyleSheet("color: white;")
+                        icon3 = QtGui.QIcon()
+                        icon3.addPixmap(QtGui.QPixmap("success.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                        button.setIcon(icon3)
+                        self.application_table.setCellWidget(row, column + 1, button)
+                    else:
+                        button = QtWidgets.QPushButton(data)
+                        button.setStyleSheet("color: white;")
+                        icon4 = QtGui.QIcon()
+                        icon4.addPixmap(QtGui.QPixmap("reject.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                        button.setIcon(icon4)
+                        self.application_table.setCellWidget(row, column + 1, button)
+        self.application_table.resizeColumnsToContents()
+        self.application_table.setColumnWidth(4, 150)
+        self.application_table.horizontalHeader().setVisible(True)
+        self.application_table.verticalHeader().setVisible(False)
+        self.application_table.setSortingEnabled(True)
+
+        # reject training button
+        self.reject_training_button = QtWidgets.QPushButton(self.main_frame)
+        self.reject_training_button.setGeometry(QtCore.QRect(860, 50, 112, 34))
+        self.reject_training_button.setStyleSheet("color: white;\n"
+                                                  "border-radius: 10px;")
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap("reject.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.reject_training_button.setIcon(icon3)
+        self.reject_training_button.setText("Reject")
+        self.reject_training_button.setObjectName("reject_training_button")
+        self.reject_training_button.clicked.connect(self.reject_training)
+
+        # approve training button
+        self.approve_training_button = QtWidgets.QPushButton(self.main_frame)
+        self.approve_training_button.setGeometry(QtCore.QRect(740, 50, 112, 34))
+        self.approve_training_button.setStyleSheet("color: white;\n"
+                                                   "border-radius: 10px;")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap("success.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.approve_training_button.setIcon(icon2)
+        self.approve_training_button.setText("Approve")
+        self.approve_training_button.setObjectName("approve_training_button")
+        self.approve_training_button.clicked.connect(self.approve_training)
+
+        self.horizontalLayout.addWidget(self.main_frame)
+        self.setCentralWidget(self.centralwidget)
+
+    def add_button(self, data, row):
+        print("this is add button")
+        button = QtWidgets.QPushButton(data)
+        button.setStyleSheet("color: white;")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap("pending.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        button.setIcon(icon2)
+        button.clicked.connect(lambda: self.approval_participant(row))
+        print("this is add button success")
+        return button
+
+    def approval_participant(self, data, training_id):
+        print("this is approval participant")
+        row_items = []
+        for column in range(5):
+            item = self.application_table.item(data, column)
+            if item is not None:
+                row_items.append(item.text())
+            print(item)
+        approval_box = QtWidgets.QMessageBox()
+        approval_box.setIcon(QtWidgets.QMessageBox.Question)
+        approval_box.setWindowTitle("Approval")
+        approval_box.setText("Do you want to approve this participant to join this training?")
+        approval_box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No |
+                                        QtWidgets.QMessageBox.Cancel)
+        approval_box.button(QtWidgets.QMessageBox.Yes).setText("Approve")
+        approval_box.button(QtWidgets.QMessageBox.No).setText("Reject")
+        approval = approval_box.exec_()
+        date_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        if approval == QtWidgets.QMessageBox.Yes:
+            print("approve participant yes")
+            cursor.execute("UPDATE application SET applicationStatus=? WHERE employeeID=? AND trainingID=?",
+                           ("Approved", row_items[1], training_id))
+            connect.commit()
+            cursor.execute("INSERT INTO notification (notification_status, notification_date, employeeID, trainingID, "
+                           "is_read) VALUES ('Approved', ?, ?, ?, 0)", (date_time, self.id, training_id))
+            connect.commit()
+            self.refresh_table()
+        elif approval == QtWidgets.QMessageBox.No:
+            print("approve participant no")
+            cursor.execute("UPDATE application SET applicationStatus=? WHERE employeeID=? AND trainingID=?",
+                           ("Rejected", row_items[1], training_id))
+            connect.commit()
+            cursor.execute("INSERT INTO notification (notification_status, notification_date, employeeID, trainingID, "
+                           "is_read) VALUES ('Rejected', ?, ?, ?, 0)", (date_time, self.id, training_id))
+            connect.commit()
+            self.refresh_table()
+        else:
+            pass
+
+    def refresh_table(self, training_id):
+        # clear table content
+        self.application_table.clearContents()
+
+        # retrieve data from db
+        cursor.execute("SELECT a.employeeID, e.name, d.departmentName, a.applicationStatus FROM application a, employee"
+                       " e, department d WHERE a.employeeID=e.employeeID AND e.departmentID=d.departmentID AND "
+                       "trainingID=?", (training_id,))
+        application_info = cursor.fetchall()
+
+        # insert data to table
+        for row, info in enumerate(application_info):
+            index_item = QtWidgets.QTableWidgetItem(str(row + 1))
+            brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
+            brush.setStyle(QtCore.Qt.NoBrush)
+            index_item.setForeground(brush)
+            index_item.setTextAlignment(QtCore.Qt.AlignCenter)
+            self.application_table.setItem(row, 0, index_item)
+            for column, data in enumerate(info):
+                item = QtWidgets.QTableWidgetItem(str(data))
+                item.setTextAlignment(QtCore.Qt.AlignCenter)
+                item.setForeground(brush)
+                self.application_table.setItem(row, column + 1, item)
+                if column + 1 == 3:
+                    font = QtGui.QFont()
+                    font.setBold(True)
+                    item.setFont(font)
+                if column + 1 == 4:
+                    if data == "Pending":
+                        self.application_table.setCellWidget(row, column + 1, self.add_button(data, row))
+                    elif data == "Approved":
+                        button = QtWidgets.QPushButton(data)
+                        button.setStyleSheet("color: white;")
+                        icon3 = QtGui.QIcon()
+                        icon3.addPixmap(QtGui.QPixmap("success.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                        button.setIcon(icon3)
+                        self.application_table.setCellWidget(row, column + 1, button)
+                    else:
+                        button = QtWidgets.QPushButton(data)
+                        button.setStyleSheet("color: white;")
+                        icon4 = QtGui.QIcon()
+                        icon4.addPixmap(QtGui.QPixmap("reject.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                        button.setIcon(icon4)
+                        self.application_table.setCellWidget(row, column + 1, button)
+        self.application_table.resizeColumnsToContents()
+        self.application_table.setColumnWidth(4, 150)
+
+    def approve_training(self, training_id):
+        approve_box = QtWidgets.QMessageBox()
+        approve_box.setIcon(QtWidgets.QMessageBox.Question)
+        approve_box.setWindowTitle("Approval")
+        approve_box.setText("Do you want to approve this training?")
+        approve_box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Cancel)
+        approve = approve_box.exec_()
+        date_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        if approve == QtWidgets.QMessageBox.Yes:
+            print("approve training yes")
+            cursor.execute("SELECT count(applicationStatus) FROM application WHERE applicationStatus='Pending' AND "
+                           "trainingID=?", (training_id,))
+            pending = cursor.fetchone()[0]
+            if pending > 0:
+                print("pending > 0")
+                approve_confirm_box = QtWidgets.QMessageBox()
+                approve_confirm_box.setIcon(QtWidgets.QMessageBox.Warning)
+                approve_confirm_box.setWindowTitle("Confirm Participants")
+                approve_confirm_box.setText("Participants in pending status will be considered approved.\nAre you "
+                                            "confirm to proceed?")
+                approve_confirm_box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+                approve_confirm = approve_confirm_box.exec_()
+                if approve_confirm == QtWidgets.QMessageBox.Yes:
+                    cursor.execute("SELECT employeeID FROM application WHERE applicationStatus='Pending' AND "
+                                   "trainingID=?", (training_id,))
+                    employees = cursor.fetchall()
+                    cursor.execute("UPDATE application SET applicationStatus='Approved' WHERE applicationStatus="
+                                   "'Pending' AND trainingID=?", (training_id,))
+                    connect.commit()
+                    for p in range(pending):
+                        cursor.execute("INSERT INTO notification (notification_status, notification_date, employeeID, "
+                                       "trainingID, is_read) VALUES ('Approved', ?, ?, ?, 0)", (date_time,
+                                                                                                employees[p][0],
+                                                                                                training_id,))
+                        connect.commit()
+                    QtWidgets.QMessageBox.information(None, "Infomation", "Application of the training cost was already"
+                                                                          " sent to finance department.",
+                                                      QtWidgets.QMessageBox.Ok)
+                    cursor.execute("UPDATE training SET status='Approved' WHERE trainingID=?", (training_id,))
+                    connect.commit()
+                    self.refresh_table()
+                    self.approve_training_button.deleteLater()
+                    self.reject_training_button.deleteLater()
+                    self.training_status_db.setText("Approved")
+                    self.training_status_db.setStyleSheet("color: lightgreen; border: none;")
+            else:
+                QtWidgets.QMessageBox.information(None, "Infomation", "Application of the training cost was already "
+                                                                      "sent to finance department.",
+                                                  QtWidgets.QMessageBox.Ok)
+                cursor.execute("UPDATE training SET status='Approved' WHERE trainingID=?", (training_id,))
+                connect.commit()
+                self.approve_training_button.deleteLater()
+                self.reject_training_button.deleteLater()
+                self.training_status_db.setText("Approved")
+                self.training_status_db.setStyleSheet("color: lightgreen; border: none;")
+
+    def reject_training(self, training_id):
+        reject_box = QtWidgets.QMessageBox()
+        reject_box.setIcon(QtWidgets.QMessageBox.Question)
+        reject_box.setWindowTitle("Approval")
+        reject_box.setText("Do you want to cancel this training?")
+        reject_box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Cancel)
+        reject = reject_box.exec_()
+        date_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        if reject == QtWidgets.QMessageBox.Yes:
+            cursor.execute("SELECT employeeID FROM application WHERE trainingID=?", (training_id,))
+            employees = cursor.fetchall()
+            cursor.execute("UPDATE application SET applicationStatus='Cancelled' WHERE trainingID=?", (training_id,))
+            connect.commit()
+            for n in range(len(employees)):
+                cursor.execute("INSERT INTO notification (notification_status, notification_date, employeeID, "
+                               "trainingID, is_read) VALUES ('Cancelled', ?, ?, ?, 0)", (date_time, employees[n][0],
+                                                                                         training_id,))
+                connect.commit()
+            QtWidgets.QMessageBox.information(None, "Infomation", "The training is cancelled.",
+                                              QtWidgets.QMessageBox.Ok)
+            cursor.execute("UPDATE training SET status='Cancelled' WHERE trainingID=?", (training_id,))
+            connect.commit()
+            self.refresh_table()
+            self.approve_training_button.deleteLater()
+            self.reject_training_button.deleteLater()
+            self.training_status_db.setText("Cancelled")
+            self.training_status_db.setStyleSheet("color: #FE8886; border: none;")
+
+    def back_to_hr_training_lists(self):
+        try:
+            hr_training_view = HrView()
+            widget.addWidget(hr_training_view)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+        except Exception as e:
+            # Show error message box or print the error
+            error_message = "An error occurred: " + str(e)
+            QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+            print(error_message)
 
     def goto_profile(self):
         # make a popup window to view profile information
@@ -1331,8 +2179,7 @@ class CreateNewTraining(QtWidgets.QDialog):
         self.brochure_button.setGeometry(QtCore.QRect(860, 320, 321, 201))
         self.brochure_button.setStyleSheet("border-radius: 10px;")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("add.png"),
-                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("add.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.brochure_button.setIcon(icon)
         self.brochure_button.setIconSize(QtCore.QSize(60, 60))
         self.brochure_button.setObjectName("brochure_button")
@@ -1444,8 +2291,7 @@ class CreateNewTraining(QtWidgets.QDialog):
     def add_brochure(self):
         file_dialog = QtWidgets.QFileDialog()
         image_path, _ = file_dialog.getOpenFileName(
-            self, "Select Image", "", "Image Files (*.png *.jpg *.jpeg *.bmp)"
-        )
+            self, "Select Image", "", "Image Files (*.png *.jpg *.jpeg *.bmp)")
 
         if image_path:
             pixmap = QtGui.QPixmap(image_path)
@@ -2204,8 +3050,11 @@ class ModifyTraining(QtWidgets.QDialog):
         cost_per_person_str = "{:.2f}".format(cost_per_person)
         self.cost.setText(cost_per_person_str)
 
+        brochure_image_data = training_data[9]  # Assuming the brochure image is stored in the 10th column (index 9)
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(brochure_image_data)
+        self.brochure_button.setIcon(QtGui.QIcon(pixmap))
         self.brochure_button.setIconSize(QtCore.QSize(200, 200))
-        self.brochure_button.setIcon(QtGui.QIcon(f"pictures/image{training_data[0]}.png"))
 
     def get_department_name(self, department_id):
         connect_database()
@@ -2356,6 +3205,8 @@ class ModifyTraining(QtWidgets.QDialog):
 class View(QtWidgets.QMainWindow):
     def __init__(self):
         super(View, self).__init__()
+        # Define the trainingID attribute
+        # self.trainingID = None
 
         loadUi("mytraining.ui", self)
         self.logout_button.clicked.connect(gotologin)
@@ -2372,8 +3223,8 @@ class View(QtWidgets.QMainWindow):
         cursor.execute('SELECT departmentName FROM department WHERE departmentID=?', (display[0][2],))
         self.department_db.setText(cursor.fetchone()[0])
 
-        self.profile_button.setIcon(QtGui.QIcon("pictures/profile.png"))
-        self.logout_button.setIcon(QtGui.QIcon("pictures/logout.png"))
+        self.profile_button.setIcon(QtGui.QIcon("profile.png"))
+        self.logout_button.setIcon(QtGui.QIcon("logout.png"))
         # Define the size and position of each frame
         frame_width = 931
         frame_height = 251
@@ -2424,7 +3275,7 @@ class View(QtWidgets.QMainWindow):
         self.search_button.setStyleSheet("border: none;")
         self.search_button.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("pictures/search.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon2.addPixmap(QtGui.QPixmap("search.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.search_button.setIcon(icon2)
         self.search_button.setIconSize(QtCore.QSize(25, 25))
         self.search_bar.setPlaceholderText("  Search...")
@@ -2452,10 +3303,10 @@ class View(QtWidgets.QMainWindow):
         self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, frame_width, rows *
                                                                  (frame_height + frame_spacing)))
         self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
-        number = 0
+
         # Loop to create and position the frames
         for item in range(rows):
-            number = number + 1
+            training_id = row_data[item][0]
             self.training = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
             self.training.setGeometry(QtCore.QRect(0, item * (frame_height + frame_spacing), frame_width, frame_height))
             self.training.setStyleSheet("border: 1px solid white;\nbackground: #8A8A8A;\nborder-radius: 10px;")
@@ -2463,15 +3314,15 @@ class View(QtWidgets.QMainWindow):
             self.training.setFrameShadow(QtWidgets.QFrame.Raised)
             self.training.setObjectName("training")
 
-            # blob_data = row_data[item][4]
-            # image = Image.open(BytesIO(blob_data))
-            # image.save(f"pictures/image{item}.png", "PNG")
-            #
-            # self.training_image = QtWidgets.QLabel(self.training)
-            # self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
-            # self.training_image.setScaledContents(True)
-            # self.training_image.setPixmap(QtGui.QPixmap(f"pictures/image{item}.png"))
-            # self.training_image.setObjectName(f"training_image_{item}")
+            blob_data = row_data[item][4]
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(blob_data)
+
+            self.training_image = QLabel(self.training)
+            self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
+            self.training_image.setScaledContents(True)
+            self.training_image.setPixmap(pixmap)
+            self.training_image.setObjectName(f"training_image_{training_id}")
 
             self.department_label_2 = QtWidgets.QLabel(self.training)
             self.department_label_2.setGeometry(QtCore.QRect(230, 50, 111, 31))
@@ -2546,22 +3397,38 @@ class View(QtWidgets.QMainWindow):
         self.profile = Profile()
         self.profile.show()
 
+    def gotoview(self):
+        try:
+            viewtraining = View()
+            widget.addWidget(viewtraining)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e), QMessageBox.Ok)
+            print(str(e))
+
     def register_training(self):
-        connect_database()
-        self.cursor = connect.cursor()
-        self.cursor.execute(
-            "INSERT INTO notification (notification_status, notification_date, employeeID, trainingID, is_read ) "
-            "VALUES (?,?,?,?,?)",
-            ("Pending", datetime.datetime.now().strftime('%Y-%m-%d %H:%M'), employeeID, self.trainingID, 0)
-        )
-        connect.commit()
-        self.cursor = connect.cursor()
-        self.cursor.execute(
-            "INSERT INTO application (employeeID, trainingID, applicationStatus, applicationDate) VALUES (?,?,?,?)",
-            (employeeID, self.trainingID, "Pending", datetime.datetime.now().strftime('%Y-%m-%d'))
-        )
-        connect.commit()
-        gotoview()
+        try:
+            connect_database()
+            self.cursor = connect.cursor()
+            self.cursor.execute("INSERT INTO notification (notification_status, notification_date, employeeID, "
+                                "trainingID, is_read ) VALUES (?,?,?,?,?)",
+                                ("Pending", datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
+                                 employeeID, self.trainingID, 0))
+            connect.commit()
+            self.cursor.execute(
+                "INSERT INTO application (employeeID, trainingID, applicationStatus, applicationDate) VALUES (?,?,?,?)",
+                (employeeID, self.trainingID, "Pending", datetime.datetime.now().strftime('%Y-%m-%d'))
+            )
+            connect.commit()
+            QtWidgets.QMessageBox.information(None, "Infomation", "Successfully registered!",
+                                              QtWidgets.QMessageBox.Ok)
+            self.gotoview()
+
+        except Exception as e:
+            # Handle other exceptions
+            error_message = "An error occurred: " + str(e)
+            QtWidgets.QMessageBox.critical(self, "Error", error_message, QtWidgets.QMessageBox.Ok)
+            print(error_message)
 
     def show_image_pop_up(self, picture_name):
         popup = ImagePopup(self)
@@ -2608,9 +3475,15 @@ class View(QtWidgets.QMainWindow):
             self.department_db_2.setText(f"{display[0][7]}")
             self.description_db.setText(f"{display[0][8]}")
 
+            # Retrieve the blob data from the database
+            blob_data = display[0][9]
+            # Convert the blob data into a QPixmap
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(blob_data)
+            # Set the QPixmap as the icon for the brochure_button
+            self.brochure_button.setIcon(QtGui.QIcon(pixmap))
             self.brochure_button.setIconSize(QtCore.QSize(200, 200))
-            self.brochure_button.setIcon(QtGui.QIcon(f"pictures/image{trainingID}.png"))
-            self.brochure_button.clicked.connect(lambda: self.show_image_pop_up(f"pictures/image{trainingID}.png"))
+            self.brochure_button.clicked.connect(lambda: self.show_image_pop_up(pixmap))
 
             self.register_button.clicked.connect(self.register_training)
 
@@ -2666,6 +3539,7 @@ class View(QtWidgets.QMainWindow):
 
         # Loop to create and position the frames
         for item in range(n):
+            training_id = search_results[item][0]
             self.training = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
             self.training.setGeometry(QtCore.QRect(0, item * (frame_height + frame_spacing), frame_width, frame_height))
             self.training.setStyleSheet("border: 1px solid white;\nbackground: #8A8A8A;\nborder-radius: 10px;")
@@ -2673,15 +3547,15 @@ class View(QtWidgets.QMainWindow):
             self.training.setFrameShadow(QtWidgets.QFrame.Raised)
             self.training.setObjectName("training")
 
-            # blob_data = search_results[item][4]
-            # image = Image.open(BytesIO(blob_data))
-            # image.save(f"pictures/image{item}.png", "PNG")
-            #
-            # self.training_image = QtWidgets.QLabel(self.training)
-            # self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
-            # self.training_image.setScaledContents(True)
-            # self.training_image.setPixmap(QtGui.QPixmap(f"pictures/image{item}.png"))
-            # self.training_image.setObjectName(f"training_image_{item}")
+            blob_data = search_results[item][4]
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(blob_data)
+
+            self.training_image = QLabel(self.training)
+            self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
+            self.training_image.setScaledContents(True)
+            self.training_image.setPixmap(pixmap)
+            self.training_image.setObjectName(f"training_image_{training_id}")
 
             self.department_label_2 = QtWidgets.QLabel(self.training)
             self.department_label_2.setGeometry(QtCore.QRect(230, 50, 111, 31))
@@ -2768,7 +3642,7 @@ class Profile(QtWidgets.QMainWindow):
         self.email_db.setText(display[0][3])
         self.phone_db.setText(str(display[0][4].replace("*", "")))
         self.role_db.setText(display[0][5])
-        self.profile.setPixmap(QtGui.QPixmap("pictures/profile.png"))
+        self.profile.setPixmap(QtGui.QPixmap("profile.png"))
         self.department_db.setText(str(display[0][7]))
 
 
@@ -2813,7 +3687,7 @@ class Notification(QtWidgets.QMainWindow):
         self.profile_button.setMaximumSize(QtCore.QSize(90, 90))
         self.profile_button.setStyleSheet("border: none;\nborder-radius: 50%;\n")
         self.profile_button.setText("")
-        self.profile_button.setIcon(QtGui.QIcon("pictures/profile.png"))
+        self.profile_button.setIcon(QtGui.QIcon("profile.png"))
         self.profile_button.setIconSize(QtCore.QSize(90, 90))
         self.profile_button.setObjectName("profile_button")
 
@@ -2966,8 +3840,8 @@ class Notification(QtWidgets.QMainWindow):
         self.id_db.setText(str(display[0][1]))
         cursor.execute('SELECT departmentName FROM department WHERE departmentID=?', (display[0][2],))
         self.department_db.setText(cursor.fetchone()[0])
-        self.profile_button.setIcon(QtGui.QIcon("pictures/profile.png"))
-        self.logout_button.setIcon(QtGui.QIcon("pictures/logout.png"))
+        self.profile_button.setIcon(QtGui.QIcon("profile.png"))
+        self.logout_button.setIcon(QtGui.QIcon("logout.png"))
 
         # template for each the notification
         for row in range(self.rows):
@@ -2989,11 +3863,11 @@ class Notification(QtWidgets.QMainWindow):
             self.status_image.setScaledContents(True)
             self.status_image.setObjectName("status_image")
             if data[row][1] == "Pending":
-                self.status_image.setPixmap(QtGui.QPixmap("pictures/pending.png"))
+                self.status_image.setPixmap(QtGui.QPixmap("pending.png"))
             elif data[row][1] == "Approved":
-                self.status_image.setPixmap(QtGui.QPixmap("pictures/success.png"))
+                self.status_image.setPixmap(QtGui.QPixmap("success.png"))
             else:
-                self.status_image.setPixmap(QtGui.QPixmap("pictures/reject.png"))
+                self.status_image.setPixmap(QtGui.QPixmap("reject.png"))
 
             self.training_name = QtWidgets.QLabel(self.notification_frame)
             self.training_name.setGeometry(QtCore.QRect(110, 3, 721, 31))
@@ -3251,8 +4125,8 @@ class MyTraining(QtWidgets.QMainWindow):
         self.id_db.setText(str(display[0][1]))
         cursor.execute('SELECT departmentName FROM department WHERE departmentID=?', (display[0][2],))
         self.department_db.setText(cursor.fetchone()[0])
-        self.profile_button.setIcon(QtGui.QIcon("pictures/profile.png"))
-        self.logout_button.setIcon(QtGui.QIcon("pictures/logout.png"))
+        self.profile_button.setIcon(QtGui.QIcon("profile.png"))
+        self.logout_button.setIcon(QtGui.QIcon("logout.png"))
 
         # Define the size and position of each frame
         frame_width = 931
@@ -3304,7 +4178,7 @@ class MyTraining(QtWidgets.QMainWindow):
         self.search_button.setStyleSheet("border: none;")
         self.search_button.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("pictures/search.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon2.addPixmap(QtGui.QPixmap("search.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.search_button.setIcon(icon2)
         self.search_button.setIconSize(QtCore.QSize(25, 25))
         self.search_button.setObjectName("search_button")
@@ -3333,6 +4207,7 @@ class MyTraining(QtWidgets.QMainWindow):
 
         # Loop to create and position the frames
         for item in range(rows):
+            training_id = row_data[item][0]
             status = row_data[item][5]
 
             self.training = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
@@ -3342,15 +4217,15 @@ class MyTraining(QtWidgets.QMainWindow):
             self.training.setFrameShadow(QtWidgets.QFrame.Raised)
             self.training.setObjectName("training")
 
-            # blob_data = row_data[item][4]
-            # image = Image.open(BytesIO(blob_data))
-            # image.save(f"pictures/image{item}.png", "PNG")
-            #
-            # self.training_image = QtWidgets.QLabel(self.training)
-            # self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
-            # self.training_image.setScaledContents(True)
-            # self.training_image.setPixmap(QtGui.QPixmap(f"pictures/image{item}.png"))
-            # self.training_image.setObjectName(f"training_image_{item}")
+            blob_data = row_data[item][4]
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(blob_data)
+
+            self.training_image = QLabel(self.training)
+            self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
+            self.training_image.setScaledContents(True)
+            self.training_image.setPixmap(pixmap)
+            self.training_image.setObjectName(f"training_image_{training_id}")
 
             self.department_label_2 = QtWidgets.QLabel(self.training)
             self.department_label_2.setGeometry(QtCore.QRect(230, 50, 111, 31))
@@ -3455,7 +4330,7 @@ class MyTraining(QtWidgets.QMainWindow):
             self.id_db.setText(str(display[0][1]))
             cursor.execute('SELECT departmentName FROM department WHERE departmentID=?', (display[0][2],))
             self.department_db.setText(cursor.fetchone()[0])
-            self.profile_button.setIcon(QtGui.QIcon("pictures/profile.png"))
+            self.profile_button.setIcon(QtGui.QIcon("profile.png"))
             self.header.setText("Training Details")
 
             self.cursor = connect.cursor()
@@ -3479,9 +4354,15 @@ class MyTraining(QtWidgets.QMainWindow):
             self.description_db.setText(f"{display[0][8]}")
             self.number_participants_db.setText(f"{display[0][10]}")
 
+            # Retrieve the blob data from the database
+            blob_data = display[0][9]
+            # Convert the blob data into a QPixmap
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(blob_data)
+            # Set the QPixmap as the icon for the brochure_button
+            self.brochure_button.setIcon(QtGui.QIcon(pixmap))
             self.brochure_button.setIconSize(QtCore.QSize(200, 200))
-            self.brochure_button.setIcon(QtGui.QIcon(f"pictures/image{trainingID}.png"))
-            self.brochure_button.clicked.connect(lambda: self.show_image_pop_up(f"pictures/image{trainingID}.png"))
+            self.brochure_button.clicked.connect(lambda: self.show_image_pop_up(pixmap))
 
             self.register_button.hide()
 
@@ -3536,6 +4417,7 @@ class MyTraining(QtWidgets.QMainWindow):
 
         # Loop to create and position the frames for search results
         for item in range(n):
+            training_id = search_results[item][0]
             status = search_results[item][5]
 
             self.training = QtWidgets.QFrame(self.scrollAreaWidgetContents_2)
@@ -3545,15 +4427,15 @@ class MyTraining(QtWidgets.QMainWindow):
             self.training.setFrameShadow(QtWidgets.QFrame.Raised)
             self.training.setObjectName("training")
 
-            # blob_data = search_results[item][4]
-            # image = Image.open(BytesIO(blob_data))
-            # image.save(f"pictures/image{item}.png", "PNG")
-            #
-            # self.training_image = QtWidgets.QLabel(self.training)
-            # self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
-            # self.training_image.setScaledContents(True)
-            # self.training_image.setPixmap(QtGui.QPixmap(f"pictures/image{item}.png"))
-            # self.training_image.setObjectName(f"training_image_{item}")
+            blob_data = search_results[item][4]
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(blob_data)
+
+            self.training_image = QLabel(self.training)
+            self.training_image.setGeometry(QtCore.QRect(20, 10, 200, 150))
+            self.training_image.setScaledContents(True)
+            self.training_image.setPixmap(pixmap)
+            self.training_image.setObjectName(f"training_image_{training_id}")
 
             self.department_label_2 = QtWidgets.QLabel(self.training)
             self.department_label_2.setGeometry(QtCore.QRect(230, 50, 111, 31))
@@ -3641,9 +4523,14 @@ class MyTraining(QtWidgets.QMainWindow):
 
 
 def gotoview():
-    viewtraining = View()
-    widget.addWidget(viewtraining)
-    widget.setCurrentIndex(widget.currentIndex() + 1)
+    try:
+        viewtraining = View()
+        widget.addWidget(viewtraining)
+        widget.setCurrentIndex(widget.currentIndex() + 1)
+    except Exception as e:
+        QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
+        print(str(e))
+
 
 
 def goto_notification():
