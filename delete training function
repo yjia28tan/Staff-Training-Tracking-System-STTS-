@@ -1,0 +1,25 @@
+    def delete_training(self, trainingID):
+        # Confirm the deletion with a message box
+        confirm = QtWidgets.QMessageBox.question(self, "Confirm Deletion",
+                                                 "Are you sure you want to delete this training?",
+                                                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        if confirm == QtWidgets.QMessageBox.Yes:
+            # Perform the deletion operation
+            connectDatabase()
+            self.cursor = connect.cursor()
+
+            try:
+                # Perform the deletion operation in the database
+                self.cursor.execute("DELETE FROM training WHERE trainingID = ?", (trainingID,))
+                connect.commit()
+                QtWidgets.QMessageBox.information(self, "Deletion Successful", "Training deleted successfully.",
+                                                  QtWidgets.QMessageBox.Ok)
+                self.close()
+            except Exception as e:
+                print("Deletion failed:", str(e))
+                connect.rollback()
+                QtWidgets.QMessageBox.warning(self, "Deletion Failed", "Error occured: " + str(e),
+                                              QtWidgets.QMessageBox.Ok) 
+        else:
+            QtWidgets.QMessageBox.warning(self, "Deletion Failed", "Failed to delete the training.",
+                                          QtWidgets.QMessageBox.Ok)
