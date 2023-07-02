@@ -2,6 +2,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 import sqlite3
 import datetime
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 
 connect = sqlite3.connect('StaffTrainingSystem')
@@ -431,6 +434,7 @@ class Approval(object):
                     self.reject_training_button.deleteLater()
                     self.training_status_db.setText("Approved")
                     self.training_status_db.setStyleSheet("color: lightgreen; border: none;")
+                    self.send_email(training_id)
             else:
                 QtWidgets.QMessageBox.information(None, "Infomation", "Application of the training cost was already "
                                                                       "sent to finance department.",
@@ -441,6 +445,7 @@ class Approval(object):
                 self.reject_training_button.deleteLater()
                 self.training_status_db.setText("Approved")
                 self.training_status_db.setStyleSheet("color: lightgreen; border: none;")
+                self.send_email(training_id)
 
     def reject_training(self):
         reject_box = QtWidgets.QMessageBox()
@@ -469,6 +474,43 @@ class Approval(object):
             self.reject_training_button.deleteLater()
             self.training_status_db.setText("Cancelled")
             self.training_status_db.setStyleSheet("color: #FE8886; border: none;")
+
+    def send_email(self, training_id):
+        cursor.execute("SELECT t.trainingName, t.cost, t.date, t.time, t.venue, d.departmentName FROM training t, "
+                       "department d WHERE t.departmentID=d.departmentID AND t.trainingID=?", (training_id,))
+        approved_training = cursor.fetchone()
+        date = datetime.datetime.strptime(approved_training[2], "%Y-%m-%d")
+        date = date.strftime("%d %B %Y")
+
+        # Email configuration
+        sender_email = 'stafftrainingtracking@gmail.com'
+        receiver_email = 'p20012293@student.newinti.edu.my'
+        subject = 'Application for the ' + approved_training[0] + ' training cost'
+        message = 'The ' + approved_training[0] + ' training had already approved by the HR admin.\nCost: RM' + \
+                  str(approved_training[1]) + '\t\tVenue: ' + approved_training[4] + '\nDate: ' + date + '\t\tTime: ' +\
+                  approved_training[3] + '\nConducted by: ' + approved_training[5] + '\n\nThank you.'
+
+        # Create a MIME message
+        msg = MIMEMultipart()
+        msg['From'] = sender_email
+        msg['To'] = receiver_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(message, 'plain'))
+
+        # SMTP server configuration (for Gmail)
+        smtp_server = 'smtp.gmail.com'
+        smtp_port = 587
+        smtp_username = 'stafftrainingtracking@gmail.com'
+        smtp_password = 'vjpgrlzepunfchoa'
+
+        # Create an SMTP session and start TLS encryption
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_username, smtp_password)
+
+            # Send the email
+            server.sendmail(sender_email, receiver_email, msg.as_string())
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
