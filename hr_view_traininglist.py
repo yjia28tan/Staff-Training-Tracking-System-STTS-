@@ -12,6 +12,7 @@ import sys
 import sqlite3
 from PyQt5 import QtWidgets
 from qtpy import QtCore, QtGui
+import shutil
 
 global employeeID
 connect = sqlite3.connect('StaffTrainingSystem')
@@ -4883,6 +4884,8 @@ def gotologin():  # log out
     reply = QtWidgets.QMessageBox.question(None, "Log Out", "Are you sure you want to log out?",
                                            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
     if reply == QtWidgets.QMessageBox.Yes:
+        if role == 'HR Head':
+            backup_database()
         # Clear all memory and log out
         clear_memory()
         login = Login()
@@ -4899,6 +4902,16 @@ def clear_memory():
     employeeID = None
     global role
     role = None
+
+
+# Function to backup the SQLite database
+def backup_database():
+    # Connect to the database
+    conn = sqlite3.connect('StaffTrainingSystem')
+    # Create a backup by copying the database file
+    shutil.copyfile('StaffTrainingSystem', 'StaffTrainingSystem_backup.db')
+    # Close the database connection
+    conn.close()
 
 
 def gotoTraining():
