@@ -10,8 +10,6 @@ import sqlite3
 from PyQt5 import QtWidgets
 from qtpy import QtCore, QtGui
 import shutil
-# from selenium import webdriver
-# driver = webdriver.Chrome()
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
