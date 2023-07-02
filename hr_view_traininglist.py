@@ -10,6 +10,11 @@ import sqlite3
 from PyQt5 import QtWidgets
 from qtpy import QtCore, QtGui
 import shutil
+# from selenium import webdriver
+# driver = webdriver.Chrome()
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 global employeeID
 connect = sqlite3.connect('StaffTrainingSystem')
@@ -442,7 +447,7 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
                 self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
-                                                      self.view_particpants(trainingid))
+                                                      self.view_participants(trainingid))
 
             elif row_data[item][6] == "Cancelled":
                 self.status_db.setStyleSheet(u"color: #FE8886;\n"
@@ -469,7 +474,7 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
                 self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
-                                                      self.view_particpants(trainingid))
+                                                      self.view_participants(trainingid))
 
             elif row_data[item][6] == "Pending":
                 self.status_db.setStyleSheet(u"color: #FFAE42;\n"
@@ -534,7 +539,7 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
                 self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
-                                                      self.view_particpants(trainingid))
+                                                      self.view_participants(trainingid))
 
             self.status_db.setText(f"{row_data[item][6]}")
             publish = row_data[item][7]
@@ -873,7 +878,7 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
                 self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
-                                                      self.view_particpants(trainingid))
+                                                      self.view_participants(trainingid))
 
             elif search_results[item][6] == "Cancelled":
                 self.status_db.setStyleSheet(u"color: #FE8886;\n"
@@ -900,7 +905,7 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
                 self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
-                                                      self.view_particpants(trainingid))
+                                                      self.view_participants(trainingid))
 
             elif search_results[item][6] == "Pending":
                 self.status_db.setStyleSheet(u"color: #FFAE42;\n"
@@ -964,7 +969,7 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
                 self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
-                                                      self.view_particpants(trainingid))
+                                                      self.view_participants(trainingid))
 
             self.status_db.setText(f"{search_results[item][6]}")
             publish = search_results[item][7]
@@ -1017,10 +1022,10 @@ class HrView(QtWidgets.QMainWindow):
             QMessageBox.critical(None, "Error", error_message, QMessageBox.Ok)
 
     @staticmethod
-    def view_particpants(training_id):
+    def view_participants(training_id):
         try:
-            view_training_particpants = ParticipantList(training_id)
-            widget.addWidget(view_training_particpants)
+            view_training_participants = ParticipantList(training_id)
+            widget.addWidget(view_training_participants)
             widget.setCurrentIndex(widget.currentIndex() + 1)
 
         except Exception as e:
@@ -1354,7 +1359,7 @@ class HrView(QtWidgets.QMainWindow):
                                                         u"background: #008287;\n")
                     self.view_more_button.setText("View More")
                     self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
-                                                          self.view_particpants(trainingid))
+                                                          self.view_participants(trainingid))
 
                 elif row_data[item][6] == "Cancelled":
                     self.status_db.setStyleSheet(u"color: #FE8886;\n"
@@ -1381,7 +1386,7 @@ class HrView(QtWidgets.QMainWindow):
                                                         u"background: #008287;\n")
                     self.view_more_button.setText("View More")
                     self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
-                                                          self.view_particpants(trainingid))
+                                                          self.view_participants(trainingid))
 
                 elif row_data[item][6] == "Pending":
                     self.status_db.setStyleSheet(u"color: #FFAE42;\n"
@@ -1446,7 +1451,7 @@ class HrView(QtWidgets.QMainWindow):
                                                         u"background: #008287;\n")
                     self.view_more_button.setText("View More")
                     self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
-                                                          self.view_particpants(trainingid))
+                                                          self.view_participants(trainingid))
 
                 self.status_db.setText(f"{row_data[item][6]}")
                 publish = row_data[item][7]
@@ -1784,7 +1789,7 @@ class ParticipantList(QtWidgets.QMainWindow):
             connect.commit()
             cursor.execute("DELETE FROM notification WHERE trainingID=?", (training_id,))
             connect.commit()
-            QtWidgets.QMessageBox.information(None, "Infomation", "The training removed.", QtWidgets.QMessageBox.Ok)
+            QtWidgets.QMessageBox.information(None, "Information", "The training removed.", QtWidgets.QMessageBox.Ok)
             self.back_to_hr_training_lists()
 
 
@@ -2221,7 +2226,7 @@ class Approval(QtWidgets.QMainWindow):
                                                   VALUES ('Approved', ?, ?, ?, 0)""",
                                                (date_time, employees[p][0], training_id,))
                                 connect.commit()
-                            QtWidgets.QMessageBox.information(None, "Infomation",
+                            QtWidgets.QMessageBox.information(None, "Information",
                                                               "Application of the training cost was already"
                                                               " sent to finance department.",
                                                               QtWidgets.QMessageBox.Ok)
@@ -2233,13 +2238,13 @@ class Approval(QtWidgets.QMainWindow):
                             self.reject_training_button.deleteLater()
                             self.training_status_db.setText("Approved")
                             self.training_status_db.setStyleSheet("color: lightgreen; border: none;")
+                            self.send_email(training_id)
                         except Exception as e:
                             QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
-                            print(str(e))
                     else:  # No for approve question
                         pass
                 else:  # No pending application"
-                    QtWidgets.QMessageBox.information(None, "Infomation",
+                    QtWidgets.QMessageBox.information(None, "Information",
                                                       "Application of the training cost was already "
                                                       "sent to finance department.",
                                                       QtWidgets.QMessageBox.Ok)
@@ -2254,6 +2259,7 @@ class Approval(QtWidgets.QMainWindow):
                     self.reject_training_button.deleteLater()
                     self.training_status_db.setText("Approved")
                     self.training_status_db.setStyleSheet("color: lightgreen; border: none;")
+                    self.send_email(training_id)
             except Exception as e:
                 QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
         else:  # approval question NO
@@ -2278,7 +2284,7 @@ class Approval(QtWidgets.QMainWindow):
                                                                                          training_id,))
                 connect.commit()
 
-            QtWidgets.QMessageBox.information(None, "Infomation", "The training is cancelled.",
+            QtWidgets.QMessageBox.information(None, "Information", "The training is cancelled.",
                                               QtWidgets.QMessageBox.Ok)
             cursor.execute("UPDATE training SET status='Cancelled' WHERE trainingID=?", (training_id,))
             connect.commit()
@@ -2291,6 +2297,47 @@ class Approval(QtWidgets.QMainWindow):
             pass
 
     @staticmethod
+    def send_email(training_id):
+        try:
+            cursor.execute("SELECT t.trainingName, t.cost, t.date, t.time, t.venue, d.departmentName FROM training t, "
+                           "department d WHERE t.departmentID=d.departmentID AND t.trainingID=?", (training_id,))
+            approved_training = cursor.fetchone()
+            date = datetime.datetime.strptime(approved_training[2], "%Y-%m-%d")
+            date = date.strftime("%d %B %Y")
+
+            # Email configuration
+            sender_email = 'stafftrainingtracking@gmail.com'
+            receiver_email = 'p20012293@student.newinti.edu.my'
+            subject = 'Application for the ' + approved_training[0] + ' training cost'
+            message = 'The ' + approved_training[0] + ' training had already approved by the HR admin.\nCost: RM' + \
+                      str(approved_training[1]) + '\t\tVenue: ' + approved_training[4] + '\nDate: ' + date + '\t\tTime: ' \
+                      + approved_training[3] + '\nConducted by: ' + approved_training[5] + '\n\nThank you.'
+
+            # Create a MIME message
+            msg = MIMEMultipart()
+            msg['From'] = sender_email
+            msg['To'] = receiver_email
+            msg['Subject'] = subject
+            msg.attach(MIMEText(message, 'plain'))
+
+            # SMTP server configuration (for Gmail)
+            smtp_server = 'smtp.gmail.com'
+            smtp_port = 587
+            smtp_username = 'stafftrainingtracking@gmail.com'
+            smtp_password = 'vjpgrlzepunfchoa'
+
+            # Create an SMTP session and start TLS encryption
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                server.starttls()
+                server.login(smtp_username, smtp_password)
+
+                # Send the email
+                server.sendmail(sender_email, receiver_email, msg.as_string())
+
+        except Exception as e:
+            print(str(e))
+
+    @staticmethod
     def back_to_hr_training_lists():
         try:
             hr_training_view = HrView()
@@ -2300,7 +2347,6 @@ class Approval(QtWidgets.QMainWindow):
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
             QMessageBox.critical(None, "Error", error_message, QMessageBox.Ok)
-            print(error_message)
 
     def goto_profile(self):
         # make a popup window to view profile information
@@ -3761,7 +3807,7 @@ class View(QtWidgets.QMainWindow):
                 (employeeID, self.trainingID, "Pending", datetime.datetime.now().strftime('%Y-%m-%d'))
             )
             connect.commit()
-            QtWidgets.QMessageBox.information(None, "Infomation", "Successfully registered!",
+            QtWidgets.QMessageBox.information(None, "Information", "Successfully registered!",
                                               QtWidgets.QMessageBox.Ok)
             self.gotoview()
 
@@ -4901,7 +4947,7 @@ def clear_memory():
     role = None
 
 
-# Function to backup the SQLite database
+# Function to back up the SQLite database
 def backup_database():
     # Connect to the database
     conn = sqlite3.connect('StaffTrainingSystem')
