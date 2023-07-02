@@ -1,8 +1,5 @@
 import logging
 import datetime
-from functools import partial
-from io import BytesIO
-from PIL import Image
 from PyQt5 import Qt
 from PyQt5.QtCore import QSize, QRect, Qt, QByteArray
 from PyQt5.QtGui import QIcon, QFont
@@ -77,7 +74,7 @@ class ImagePopup(QtWidgets.QMainWindow):
         screen_rect = screen.availableGeometry()
         self.resize(screen_rect.width(), screen_rect.height())
 
-    def setImage(self, image):
+    def set_image(self, image):
         self.scene.clear()
         self.image_item = QtWidgets.QGraphicsPixmapItem(image)
         self.scene.addItem(self.image_item)
@@ -109,7 +106,7 @@ class Login(QtWidgets.QMainWindow):
                                    (employeeID, department_id))
                     global role
                     role = cursor.fetchone()[0]
-                    gotoHrView()
+                    goto_hr_view()
                 else:
                     gotoview()
             else:
@@ -579,7 +576,7 @@ class HrView(QtWidgets.QMainWindow):
         except Exception as e:
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
-            QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+            QMessageBox.critical(None, "Error", error_message, QMessageBox.Ok)
 
     def update_search_results(self, search_results):
         # self.items = search_results
@@ -875,7 +872,8 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"border-radius: 10px;\n"
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
-                self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_particpants(trainingid))
+                self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
+                                                      self.view_particpants(trainingid))
 
             elif search_results[item][6] == "Cancelled":
                 self.status_db.setStyleSheet(u"color: #FE8886;\n"
@@ -901,7 +899,8 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"border-radius: 10px;\n"
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
-                self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_particpants(trainingid))
+                self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
+                                                      self.view_particpants(trainingid))
 
             elif search_results[item][6] == "Pending":
                 self.status_db.setStyleSheet(u"color: #FFAE42;\n"
@@ -964,7 +963,8 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"border-radius: 10px;\n"
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
-                self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_particpants(trainingid))
+                self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
+                                                      self.view_particpants(trainingid))
 
             self.status_db.setText(f"{search_results[item][6]}")
             publish = search_results[item][7]
@@ -972,7 +972,6 @@ class HrView(QtWidgets.QMainWindow):
                 self.publish_button.setText("Unpublished")
             else:
                 self.publish_button.setText("Publish")
-
 
         # Adjust the size of the scroll area's contents
         self.scrollAreaWidgetContents_2.setMinimumHeight(50 + n * (frame_height + frame_spacing))
@@ -987,7 +986,7 @@ class HrView(QtWidgets.QMainWindow):
         except Exception as e:
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
-            QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+            QMessageBox.critical(None, "Error", error_message, QMessageBox.Ok)
 
     def publish_training(self, publish_btn):
         try:
@@ -1005,7 +1004,7 @@ class HrView(QtWidgets.QMainWindow):
                 self.cursor.execute("UPDATE training SET publish = 0 WHERE trainingID = ?", (training_id,))
                 connect.commit()
         except Exception as e:
-            QMessageBox.critical(self, "Error", str(e), QMessageBox.Ok)
+            QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
             print(str(e))
 
     def modify_training(self, training_id):
@@ -1015,9 +1014,10 @@ class HrView(QtWidgets.QMainWindow):
         except Exception as e:
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
-            QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+            QMessageBox.critical(None, "Error", error_message, QMessageBox.Ok)
 
-    def view_particpants(self, training_id):
+    @staticmethod
+    def view_particpants(training_id):
         try:
             view_training_particpants = ParticipantList(training_id)
             widget.addWidget(view_training_particpants)
@@ -1026,10 +1026,11 @@ class HrView(QtWidgets.QMainWindow):
         except Exception as e:
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
-            QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+            QMessageBox.critical(None, "Error", error_message, QMessageBox.Ok)
             print(error_message)
 
-    def approve_training(self, training_id):
+    @staticmethod
+    def approve_training(training_id):
         try:
             approval_window = Approval(training_id)
             widget.addWidget(approval_window)
@@ -1038,7 +1039,7 @@ class HrView(QtWidgets.QMainWindow):
         except Exception as e:
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
-            QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+            QMessageBox.critical(None, "Error", error_message, QMessageBox.Ok)
             print(error_message)
 
     def reset(self):
@@ -1463,7 +1464,7 @@ class HrView(QtWidgets.QMainWindow):
         except Exception as e:
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
-            QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+            QMessageBox.critical(None, "Error", error_message, QMessageBox.Ok)
 
     def goto_profile(self):
         # make a popup window to view profile information
@@ -1512,11 +1513,11 @@ class ParticipantList(QtWidgets.QMainWindow):
         # profile button to see more profile details
         self.profile_button = QtWidgets.QPushButton(self.profile_frame)
         self.profile_button.setGeometry(QtCore.QRect(63, 40, 90, 90))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.profile_button.sizePolicy().hasHeightForWidth())
-        self.profile_button.setSizePolicy(sizePolicy)
+        size_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        size_policy.setHorizontalStretch(0)
+        size_policy.setVerticalStretch(0)
+        size_policy.setHeightForWidth(self.profile_button.sizePolicy().hasHeightForWidth())
+        self.profile_button.setSizePolicy(size_policy)
         self.profile_button.setMinimumSize(QtCore.QSize(90, 90))
         self.profile_button.setMaximumSize(QtCore.QSize(90, 90))
         self.profile_button.setStyleSheet("border: none;\nborder-radius: 50%;\n")
@@ -1608,11 +1609,11 @@ class ParticipantList(QtWidgets.QMainWindow):
         # Title for the page
         self.header = QtWidgets.QLabel(self.main_frame)
         self.header.setGeometry(QtCore.QRect(14, 14, 971, 81))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.header.sizePolicy().hasHeightForWidth())
-        self.header.setSizePolicy(sizePolicy)
+        size_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        size_policy.setHorizontalStretch(0)
+        size_policy.setVerticalStretch(0)
+        size_policy.setHeightForWidth(self.header.sizePolicy().hasHeightForWidth())
+        self.header.setSizePolicy(size_policy)
         font = QtGui.QFont()
         font.setPointSize(22)
         font.setBold(True)
@@ -1688,11 +1689,11 @@ class ParticipantList(QtWidgets.QMainWindow):
         # display table
         self.application_table = QtWidgets.QTableWidget(self.main_frame)
         self.application_table.setGeometry(QtCore.QRect(20, 140, 961, 531))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.application_table.sizePolicy().hasHeightForWidth())
-        self.application_table.setSizePolicy(sizePolicy)
+        size_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        size_policy.setHorizontalStretch(0)
+        size_policy.setVerticalStretch(0)
+        size_policy.setHeightForWidth(self.application_table.sizePolicy().hasHeightForWidth())
+        self.application_table.setSizePolicy(size_policy)
         self.application_table.setStyleSheet("qproperty-uniformRowHeights: true;\nborder: none;")
         self.application_table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.application_table.setShowGrid(True)
@@ -2215,7 +2216,8 @@ class Approval(QtWidgets.QMainWindow):
                             connect.commit()
                             for p in range(pending):
                                 cursor.execute("""INSERT INTO notification 
-                                                  (notification_status, notification_date, employeeID, trainingID, is_read)
+                                                  (notification_status, notification_date, employeeID, trainingID, 
+                                                  is_read)
                                                   VALUES ('Approved', ?, ?, ?, 0)""",
                                                (date_time, employees[p][0], training_id,))
                                 connect.commit()
@@ -2253,7 +2255,7 @@ class Approval(QtWidgets.QMainWindow):
                     self.training_status_db.setText("Approved")
                     self.training_status_db.setStyleSheet("color: lightgreen; border: none;")
             except Exception as e:
-                QMessageBox.critical(self, "Error", str(e), QMessageBox.Ok)
+                QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
         else:  # approval question NO
             pass
 
@@ -2288,7 +2290,8 @@ class Approval(QtWidgets.QMainWindow):
         else:  # NO for confirmation box
             pass
 
-    def back_to_hr_training_lists(self):
+    @staticmethod
+    def back_to_hr_training_lists():
         try:
             hr_training_view = HrView()
             widget.addWidget(hr_training_view)
@@ -2296,7 +2299,7 @@ class Approval(QtWidgets.QMainWindow):
         except Exception as e:
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
-            QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+            QMessageBox.critical(None, "Error", error_message, QMessageBox.Ok)
             print(error_message)
 
     def goto_profile(self):
@@ -2667,60 +2670,60 @@ class CreateNewTraining(QtWidgets.QDialog):
             # Perform validation for each input field
             if not training_name:
                 # Training name is empty
-                QtWidgets.QMessageBox.warning(self, "Validation Error",
+                QtWidgets.QMessageBox.warning(None, "Validation Error",
                                               "Please enter a training name.")
                 return False
 
             if not cost_per_person or not cost_per_person.isdigit() or int(cost_per_person) < 0:
                 # Cost is empty, not a valid number, or not positive
-                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a valid positive cost.")
+                QtWidgets.QMessageBox.warning(None, "Validation Error", "Please enter a valid positive cost.")
                 return False
 
             if date <= QtCore.QDate.currentDate():
                 # Date is not larger than today's date
-                QtWidgets.QMessageBox.warning(self, "Validation Error",
+                QtWidgets.QMessageBox.warning(None, "Validation Error",
                                               "Please select a date larger than today's date.")
                 return False
 
             if not time:
                 # if time empty
-                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter the time.")
+                QtWidgets.QMessageBox.warning(None, "Validation Error", "Please enter the time.")
                 return False
 
             if not duration or duration <= 0:
                 # Duration is not a positive value
-                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a valid positive durations.")
+                QtWidgets.QMessageBox.warning(None, "Validation Error", "Please enter a valid positive durations.")
                 return False
 
             if not venue:
                 # Venue is empty
-                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a venue.")
+                QtWidgets.QMessageBox.warning(None, "Validation Error", "Please enter a venue.")
                 return False
 
             if not short_description_text or len(short_description_text.split()) > 100:
                 # Short description exceeds 100 words
-                QtWidgets.QMessageBox.warning(self, "Validation Error",
+                QtWidgets.QMessageBox.warning(None, "Validation Error",
                                               "Short description should not empty and exceed 100 words.")
                 return False
 
             if not description_text:
-                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter the description.")
+                QtWidgets.QMessageBox.warning(None, "Validation Error", "Please enter the description.")
                 return False
 
             if not max_participants or not max_participants.isdigit() or int(max_participants) <= 0:
                 # Max participants is empty, not a valid number, or not positive
-                QtWidgets.QMessageBox.warning(self, "Validation Error",
+                QtWidgets.QMessageBox.warning(None, "Validation Error",
                                               "Please enter a valid positive maximum participants count.")
                 return False
 
             if department == "Select Department":
                 # Department is not selected
-                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please select a department.")
+                QtWidgets.QMessageBox.warning(None, "Validation Error", "Please select a department.")
                 return False
 
             if not image_data:
                 # Brochure is not selected
-                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please select a brochure image.")
+                QtWidgets.QMessageBox.warning(None, "Validation Error", "Please select a brochure image.")
                 return False
 
             else:
@@ -2750,7 +2753,7 @@ class CreateNewTraining(QtWidgets.QDialog):
                 connect.close()
 
                 training_id_for_create_list = self.cursor.lastrowid
-                QtWidgets.QMessageBox.information(self, "Success", "Training data inserted successfully.",
+                QtWidgets.QMessageBox.information(None, "Success", "Training data inserted successfully.",
                                                   QtWidgets.QMessageBox.Ok)
 
                 if self.check_box.isChecked():
@@ -2762,19 +2765,19 @@ class CreateNewTraining(QtWidgets.QDialog):
                         except Exception as e:
                             # Show error message box or print the error
                             error_message = "An error occurred: " + str(e)
-                            QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+                            QMessageBox.critical(None, "Error", error_message, QMessageBox.Ok)
                     else:
                         # Handle the case where training_id_for_create_list is None
                         # Display an error message or perform appropriate actions
                         error_message = "Training ID is not available."
-                        QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+                        QMessageBox.warning(None, "Error", error_message, QMessageBox.Ok)
                 else:
                     self.reject()
 
         except sqlite3.Error as e:
             # Rollback the transaction in case of an error
             connect.rollback()
-            QtWidgets.QMessageBox.critical(self, "Error", str(e), QtWidgets.QMessageBox.Ok)
+            QtWidgets.QMessageBox.critical(None, "Error", str(e), QtWidgets.QMessageBox.Ok)
 
         except Exception as e:
             # Log the error
@@ -2782,7 +2785,7 @@ class CreateNewTraining(QtWidgets.QDialog):
 
             # Show an error message box
             error_message = "An error occurred: " + str(e)
-            QtWidgets.QMessageBox.critical(self, "Error", error_message, QtWidgets.QMessageBox.Ok)
+            QtWidgets.QMessageBox.critical(None, "Error", error_message, QtWidgets.QMessageBox.Ok)
 
         finally:
             # Close the connection if it's still open
@@ -2932,14 +2935,14 @@ class AddParticipantPage(QtWidgets.QDialog):
 
         # Check if the selected department is empty
         if selected_department == "Select Department":
-            QMessageBox.critical(self, "Error", "Please select a department.")
+            QMessageBox.critical(None, "Error", "Please select a department.")
             return
 
         # Check for duplicate department in the table
         for row in range(self.add_department_into_table.rowCount()):
             item = self.add_department_into_table.item(row, 1)
             if item and item.text() == selected_department:
-                QMessageBox.critical(self, "Error", "Department already exists in the table.")
+                QMessageBox.critical(None, "Error", "Department already exists in the table.")
                 return
 
         # Add the row to the table
@@ -3022,14 +3025,14 @@ class AddParticipantPage(QtWidgets.QDialog):
             except sqlite3.Error as e:
                 # Rollback the transaction in case of an error
                 connect.rollback()
-                QtWidgets.QMessageBox.critical(self, "Error", str(e), QtWidgets.QMessageBox.Ok)
+                QtWidgets.QMessageBox.critical(None, "Error", str(e), QtWidgets.QMessageBox.Ok)
 
             finally:
                 # Close the connection if it's still open
                 if connect:
                     connect.close()
 
-        QtWidgets.QMessageBox.information(self, "Success", "Applications added successfully.",
+        QtWidgets.QMessageBox.information(None, "Success", "Applications added successfully.",
                                           QtWidgets.QMessageBox.Ok)
         self.reject()
 
@@ -3444,60 +3447,60 @@ class ModifyTraining(QtWidgets.QDialog):
             # Perform validation for each input field
             if not training_name:
                 # Training name is empty
-                QtWidgets.QMessageBox.warning(self, "Validation Error",
+                QtWidgets.QMessageBox.warning(None, "Validation Error",
                                               "Please enter a training name.")
                 return False
 
             if not cost_per_person or not cost_per_person.replace('.', '', 1).isdigit() or float(cost_per_person) < 0:
                 # Cost is empty, not a valid float, or not positive
-                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a valid positive cost.")
+                QtWidgets.QMessageBox.warning(None, "Validation Error", "Please enter a valid positive cost.")
                 return False
 
             if date <= QtCore.QDate.currentDate():
                 # Date is not larger than today's date
-                QtWidgets.QMessageBox.warning(self, "Validation Error",
+                QtWidgets.QMessageBox.warning(None, "Validation Error",
                                               "Please select a date larger than today's date.")
                 return False
 
             if not time:
                 # if time empty
-                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter the time.")
+                QtWidgets.QMessageBox.warning(None, "Validation Error", "Please enter the time.")
                 return False
 
             if not duration or duration <= 0:
                 # Duration is not a positive value
-                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a valid positive durations.")
+                QtWidgets.QMessageBox.warning(None, "Validation Error", "Please enter a valid positive durations.")
                 return False
 
             if not venue:
                 # Venue is empty
-                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter a venue.")
+                QtWidgets.QMessageBox.warning(None, "Validation Error", "Please enter a venue.")
                 return False
 
             if not short_description_text or len(short_description_text.split()) > 100:
                 # Short description exceeds 100 words
-                QtWidgets.QMessageBox.warning(self, "Validation Error",
+                QtWidgets.QMessageBox.warning(None, "Validation Error",
                                               "Short description should not empty and exceed 100 words.")
                 return False
 
             if not description_text:
-                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please enter the description.")
+                QtWidgets.QMessageBox.warning(None, "Validation Error", "Please enter the description.")
                 return False
 
             if not max_participants or not max_participants.isdigit() or int(max_participants) <= 0:
                 # Max participants is empty, not a valid number, or not positive
-                QtWidgets.QMessageBox.warning(self, "Validation Error",
+                QtWidgets.QMessageBox.warning(None, "Validation Error",
                                               "Please enter a valid positive maximum participants count.")
                 return False
 
             if department == "Select Department":
                 # Department is not selected
-                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please select a department.")
+                QtWidgets.QMessageBox.warning(None, "Validation Error", "Please select a department.")
                 return False
 
             if not image_data:
                 # Brochure is not selected
-                QtWidgets.QMessageBox.warning(self, "Validation Error", "Please select a brochure image.")
+                QtWidgets.QMessageBox.warning(None, "Validation Error", "Please select a brochure image.")
                 return False
 
             else:
@@ -3525,14 +3528,14 @@ class ModifyTraining(QtWidgets.QDialog):
                     cursor.close()
                     connect.close()
 
-                    QtWidgets.QMessageBox.information(self, "Success", "Training data inserted successfully.",
+                    QtWidgets.QMessageBox.information(None, "Success", "Training data inserted successfully.",
                                                       QtWidgets.QMessageBox.Ok)
                     self.close()
 
                 except sqlite3.Error as e:
                     # Rollback the transaction in case of an error
                     connect.rollback()
-                    QtWidgets.QMessageBox.critical(self, "Error", str(e), QtWidgets.QMessageBox.Ok)
+                    QtWidgets.QMessageBox.critical(None, "Error", str(e), QtWidgets.QMessageBox.Ok)
 
                 finally:
                     # Close the connection if it's still open
@@ -3540,21 +3543,19 @@ class ModifyTraining(QtWidgets.QDialog):
                         connect.close()
 
         except Exception as e:
-            QtWidgets.QMessageBox.critical(self, "Error", str(e), QtWidgets.QMessageBox.Ok)
+            QtWidgets.QMessageBox.critical(None, "Error", str(e), QtWidgets.QMessageBox.Ok)
 
 
 class View(QtWidgets.QMainWindow):
     def __init__(self):
         super(View, self).__init__()
-        # Define the trainingID attribute
-        # self.trainingID = None
 
         loadUi("mytraining.ui", self)
         self.logout_button.clicked.connect(gotologin)
         self.profile_button.clicked.connect(self.goto_profile)
         self.notification_button.clicked.connect(goto_notification)
         self.list_button.clicked.connect(gotoview)
-        self.my_training_button.clicked.connect(gotoTraining)
+        self.my_training_button.clicked.connect(goto_training)
 
         cursor.execute('SELECT name, employeeID, departmentID FROM employee WHERE employeeID = ?', (employeeID,))
         display = cursor.fetchall()
@@ -3731,7 +3732,6 @@ class View(QtWidgets.QMainWindow):
         # Set the scroll area widget
         self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
         self.setCentralWidget(self.centralwidget)
-        QtCore.QMetaObject.connectSlotsByName(self)
 
     def goto_profile(self):
         # make a popup window to view profile information
@@ -3744,7 +3744,7 @@ class View(QtWidgets.QMainWindow):
             widget.addWidget(viewtraining)
             widget.setCurrentIndex(widget.currentIndex() + 1)
         except Exception as e:
-            QMessageBox.critical(self, "Error", str(e), QMessageBox.Ok)
+            QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
             print(str(e))
 
     def register_training(self):
@@ -3768,12 +3768,12 @@ class View(QtWidgets.QMainWindow):
         except Exception as e:
             # Handle other exceptions
             error_message = "An error occurred: " + str(e)
-            QtWidgets.QMessageBox.critical(self, "Error", error_message, QtWidgets.QMessageBox.Ok)
+            QtWidgets.QMessageBox.critical(None, "Error", error_message, QtWidgets.QMessageBox.Ok)
             print(error_message)
 
     def show_image_pop_up(self, picture_name):
         popup = ImagePopup(self)
-        popup.setImage(QtGui.QPixmap(picture_name))
+        popup.set_image(QtGui.QPixmap(picture_name))
         popup.show()
 
     def viewTrainingDetails(self, trainingID):
@@ -3784,7 +3784,7 @@ class View(QtWidgets.QMainWindow):
             self.profile_button.clicked.connect(self.goto_profile)
             self.notification_button.clicked.connect(goto_notification)
             self.list_button.clicked.connect(gotoview)
-            self.my_training_button.clicked.connect(gotoTraining)
+            self.my_training_button.clicked.connect(goto_training)
 
             connect_database()
             cursor.execute('SELECT name, employeeID, departmentID FROM employee WHERE employeeID = ?', (employeeID,))
@@ -3856,7 +3856,7 @@ class View(QtWidgets.QMainWindow):
         except Exception as e:
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
-            QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+            QMessageBox.critical(None, "Error", error_message, QMessageBox.Ok)
 
     def updateSearchResults(self, search_results):
         # Define the size and position of each frame
@@ -4172,7 +4172,7 @@ class Notification(QtWidgets.QMainWindow):
         self.profile_button.clicked.connect(self.goto_profile)
         self.notification_button.clicked.connect(goto_notification)
         self.list_button.clicked.connect(gotoview)
-        self.my_training_button.clicked.connect(gotoTraining)
+        self.my_training_button.clicked.connect(goto_training)
 
         cursor.execute('SELECT name, employeeID, departmentID FROM employee WHERE employeeID = ?', (employeeID,))
         display = cursor.fetchall()
@@ -4324,7 +4324,7 @@ class Notification(QtWidgets.QMainWindow):
                 # Remove the frame itself
                 frame.deleteLater()
         except Exception as e:
-            QMessageBox.critical(self, "Error", str(e), QMessageBox.Ok)
+            QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
 
         keywords = self.search_bar.text()
         cursor.execute("SELECT t.trainingName, n.notification_status, n.notification_date "
@@ -4432,15 +4432,13 @@ class Notification(QtWidgets.QMainWindow):
         # scroll bar
         self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
 
-    def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.name_label.setText(_translate("MainWindow", "Name"))
-        self.staff_id_label.setText(_translate("MainWindow", "Staff ID"))
-        self.department_label.setText(_translate("MainWindow", "Department"))
-        self.my_training_button.setText(_translate("MainWindow", "My Training"))
-        self.list_button.setText(_translate("MainWindow", "Training List"))
-        self.notification_button.setText(_translate("MainWindow", "Notification"))
-        self.search_bar.setPlaceholderText(_translate("MainWindow", "  Search..."))
+        self.name_label.setText("Name")
+        self.staff_id_label.setText("Staff ID")
+        self.department_label.setText("Department")
+        self.my_training_button.setText("My Training")
+        self.list_button.setText("Training List")
+        self.notification_button.setText("Notification")
+        self.search_bar.setPlaceholderText("  Search...")
 
     def goto_profile(self):
         # make a popup window to view profile information
@@ -4457,7 +4455,7 @@ class MyTraining(QtWidgets.QMainWindow):
         self.profile_button.clicked.connect(self.goto_profile)
         self.notification_button.clicked.connect(goto_notification)
         self.list_button.clicked.connect(gotoview)
-        self.my_training_button.clicked.connect(gotoTraining)
+        self.my_training_button.clicked.connect(goto_training)
 
         cursor.execute('SELECT name, employeeID, departmentID FROM employee WHERE employeeID = ?', (employeeID,))
         display = cursor.fetchall()
@@ -4662,7 +4660,7 @@ class MyTraining(QtWidgets.QMainWindow):
             self.profile_button.clicked.connect(self.goto_profile)
             self.notification_button.clicked.connect(goto_notification)
             self.list_button.clicked.connect(gotoview)
-            self.my_training_button.clicked.connect(gotoTraining)
+            self.my_training_button.clicked.connect(goto_training)
 
             connect_database()
             cursor.execute('SELECT name, employeeID, departmentID FROM employee WHERE employeeID = ?', (employeeID,))
@@ -4733,7 +4731,7 @@ class MyTraining(QtWidgets.QMainWindow):
         except Exception as e:
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
-            QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+            QMessageBox.critical(None, "Error", error_message, QMessageBox.Ok)
 
     def updateSearchResults(self, search_results):
         # self.items = search_results
@@ -4859,7 +4857,7 @@ class MyTraining(QtWidgets.QMainWindow):
 
     def show_image_pop_up(self, picture_name):
         popup = ImagePopup(self)
-        popup.setImage(QtGui.QPixmap(picture_name))
+        popup.set_image(QtGui.QPixmap(picture_name))
         popup.show()
 
 
@@ -4871,7 +4869,6 @@ def gotoview():
     except Exception as e:
         QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
         print(str(e))
-
 
 
 def goto_notification():
@@ -4914,13 +4911,13 @@ def backup_database():
     conn.close()
 
 
-def gotoTraining():
+def goto_training():
     training = MyTraining()
     widget.addWidget(training)
     widget.setCurrentIndex(widget.currentIndex() + 1)
 
 
-def gotoHrView():
+def goto_hr_view():
     hrview = HrView()
     widget.addWidget(hrview)
     widget.setCurrentIndex(widget.currentIndex() + 1)
