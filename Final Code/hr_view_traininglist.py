@@ -3837,7 +3837,7 @@ class View(QtWidgets.QMainWindow):
             self.id_db.setText(str(display[0][1]))
             cursor.execute('SELECT departmentName FROM department WHERE departmentID=?', (display[0][2],))
             self.department_db.setText(cursor.fetchone()[0])
-            self.profile_button.setIcon(QtGui.QIcon("pictures/profile.png"))
+            self.profile_button.setIcon(QtGui.QIcon("profile.png"))
             self.header.setText("Training Details")
 
             self.cursor = connect.cursor()
@@ -4082,6 +4082,7 @@ class Notification(QtWidgets.QMainWindow):
         self.name_label.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.name_label.setStyleSheet("border: none;\ncolor: white;\nfont-weight: ;\n")
         self.name_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.name_label.setText("Name")
         self.name_label.setObjectName("name_label")
 
         # display id
@@ -4089,6 +4090,7 @@ class Notification(QtWidgets.QMainWindow):
         self.staff_id_label.setGeometry(QtCore.QRect(10, 200, 191, 20))
         self.staff_id_label.setStyleSheet("border: none;\ncolor: white;\nfont-weight: ;")
         self.staff_id_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.staff_id_label.setText("Staff ID")
         self.staff_id_label.setObjectName("staff_id_label")
 
         # display department
@@ -4096,6 +4098,7 @@ class Notification(QtWidgets.QMainWindow):
         self.department_label.setGeometry(QtCore.QRect(10, 250, 191, 20))
         self.department_label.setStyleSheet("border: none;\ncolor: white;\nfont-weight: ;")
         self.department_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.department_label.setText("Department")
         self.department_label.setObjectName("department_label")
 
         # calling the user details from db and set it in these variable
@@ -4130,18 +4133,21 @@ class Notification(QtWidgets.QMainWindow):
         self.my_training_button.setGeometry(QtCore.QRect(14, 450, 211, 91))
         self.my_training_button.setStyleSheet("color: white;\nfont-weight: ;\nborder-radius: 10px;")
         self.my_training_button.setObjectName("my_training_button")
+        self.my_training_button.setText("My Training")
 
         # View whole training lists button
         self.list_button = QtWidgets.QPushButton(self.side_frame)
         self.list_button.setGeometry(QtCore.QRect(14, 350, 211, 91))
         self.list_button.setStyleSheet("color: white;\nfont-weight: ;\nborder-radius: 10px;")
         self.list_button.setObjectName("list_button")
+        self.list_button.setText("Training List")
 
         # Notification button
         self.notification_button = QtWidgets.QPushButton(self.side_frame)
         self.notification_button.setGeometry(QtCore.QRect(14, 550, 211, 91))
         self.notification_button.setStyleSheet("color: white;\nfont-weight: ;\nborder-radius: 10px;")
         self.notification_button.setObjectName("notification_button")
+        self.notification_button.setText("Notification")
 
         # Log out button
         self.logout_button = QtWidgets.QPushButton(self.side_frame)
@@ -4349,14 +4355,13 @@ class Notification(QtWidgets.QMainWindow):
                                       "{border-radius: 10px;\nborder: 1px solid white;}\n")
         self.search_bar.setObjectName("search_bar")
         self.search_button.clicked.connect(self.search_notification)
+        self.search_bar.setPlaceholderText("  Search...")
 
         # update the notification has been read
         cursor.execute("UPDATE notification SET is_read=1 WHERE is_read=0 AND employeeID=?", self.id)
         connect.commit()
 
         self.horizontalLayout.addWidget(self.main_frame)
-
-        self.retranslateUi()
 
     def search_notification(self):
         try:
@@ -4916,9 +4921,13 @@ def gotoview():
 
 
 def goto_notification():
-    mainwindow = Notification()
-    widget.addWidget(mainwindow)
-    widget.setCurrentIndex(widget.currentIndex() + 1)
+    try:
+        mainwindow = Notification()
+        widget.addWidget(mainwindow)
+        widget.setCurrentIndex(widget.currentIndex() + 1)
+    except Exception as e:
+        QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
+        print(str(e))
 
 
 def gotologin():  # log out
