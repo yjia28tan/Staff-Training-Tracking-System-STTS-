@@ -104,6 +104,10 @@ class Login(QtWidgets.QMainWindow):
                 employeeID = data[0][0]
                 department_id = data[0][1]
                 if department_id == 4:
+                    cursor.execute('SELECT role FROM employee WHERE employeeID=? AND departmentID=?',
+                                   (employeeID, department_id))
+                    global role
+                    role = cursor.fetchone()[0]
                     gotoHrView()
                 else:
                     gotoview()
@@ -2068,6 +2072,10 @@ class Approval(QtWidgets.QMainWindow):
         self.approve_training_button.setText("Approve")
         self.approve_training_button.setObjectName("approve_training_button")
         self.approve_training_button.clicked.connect(lambda: self.approve_training(training_id))
+
+        if role == 'HR Assistance':
+            self.approve_training_button.hide()
+            self.reject_training_button.hide()
 
         self.horizontalLayout.addWidget(self.main_frame)
         self.setCentralWidget(self.centralwidget)
@@ -4889,6 +4897,8 @@ def clear_memory():
     # Clear global variables
     global employeeID
     employeeID = None
+    global role
+    role = None
 
 
 def gotoTraining():
