@@ -141,7 +141,6 @@ class HrView(QtWidgets.QMainWindow):
         # Connect the button's clicked signal to the reset function
         self.list_button.clicked.connect(self.reset)
 
-        self.create_button.clicked.connect(self.create_new_training)
         self.search_button.clicked.connect(self.search_training_hr)
 
         connect_database()
@@ -441,7 +440,7 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
                 self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
-                                                      self.view_training(trainingid))
+                                                      self.view_particpants(trainingid))
 
             elif row_data[item][6] == "Cancelled":
                 self.status_db.setStyleSheet(u"color: #FE8886;\n"
@@ -468,7 +467,7 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
                 self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
-                                                      self.view_training(trainingid))
+                                                      self.view_particpants(trainingid))
 
             elif row_data[item][6] == "Pending":
                 self.status_db.setStyleSheet(u"color: #FFAE42;\n"
@@ -533,7 +532,7 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
                 self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
-                                                      self.view_training(trainingid))
+                                                      self.view_particpants(trainingid))
 
             self.status_db.setText(f"{row_data[item][6]}")
             publish = row_data[item][7]
@@ -870,8 +869,8 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"font-weight: bold;\n"
                                                     u"border-radius: 10px;\n"
                                                     u"background: #008287;\n")
-                self.view_more_button.setText("Modify")
-                self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_training(trainingid))
+                self.view_more_button.setText("View More")
+                self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_particpants(trainingid))
 
             elif search_results[item][6] == "Cancelled":
                 self.status_db.setStyleSheet(u"color: #FE8886;\n"
@@ -897,7 +896,7 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"border-radius: 10px;\n"
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
-                self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_training(trainingid))
+                self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_particpants(trainingid))
 
             elif search_results[item][6] == "Pending":
                 self.status_db.setStyleSheet(u"color: #FFAE42;\n"
@@ -960,7 +959,7 @@ class HrView(QtWidgets.QMainWindow):
                                                     u"border-radius: 10px;\n"
                                                     u"background: #008287;\n")
                 self.view_more_button.setText("View More")
-                self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_training(trainingid))
+                self.view_more_button.clicked.connect(lambda _, trainingid=training_id: self.view_particpants(trainingid))
 
             self.status_db.setText(f"{search_results[item][6]}")
             publish = search_results[item][7]
@@ -1013,10 +1012,10 @@ class HrView(QtWidgets.QMainWindow):
             error_message = "An error occurred: " + str(e)
             QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
 
-    def view_training(self, training_id):
+    def view_particpants(self, training_id):
         try:
-            view_training = ParticipantList(training_id)
-            widget.addWidget(view_training)
+            view_training_particpants = ParticipantList(training_id)
+            widget.addWidget(view_training_particpants)
             widget.setCurrentIndex(widget.currentIndex() + 1)
 
         except Exception as e:
@@ -1347,9 +1346,9 @@ class HrView(QtWidgets.QMainWindow):
                                                         u"font-weight: bold;\n"
                                                         u"border-radius: 10px;\n"
                                                         u"background: #008287;\n")
-                    self.view_more_button.setText("Modify")
+                    self.view_more_button.setText("View More")
                     self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
-                                                          self.view_training(trainingid))
+                                                          self.view_particpants(trainingid))
 
                 elif row_data[item][6] == "Cancelled":
                     self.status_db.setStyleSheet(u"color: #FE8886;\n"
@@ -1376,7 +1375,7 @@ class HrView(QtWidgets.QMainWindow):
                                                         u"background: #008287;\n")
                     self.view_more_button.setText("View More")
                     self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
-                                                          self.view_training(trainingid))
+                                                          self.view_particpants(trainingid))
 
                 elif row_data[item][6] == "Pending":
                     self.status_db.setStyleSheet(u"color: #FFAE42;\n"
@@ -1441,7 +1440,7 @@ class HrView(QtWidgets.QMainWindow):
                                                         u"background: #008287;\n")
                     self.view_more_button.setText("View More")
                     self.view_more_button.clicked.connect(lambda _, trainingid=training_id:
-                                                          self.view_training(trainingid))
+                                                          self.view_particpants(trainingid))
 
                 self.status_db.setText(f"{row_data[item][6]}")
                 publish = row_data[item][7]
@@ -1467,10 +1466,9 @@ class HrView(QtWidgets.QMainWindow):
         self.profile.show()
 
 
-
 class ParticipantList(QtWidgets.QMainWindow):
     def __init__(self, training_id):
-        super(Approval, self).__init__()
+        super(ParticipantList, self).__init__()
         training_id = training_id
         connect_database()
 
@@ -1480,10 +1478,6 @@ class ParticipantList(QtWidgets.QMainWindow):
         self.setMaximumSize(QtCore.QSize(1280, 720))
         self.setAutoFillBackground(False)
         self.setStyleSheet("background-color: #696969;")
-
-        # should remove later after combine login page
-        self.email = "test"
-        self.password = 123123
 
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setMinimumSize(QtCore.QSize(1280, 720))
@@ -1527,6 +1521,7 @@ class ParticipantList(QtWidgets.QMainWindow):
         self.profile_button.setIcon(icon)
         self.profile_button.setIconSize(QtCore.QSize(90, 90))
         self.profile_button.setObjectName("profile_button")
+        self.profile_button.clicked.connect(self.goto_profile)
 
         # display name
         self.name_label = QtWidgets.QLabel(self.profile_frame)
@@ -1570,12 +1565,12 @@ class ParticipantList(QtWidgets.QMainWindow):
         self.department_db.setAlignment(QtCore.Qt.AlignCenter)
         self.department_db.setObjectName("department_db")
         cursor.execute("SELECT name, employeeID, departmentName FROM employee e, department d WHERE e.departmentID="
-                       "d.departmentID AND e.email=? AND e.password=?", (self.email, self.password))
+                       "d.departmentID AND employeeID = ?", (employeeID,))
         info = cursor.fetchone()
         self.id = str(info[1])
-        self.name_db.setText(info[0])
+        self.name_db.setText(str(info[0]))
         self.id_db.setText(str(info[1]))
-        self.department_db.setText(info[2])
+        self.department_db.setText(str(info[2]))
 
         # View whole training lists button
         self.list_button = QtWidgets.QPushButton(self.side_frame)
@@ -1583,6 +1578,7 @@ class ParticipantList(QtWidgets.QMainWindow):
         self.list_button.setStyleSheet("color: white;\nfont-weight: bold;\nborder-radius: 10px;")
         self.list_button.setObjectName("list_button")
         self.list_button.setText("Training List")
+        self.list_button.clicked.connect(self.back_to_hr_training_lists)
 
         # Log out button
         self.logout_button = QtWidgets.QPushButton(self.side_frame)
@@ -1621,6 +1617,17 @@ class ParticipantList(QtWidgets.QMainWindow):
         self.header.setObjectName("header")
         self.header.setText("Participant List")
 
+        # reject training button
+        self.delete_button = QtWidgets.QPushButton(self.main_frame)
+        self.delete_button.setGeometry(QtCore.QRect(930, 42, 36, 42))
+        self.delete_button.setStyleSheet("border: none;")
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap("trash.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.delete_button.setIcon(icon5)
+        self.delete_button.setIconSize(QtCore.QSize(40, 40))
+        self.delete_button.setObjectName("delete_button")
+        self.delete_button.clicked.connect(lambda: self.delete_training(training_id))
+
         # Display training name
         self.training_name_db = QtWidgets.QPushButton(self.main_frame)
         self.training_name_db.setGeometry(QtCore.QRect(30, 100, 681, 31))
@@ -1654,22 +1661,23 @@ class ParticipantList(QtWidgets.QMainWindow):
 
         cursor.execute("SELECT trainingName, status FROM training WHERE trainingID=?", (training_id,))
         details = cursor.fetchone()
-        self.training_name_db.setText(details[0])
+        self.training_name_db.setText(str(details[0]))
         if details[1] == "Approved":
             self.training_status_db.setStyleSheet("color: lightgreen; border: none;")
+            self.delete_button.hide()
         elif details[1] == "Past":
             self.training_status_db.setStyleSheet("color: #EABFFF; border: none;")
         else:
             self.training_status_db.setStyleSheet("color: #FE8886; border: none;")
-        self.training_status_db.setText(details[1])
-
+        self.training_status_db.setText(str(details[1]))
 
         # retrieve data from db
         cursor.execute("SELECT count(applicationID) FROM application WHERE trainingID=?", (training_id,))
         rows = cursor.fetchone()
-        cursor.execute("SELECT a.employeeID, e.name, d.departmentName, a.applicationStatus FROM application a, employee"
-                       " e, department d WHERE a.employeeID=e.employeeID AND e.departmentID=d.departmentID AND "
-                       "trainingID=?", (training_id,))
+        cursor.execute("SELECT a.employeeID, e.name, d.departmentName, a.applicationStatus "
+                       "FROM application a, employee e, department d "
+                       "WHERE a.employeeID=e.employeeID AND e.departmentID=d.departmentID AND trainingID=?",
+                       (training_id,))
         application_info = cursor.fetchall()
 
         # display table
@@ -1689,17 +1697,6 @@ class ParticipantList(QtWidgets.QMainWindow):
         self.application_table.setColumnCount(5)
         self.application_table.setRowCount(rows[0])
         self.application_table.setSortingEnabled(True)
-
-        # reject training button
-        self.delete_button = QtWidgets.QPushButton(self.main_frame)
-        self.delete_button.setGeometry(QtCore.QRect(930, 42, 36, 42))
-        self.delete_button.setStyleSheet("border: none;")
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap("trash.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.delete_button.setIcon(icon5)
-        self.delete_button.setIconSize(QtCore.QSize(40, 40))
-        self.delete_button.setObjectName("delete_button")
-        self.delete_button.clicked.connect(self.delete_training)
 
         # Set the header labels
         header_labels = ["Index", "Employee ID", "Name", "Department", "Status"]
@@ -1748,25 +1745,41 @@ class ParticipantList(QtWidgets.QMainWindow):
         self.application_table.horizontalHeader().setVisible(True)
         self.application_table.verticalHeader().setVisible(False)
         self.application_table.setSortingEnabled(True)
-
         self.horizontalLayout.addWidget(self.main_frame)
         self.setCentralWidget(self.centralwidget)
 
-    def delete_training(self):
+    def back_to_hr_training_lists(self):
+        try:
+            hr_training_view = HrView()
+            widget.addWidget(hr_training_view)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+        except Exception as e:
+            # Show error message box or print the error
+            error_message = "An error occurred: " + str(e)
+            QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
+            print(error_message)
+
+    def goto_profile(self):
+        # make a popup window to view profile information
+        self.profile = Profile()
+        self.profile.show()
+
+    def delete_training(self, training_id):
         delete_box = QtWidgets.QMessageBox()
         delete_box.setIcon(QtWidgets.QMessageBox.Question)
         delete_box.setWindowTitle("Confirmation")
         delete_box.setText("Are you sure you want to delete this training?")
         delete_box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
         confirmation = delete_box.exec_()
-        # if confirmation == QtWidgets.QMessageBox.Yes:
-        #     cursor.execute("DELETE FROM training WHERE trainingID=?", (training_id,))
-        #     connect.commit()
-        #     cursor.execute("DELETE FROM application WHERE trainingID=?", (training_id,))
-        #     connect.commit()
-        #     cursor.execute("DELETE FROM notification WHERE trainingID=?", (training_id,))
-        #     connect.commit()
-        #     QtWidgets.QMessageBox.information(None, "Infomation", "The training removed.", QtWidgets.QMessageBox.Ok)
+        if confirmation == QtWidgets.QMessageBox.Yes:
+            cursor.execute("DELETE FROM training WHERE trainingID=?", (training_id,))
+            connect.commit()
+            cursor.execute("DELETE FROM application WHERE trainingID=?", (training_id,))
+            connect.commit()
+            cursor.execute("DELETE FROM notification WHERE trainingID=?", (training_id,))
+            connect.commit()
+            QtWidgets.QMessageBox.information(None, "Infomation", "The training removed.", QtWidgets.QMessageBox.Ok)
+            self.back_to_hr_training_lists()
 
 
 class Approval(QtWidgets.QMainWindow):
@@ -2042,7 +2055,7 @@ class Approval(QtWidgets.QMainWindow):
         self.reject_training_button.setIcon(icon3)
         self.reject_training_button.setText("Reject")
         self.reject_training_button.setObjectName("reject_training_button")
-        self.reject_training_button.clicked.connect(self.reject_training)
+        self.reject_training_button.clicked.connect(lambda: self.reject_training(training_id))
 
         # approve training button
         self.approve_training_button = QtWidgets.QPushButton(self.main_frame)
@@ -2054,7 +2067,7 @@ class Approval(QtWidgets.QMainWindow):
         self.approve_training_button.setIcon(icon2)
         self.approve_training_button.setText("Approve")
         self.approve_training_button.setObjectName("approve_training_button")
-        self.approve_training_button.clicked.connect(self.approve_training)
+        self.approve_training_button.clicked.connect(lambda: self.approve_training(training_id))
 
         self.horizontalLayout.addWidget(self.main_frame)
         self.setCentralWidget(self.centralwidget)
@@ -2153,6 +2166,7 @@ class Approval(QtWidgets.QMainWindow):
         self.application_table.setColumnWidth(4, 150)
 
     def approve_training(self, training_id):
+        self.training_id = training_id
         approve_box = QtWidgets.QMessageBox()
         approve_box.setIcon(QtWidgets.QMessageBox.Question)
         approve_box.setWindowTitle("Approval")
@@ -2161,64 +2175,78 @@ class Approval(QtWidgets.QMainWindow):
         approve = approve_box.exec_()
         date_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         if approve == QtWidgets.QMessageBox.Yes:
-            print("approve training yes")
             try:
-                print("111")
-                connect_database()
-                cursor.execute("SELECT count(applicationStatus) FROM application WHERE applicationStatus='Pending' AND "
-                               "trainingID=?", (training_id,))
-                print("111")
-                pending = cursor.fetchone()[0]
-                print(pending)
-            except Exception as e:
-                print(str(e))
-            if pending > 0:
-                print("pending > 0")
-                approve_confirm_box = QtWidgets.QMessageBox()
-                approve_confirm_box.setIcon(QtWidgets.QMessageBox.Warning)
-                approve_confirm_box.setWindowTitle("Confirm Participants")
-                approve_confirm_box.setText("Participants in pending status will be considered approved.\nAre you "
-                                            "confirm to proceed?")
-                approve_confirm_box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-                approve_confirm = approve_confirm_box.exec_()
-                if approve_confirm == QtWidgets.QMessageBox.Yes:
-                    try:
-                        connect_database()
-                        cursor.execute("SELECT employeeID FROM application WHERE applicationStatus='Pending' AND "
-                                       "trainingID=?", (training_id,))
-                        employees = cursor.fetchall()
-                        print(employees)
-                        cursor.execute("UPDATE application SET applicationStatus='Approved' WHERE applicationStatus="
-                                       "'Pending' AND trainingID=?", (training_id,))
-                        connect.commit()
-                        for p in range(pending):
-                            cursor.execute("INSERT INTO notification (notification_status, notification_date, employeeID, "
-                                           "trainingID, is_read) VALUES ('Approved', ?, ?, ?, 0)", (date_time,
-                                                                                                    employees[p][0],
-                                                                                                    training_id,))
+                try:
+                    connect_database()
+                    cursor = connect.cursor()
+                    cursor.execute("""SELECT count(applicationStatus) FROM application WHERE applicationStatus = ? 
+                    AND trainingID = ? """, ('Pending', training_id,))
+                    pending = cursor.fetchone()[0]
+                except Exception as e:
+                    QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
+
+                if pending > 0:
+                    approve_confirm_box = QtWidgets.QMessageBox()
+                    approve_confirm_box.setIcon(QtWidgets.QMessageBox.Warning)
+                    approve_confirm_box.setWindowTitle("Confirm Participants")
+                    approve_confirm_box.setText("Participants in pending status will be considered approved.\n"
+                                                "Are you confirm to proceed?")
+                    approve_confirm_box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+                    approve_confirm = approve_confirm_box.exec_()
+
+                    if approve_confirm == QtWidgets.QMessageBox.Yes:
+                        try:
+                            connect_database()
+                            cursor = connect.cursor()
+                            cursor.execute("""SELECT employeeID FROM application 
+                            WHERE applicationStatus = 'Pending' AND trainingID = ? """, (training_id,))
+                            employees = cursor.fetchall()
+                            cursor.execute("UPDATE application SET applicationStatus = 'Approved' "
+                                           "WHERE applicationStatus = 'Pending' AND trainingID = ? ", (training_id,))
                             connect.commit()
-                        QtWidgets.QMessageBox.information(None, "Infomation", "Application of the training cost was already"
-                                                                              " sent to finance department.",
-                                                          QtWidgets.QMessageBox.Ok)
-                        cursor.execute("UPDATE training SET status='Approved' WHERE trainingID=?", (training_id,))
+                            for p in range(pending):
+                                cursor.execute("""INSERT INTO notification 
+                                                  (notification_status, notification_date, employeeID, trainingID, is_read)
+                                                  VALUES ('Approved', ?, ?, ?, 0)""",
+                                               (date_time, employees[p][0], training_id,))
+                                connect.commit()
+                            QtWidgets.QMessageBox.information(None, "Infomation",
+                                                              "Application of the training cost was already"
+                                                              " sent to finance department.",
+                                                              QtWidgets.QMessageBox.Ok)
+                            cursor.execute("""UPDATE training SET status='Approved' WHERE trainingID = ? """,
+                                           (training_id,))
+                            connect.commit()
+                            self.refresh_table(training_id)
+                            self.approve_training_button.deleteLater()
+                            self.reject_training_button.deleteLater()
+                            self.training_status_db.setText("Approved")
+                            self.training_status_db.setStyleSheet("color: lightgreen; border: none;")
+                        except Exception as e:
+                            QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
+                            print(str(e))
+                    else:  # No for approve question
+                        pass
+                else:  # No pending application"
+                    QtWidgets.QMessageBox.information(None, "Infomation",
+                                                      "Application of the training cost was already "
+                                                      "sent to finance department.",
+                                                      QtWidgets.QMessageBox.Ok)
+                    try:
+                        cursor = connect.cursor()
+                        cursor.execute("""UPDATE training SET status = ? WHERE trainingID = ? """,
+                                       ('Approved', training_id,))
                         connect.commit()
-                        self.refresh_table(training_id)
-                        self.approve_training_button.deleteLater()
-                        self.reject_training_button.deleteLater()
-                        self.training_status_db.setText("Approved")
-                        self.training_status_db.setStyleSheet("color: lightgreen; border: none;")
                     except Exception as e:
-                        print(str(e))
-            else:
-                QtWidgets.QMessageBox.information(None, "Infomation", "Application of the training cost was already "
-                                                                      "sent to finance department.",
-                                                  QtWidgets.QMessageBox.Ok)
-                cursor.execute("UPDATE training SET status='Approved' WHERE trainingID=?", (training_id,))
-                connect.commit()
-                self.approve_training_button.deleteLater()
-                self.reject_training_button.deleteLater()
-                self.training_status_db.setText("Approved")
-                self.training_status_db.setStyleSheet("color: lightgreen; border: none;")
+                        QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
+                    self.approve_training_button.deleteLater()
+                    self.reject_training_button.deleteLater()
+                    self.training_status_db.setText("Approved")
+                    self.training_status_db.setStyleSheet("color: lightgreen; border: none;")
+            except Exception as e:
+                QMessageBox.critical(self, "Error", str(e), QMessageBox.Ok)
+        else:  # approval question NO
+            pass
 
     def reject_training(self, training_id):
         reject_box = QtWidgets.QMessageBox()
@@ -2238,6 +2266,7 @@ class Approval(QtWidgets.QMainWindow):
                                "trainingID, is_read) VALUES ('Cancelled', ?, ?, ?, 0)", (date_time, employees[n][0],
                                                                                          training_id,))
                 connect.commit()
+
             QtWidgets.QMessageBox.information(None, "Infomation", "The training is cancelled.",
                                               QtWidgets.QMessageBox.Ok)
             cursor.execute("UPDATE training SET status='Cancelled' WHERE trainingID=?", (training_id,))
@@ -2247,6 +2276,8 @@ class Approval(QtWidgets.QMainWindow):
             self.reject_training_button.deleteLater()
             self.training_status_db.setText("Cancelled")
             self.training_status_db.setStyleSheet("color: #FE8886; border: none;")
+        else:  # NO for confirmation box
+            pass
 
     def back_to_hr_training_lists(self):
         try:
@@ -3370,8 +3401,7 @@ class ModifyTraining(QtWidgets.QDialog):
     def add_brochure(self):
         file_dialog = QtWidgets.QFileDialog()
         image_path, _ = file_dialog.getOpenFileName(
-            self, "Select Image", "", "Image Files (*.png *.jpg *.jpeg *.bmp)"
-        )
+            self, "Select Image", "", "Image Files (*.png *.jpg *.jpeg *.bmp)")
 
         if image_path:
             pixmap = QtGui.QPixmap(image_path)
