@@ -1009,7 +1009,6 @@ class HrView(QtWidgets.QMainWindow):
                 connect.commit()
         except Exception as e:
             QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
-            print(str(e))
 
     def modify_training(self, training_id):
         try:
@@ -1031,7 +1030,6 @@ class HrView(QtWidgets.QMainWindow):
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
             QMessageBox.critical(None, "Error", error_message, QMessageBox.Ok)
-            print(error_message)
 
     @staticmethod
     def approve_training(training_id):
@@ -1044,7 +1042,6 @@ class HrView(QtWidgets.QMainWindow):
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
             QMessageBox.critical(None, "Error", error_message, QMessageBox.Ok)
-            print(error_message)
 
     def reset(self):
         try:
@@ -1767,7 +1764,6 @@ class ParticipantList(QtWidgets.QMainWindow):
             # Show error message box or print the error
             error_message = "An error occurred: " + str(e)
             QMessageBox.critical(self, "Error", error_message, QMessageBox.Ok)
-            print(error_message)
 
     def goto_profile(self):
         # make a popup window to view profile information
@@ -2113,7 +2109,6 @@ class Approval(QtWidgets.QMainWindow):
         date_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         if approval == QtWidgets.QMessageBox.Yes:
             connect_database()
-            print("11")
             cursor.execute("UPDATE application SET applicationStatus=? WHERE employeeID=? AND trainingID=?",
                            ("Approved", row_items[1], training_id))
             connect.commit()
@@ -2334,7 +2329,7 @@ class Approval(QtWidgets.QMainWindow):
                 server.sendmail(sender_email, receiver_email, msg.as_string())
 
         except Exception as e:
-            print(str(e))
+            QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
 
     @staticmethod
     def back_to_hr_training_lists():
@@ -3806,7 +3801,6 @@ class View(QtWidgets.QMainWindow):
             widget.setCurrentIndex(widget.currentIndex() + 1)
         except Exception as e:
             QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
-            print(str(e))
 
     def register_training(self):
         try:
@@ -3830,7 +3824,6 @@ class View(QtWidgets.QMainWindow):
             # Handle other exceptions
             error_message = "An error occurred: " + str(e)
             QtWidgets.QMessageBox.critical(None, "Error", error_message, QtWidgets.QMessageBox.Ok)
-            print(error_message)
 
     def show_image_pop_up(self, picture_name):
         popup = ImagePopup(self)
@@ -4949,7 +4942,6 @@ def gotoview():
         widget.setCurrentIndex(widget.currentIndex() + 1)
     except Exception as e:
         QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
-        print(str(e))
 
 
 def goto_notification():
@@ -4959,7 +4951,6 @@ def goto_notification():
         widget.setCurrentIndex(widget.currentIndex() + 1)
     except Exception as e:
         QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
-        print(str(e))
 
 
 def gotologin():  # log out
@@ -4978,7 +4969,7 @@ def gotologin():  # log out
             # User chose not to log out, do nothing
             pass
     except Exception as e:
-        print(str(e))
+        QMessageBox.critical(None, "Error", str(e), QMessageBox.Ok)
 
 
 def clear_memory():
