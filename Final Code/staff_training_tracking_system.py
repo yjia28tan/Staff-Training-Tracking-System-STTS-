@@ -2023,6 +2023,7 @@ class Approval(QtWidgets.QMainWindow):
                 item = QtWidgets.QTableWidgetItem(str(data))
                 item.setTextAlignment(QtCore.Qt.AlignCenter)
                 item.setForeground(brush)
+                item.setForeground(QtGui.QColor(255, 255, 255))
                 self.application_table.setItem(row, column + 1, item)
                 if column + 1 == 3:
                     font = QtGui.QFont()
