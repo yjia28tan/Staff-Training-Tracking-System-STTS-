@@ -111,6 +111,7 @@ class Login(QtWidgets.QMainWindow):
                     role = cursor.fetchone()[0]
                     goto_hr_view()
                 else:
+                    role = 'Staff'
                     gotoview()
             else:
                 QMessageBox.critical(None, "Error", "Invalid Email or Password.", QMessageBox.Ok)
@@ -3611,6 +3612,22 @@ class View(QtWidgets.QMainWindow):
 
         self.profile_button.setIcon(QtGui.QIcon("profile.png"))
         self.logout_button.setIcon(QtGui.QIcon("logout.png"))
+
+        # Notification dot
+        self.notification_menu_dot = QtWidgets.QLabel(self.side_frame)
+        self.notification_menu_dot.setGeometry(QtCore.QRect(170, 570, 21, 21))
+        self.notification_menu_dot.setStyleSheet("border: none;")
+        self.notification_menu_dot.setText("")
+        self.notification_menu_dot.setScaledContents(True)
+        self.notification_menu_dot.setObjectName("notification_menu_dot")
+        cursor.execute("SELECT count(is_read) FROM notification WHERE employeeID=? AND is_read=0", (employeeID,))
+        unread = cursor.fetchone()[0]
+        if unread > 0:
+            self.notification_menu_dot.setPixmap(QtGui.QPixmap("dot.webp"))
+        else:
+            self.notification_menu_dot.clear()
+        self.horizontalLayout.addWidget(self.side_frame)
+
         # Define the size and position of each frame
         frame_width = 931
         frame_height = 251
@@ -4516,6 +4533,21 @@ class MyTraining(QtWidgets.QMainWindow):
         self.profile_button.setIcon(QtGui.QIcon("profile.png"))
         self.logout_button.setIcon(QtGui.QIcon("logout.png"))
 
+        # Notification dot
+        self.notification_menu_dot = QtWidgets.QLabel(self.side_frame)
+        self.notification_menu_dot.setGeometry(QtCore.QRect(170, 570, 21, 21))
+        self.notification_menu_dot.setStyleSheet("border: none;")
+        self.notification_menu_dot.setText("")
+        self.notification_menu_dot.setScaledContents(True)
+        self.notification_menu_dot.setObjectName("notification_menu_dot")
+        cursor.execute("SELECT count(is_read) FROM notification WHERE employeeID=? AND is_read=0", (employeeID,))
+        unread = cursor.fetchone()[0]
+        if unread > 0:
+            self.notification_menu_dot.setPixmap(QtGui.QPixmap("dot.webp"))
+        else:
+            self.notification_menu_dot.clear()
+        self.horizontalLayout.addWidget(self.side_frame)
+
         # Define the size and position of each frame
         frame_width = 931
         frame_height = 251
@@ -4933,17 +4965,20 @@ def goto_notification():
 def gotologin():  # log out
     reply = QtWidgets.QMessageBox.question(None, "Log Out", "Are you sure you want to log out?",
                                            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-    if reply == QtWidgets.QMessageBox.Yes:
-        if role == 'HR Head':
-            backup_database()
-        # Clear all memory and log out
-        clear_memory()
-        login = Login()
-        widget.addWidget(login)
-        widget.setCurrentIndex(widget.currentIndex() + 1)
-    else:
-        # User chose not to log out, do nothing
-        pass
+    try:
+        if reply == QtWidgets.QMessageBox.Yes:
+            if role == 'HR Head':
+                backup_database()
+            # Clear all memory and log out
+            clear_memory()
+            login = Login()
+            widget.addWidget(login)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+        else:
+            # User chose not to log out, do nothing
+            pass
+    except Exception as e:
+        print(str(e))
 
 
 def clear_memory():
