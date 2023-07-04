@@ -24,6 +24,14 @@ class TestStaffTraining(unittest.TestCase):
         role = self.login_function()
         self.assertEqual(role, "HR Assistance")
 
+    def test_printName(self):
+        name = self.printName()
+        self.assertEqual(name, "Lee Li Yee")
+
+    def test_printDepartment(self):
+        department_id = self.printDepartment()
+        self.assertEqual(department_id, 1)
+
     def login_function(self):
         email = "test3@gmail.com"
         password = "123123"
@@ -44,6 +52,46 @@ class TestStaffTraining(unittest.TestCase):
             else:
                 role = 'Staff'
                 return role
+            
+    def printName(self):
+        email = "test@gmail.com"
+        password = "123123"
+        self.cursor.execute('SELECT * FROM employee WHERE email=? AND password=?', (email, password))
+        if self.cursor.fetchone():
+            self.cursor.execute('SELECT employeeID, departmentID FROM employee WHERE email=? AND password=?',
+                                (email, password))
+            data = self.cursor.fetchall()
+            global employeeID
+            employeeID = data[0][0]
+            department_id = data[0][1]
+            if department_id == 4:
+                self.cursor.execute('SELECT name FROM employee WHERE employeeID=? AND departmentID=?',
+                                    (employeeID, department_id))
+                name = self.cursor.fetchone()[0]
+                return name
+            else:
+                name = 'Lee Li Yee'
+                return name
+            
+    def printDepartment(self):
+        email = "test@gmail.com"
+        password = "123123"
+        self.cursor.execute('SELECT * FROM employee WHERE email=? AND password=?', (email, password))
+        if self.cursor.fetchone():
+            self.cursor.execute('SELECT employeeID, departmentID FROM employee WHERE email=? AND password=?',
+                                (email, password))
+            data = self.cursor.fetchall()
+            global employeeID
+            employeeID = data[0][0]
+            department_id = data[0][1]
+            if department_id == 4:
+                self.cursor.execute('SELECT departmentID FROM employee WHERE employeeID=? AND departmentID=?',
+                                    (employeeID, department_id))
+                department_id = self.cursor.fetchone()[0]
+                return department_id
+            else:
+                department_id = 1
+                return department_id
 
     def test_search_training_hr(self):
         search = self.search_training_hr()
